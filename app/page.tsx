@@ -50,7 +50,7 @@ export default function LandingPage() {
       
       <main className="relative z-10 pt-24 pb-16">
         <HeroSection />
-        <LogosSection />
+        
         <FeaturesBentoGrid />
         <ShowcaseSection />
         <TestimonialsSection />

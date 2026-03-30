@@ -41,6 +41,11 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
   &::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
+    display: none !important; /* Safari and Chrome */
   }
+}
+
+/* Global scrollbar hide for specified elements */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none !important;
 }

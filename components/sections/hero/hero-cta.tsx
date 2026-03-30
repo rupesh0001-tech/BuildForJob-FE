@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Code } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Code } from "lucide-react";
+import { HeroBtn } from "@/components/general/buttons/hero-btn";
+import { Button2 } from "@/components/general/buttons/button2";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -12,14 +13,11 @@ const fadeIn = {
 export function HeroCta() {
   return (
     <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-      <Button variant="primary" className="w-full sm:w-auto overflow-hidden group cursor-pointer">
-        Start Building Now 
-        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-      </Button>
-      <Button variant="secondary" className="w-full sm:w-auto cursor-pointer">
+      <HeroBtn text="Start Building Now" />
+      <Button2 className="w-full sm:w-auto">
         <Code size={18} />
         Import Your GitHub
-      </Button>
+      </Button2>
     </motion.div>
   );
 } 

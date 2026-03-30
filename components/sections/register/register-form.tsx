@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { ArrowRight } from "lucide-react";
+import { Button1 } from "@/components/general/buttons/button1";
 
 export function RegisterForm() {
   return (
@@ -30,9 +31,9 @@ export function RegisterForm() {
         />
       </div>
 
-      <button className="w-full py-3 px-4 rounded-xl bg-black text-white dark:bg-white dark:text-black font-semibold hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 mt-4">
+      <Button1 type="submit" className="w-full py-3 h-12 flex items-center justify-center gap-2 mt-4">
         Create Account <ArrowRight size={16} />
-      </button>
+      </Button1>
     </form>
   );
 }

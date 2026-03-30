@@ -12,14 +12,14 @@ const fadeIn = {
 export function HeroCta() {
   return (
     <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-      <Button variant="primary" className="w-full sm:w-auto overflow-hidden group">
-        Build Your Resume
+      <Button variant="primary" className="w-full sm:w-auto overflow-hidden group cursor-pointer">
+        Start Building Now 
         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
       </Button>
-      <Button variant="secondary" className="w-full sm:w-auto">
+      <Button variant="secondary" className="w-full sm:w-auto cursor-pointer">
         <Code size={18} />
-        Import from GitHub
+        Import Your GitHub
       </Button>
     </motion.div>
   );
-}
+} 

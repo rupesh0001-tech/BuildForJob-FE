@@ -4,6 +4,7 @@ import React from "react";
 import { SidebarBrand } from "./sidebar-brand";
 import { SidebarNav } from "./sidebar-nav";
 import { SidebarUser } from "./sidebar-user";
+import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, FileCheck, FilePlus, Wand2, 
   Files, History, Mail, Edit, MonitorUp, Globe, 
@@ -62,12 +63,25 @@ export const navigation = [
   }
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen: boolean;
+}
+
+export function Sidebar({ isOpen }: SidebarProps) {
   return (
-    <div className="flex h-full w-64 flex-col bg-transparent pb-4 shrink-0 transition-all duration-300">
-      <SidebarBrand />
-      <SidebarNav navigation={navigation} />
-      <SidebarUser />
+    <div className={cn(
+      "flex h-full flex-col bg-transparent pb-4 shrink-0 transition-all duration-300 ease-in-out border-r border-black/5 dark:border-white/5",
+      isOpen 
+        ? "w-64 opacity-100 translate-x-0" 
+        : "w-0 opacity-0 -translate-x-full overflow-hidden border-none pointer-events-none"
+    )}>
+      {isOpen && (
+        <>
+          <SidebarBrand />
+          <SidebarNav navigation={navigation} />
+          <SidebarUser />
+        </>
+      )}
     </div>
   );
 }

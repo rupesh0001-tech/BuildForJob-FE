@@ -40,7 +40,7 @@ export function SidebarNav({ navigation }: SidebarNavProps) {
                     size={18}
                     className={cn(
                       "transition-colors",
-                      isActive ? "text-purple-600 dark:text-purple-400" : "text-black group-hover:text-gray-600 dark:group-hover:text-gray-300"
+                      isActive ? "text-purple-600 dark:text-purple-400" : "text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
                     )}
                   />
                   {item.name}

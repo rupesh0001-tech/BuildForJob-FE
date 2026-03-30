@@ -2,16 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { Navbar } from "@/components/sections/navbar";
-import { HeroSection } from "@/components/sections/hero-section";
-import { LogosSection } from "@/components/sections/logos-section";
-import { FeaturesBentoGrid } from "@/components/sections/features-bento-grid";
-import { ShowcaseSection } from "@/components/sections/showcase-section";
-import { TestimonialsSection } from "@/components/sections/testimonials-section";
-import { PricingSection } from "@/components/sections/pricing-section";
-import { FaqSection } from "@/components/sections/faq-section";
-import { CtaSection } from "@/components/sections/cta-section";
-import { FooterSection } from "@/components/sections/footer-section";
+import { Navbar } from "@/components/sections/navbar/navbar";
+import { HeroSection } from "@/components/sections/hero/hero-section";
+import { LogosSection } from "@/components/sections/logos/logos-section";
+import { FeaturesBentoGrid } from "@/components/sections/features/features-bento-grid";
+import { ShowcaseSection } from "@/components/sections/showcase/showcase-section";
+import { TestimonialsSection } from "@/components/sections/testimonials/testimonials-section";
+import { PricingSection } from "@/components/sections/pricing/pricing-section";
+import { FaqSection } from "@/components/sections/faq/faq-section";
+import { CtaSection } from "@/components/sections/cta/cta-section";
+import { FooterSection } from "@/components/sections/footer/footer-section";
 
 export default function LandingPage() {
   const [isScrolled, setIsScrolled] = useState(false);

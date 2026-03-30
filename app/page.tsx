@@ -52,7 +52,7 @@ export default function LandingPage() {
         <HeroSection />
         
         <FeaturesBentoGrid />
-        <ShowcaseSection />
+        {/* <ShowcaseSection /> */}
         <TestimonialsSection />
         <PricingSection />
         <FaqSection />

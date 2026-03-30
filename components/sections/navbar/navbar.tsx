@@ -2,6 +2,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, Sun, Moon, Menu, X } from "lucide-react";
+import Link from "next/link";
 
 export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, setTheme }: any) {
   return (
@@ -66,16 +67,16 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-0 right-0 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-black/5 dark:border-white/10 p-6 flex flex-col gap-4 shadow-2xl md:hidden"
+            className="absolute top-full left-0 right-0 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-black/5 cursor-pointer dark:border-white/10 p-6 flex flex-col gap-4 shadow-2xl md:hidden"
           >
             <a href="#features" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Features</a>
-            <a href="#demo" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">How it works</a>
+            <a href="#demo" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">About us </a>
             <a href="#pricing" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Pricing</a>
-            <div className="h-px bg-black/10 dark:bg-white/10 my-2" />
-            <button className="text-left text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Log in</button>
-            <button className="bg-black text-white dark:bg-white dark:text-black px-5 py-3 rounded-xl mt-2 font-medium">
+            <div className="h-px bg-black/10 dark:bg-white/10 my-2 cursor-pointer " />
+            <Link href="/login" className="cursor-pointer text-left text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Log in</Link>
+            <Link href="/register" className="cursor-pointer bg-black text-white dark:bg-white dark:text-black px-5 py-3 rounded-xl mt-2 font-medium">
               Start Building Free
-            </button>
+            </Link>
           </motion.div>
         )}
       </AnimatePresence>

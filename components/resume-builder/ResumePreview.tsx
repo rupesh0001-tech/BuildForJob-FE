@@ -7,6 +7,8 @@ import ModernTemplate from "./templates/ModernTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
 import MinimalImageTemplate from "./templates/MinimalImageTemplate";
 import ClassicTemplate from "./templates/ClassicTemplate";
+import ProfessionalTemplate from "./templates/ProfessionalTemplate";
+import ImpactTemplate from "./templates/ImpactTemplate";
 
 const ResumePreview = () => {
   const {
@@ -37,6 +39,10 @@ const ResumePreview = () => {
         return <MinimalTemplate data={data as any} accentColor={accentColor} />;
       case "minimal-image":
         return <MinimalImageTemplate data={data as any} accentColor={accentColor} />;
+      case "professional":
+        return <ProfessionalTemplate data={data as any} accentColor={accentColor} />;
+      case "impact":
+        return <ImpactTemplate data={data as any} accentColor={accentColor} />;
       default:
         return <ClassicTemplate data={data as any} accentColor={accentColor} />;
     }

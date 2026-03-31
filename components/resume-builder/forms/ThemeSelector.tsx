@@ -10,7 +10,8 @@ const templates = [
   { name: "Classic", id: "classic" },
   { name: "Modern", id: "modern" },
   { name: "Minimal", id: "minimal" },
-  { name: "Mini", id: "minimal-image" },
+  { name: "Professional", id: "professional" },
+  { name: "Impact", id: "impact" },
 ];
 
 const ThemeSelector = () => {

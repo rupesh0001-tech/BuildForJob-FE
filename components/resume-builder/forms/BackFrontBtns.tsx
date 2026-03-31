@@ -13,24 +13,24 @@ const BackFrontBtns = ({ setFormTab, formTab }: BackFrontBtnsProps) => {
   const handleBack = () => setFormTab(formTab - 1);
 
   return (
-    <div className="flex gap-6 items-center">
+    <div className="flex gap-4 items-center">
       {formTab !== 1 && (
         <button
           type="button"
           onClick={handleBack}
-          className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <ChevronLeft size={16} />
-          Back
+          back
         </button>
       )}
       {formTab !== 6 && (
         <button
           type="button"
           onClick={handleNext}
-          className="flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+          className="flex items-center gap-1 text-sm text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
-          Next
+          next
           <ChevronRight size={16} />
         </button>
       )}

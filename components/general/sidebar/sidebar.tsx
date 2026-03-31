@@ -22,7 +22,7 @@ export const navigation = [
     title: "Resumes",
     items: [
       { name: "ATS Checker", href: "/dashboard/resumes/ats", icon: FileCheck },
-      { name: "Resume Builder", href: "/dashboard/resumes/builder", icon: FilePlus },
+      { name: "Resume Builder", href: "/dashboard/resume-builder", icon: FilePlus },
       { name: "Resume Enhancer", href: "/dashboard/resumes/enhancer", icon: Wand2 },
       { name: "My Resumes", href: "/dashboard/resumes", icon: Files },
       { name: "Resume Versions", href: "/dashboard/resumes/versions", icon: History },

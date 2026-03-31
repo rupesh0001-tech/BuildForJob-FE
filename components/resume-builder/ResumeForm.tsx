@@ -57,15 +57,18 @@ const ResumeForm = () => {
         </div>
       </div>
 
-      <div className="relative">
+      <div className="relative pt-6 border-t border-gray-100 dark:border-white/5">
         {tabs.map((tab) => (
           <div
             key={tab.id}
-            className={`${formTab === tab.id ? "block animate-in fade-in slide-in-from-left-4 duration-300" : "hidden"}`}
+            className={`${formTab === tab.id ? "block animate-in fade-in slide-in-from-bottom-2 duration-400" : "hidden"}`}
           >
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-              {tab.title}
-            </h2>
+            <div className="flex flex-col mb-6">
+               <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+                 {tab.title.charAt(0).toLowerCase() + tab.title.slice(1)}
+               </h2>
+               <p className="text-sm text-gray-500 mt-1">Enter your details for this section</p>
+            </div>
             {tab.component}
           </div>
         ))}

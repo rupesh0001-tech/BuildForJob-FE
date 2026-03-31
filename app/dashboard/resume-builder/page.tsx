@@ -5,14 +5,38 @@ import ResumeForm from "@/components/resume-builder/ResumeForm";
 import ResumePreview from "@/components/resume-builder/ResumePreview";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 
 export default function ResumeBuilderPage() {
-  const handleDownload = () => {
-    window.print();
+  const handleDownload = async () => {
+    const element = document.getElementById("resume-preview");
+    if (!element) return;
+
+    try {
+      const dataUrl = await toPng(element, {
+        quality: 1,
+        pixelRatio: 2,
+      });
+      
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (pdf.internal.pageSize.getHeight());
+
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("resume.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-20">
+    <div className="max-w-8xl mx-auto space-y-6 pb-20">
       {/* Top Header */}
       <div className="flex justify-between items-center gap-4">
         <Link 
@@ -34,15 +58,15 @@ export default function ResumeBuilderPage() {
         </button>
       </div>
 
-      <div className="flex flex-col xl:flex-row gap-8 items-start">
+      <div className="flex flex-col lg:flex-row gap-6 items-start h-[full] overflow-hidden">
         {/* Form Section */}
-        <div className="w-full xl:w-[450px] shrink-0 sticky top-0">
+        <div className="w-full lg:w-[400px] shrink-0 h-full overflow-y-auto pr-2 custom-scrollbar">
           <ResumeForm />
         </div>
 
         {/* Preview Section */}
-        <div className="flex-1 w-full bg-gray-100/50 dark:bg-white/5 rounded-3xl p-8 border border-gray-200 dark:border-white/10 overflow-x-auto min-h-[1200px]">
-          <div className="mx-auto flex justify-center">
+        <div className="flex-1 w-full bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10  h-full p-4 md:p-8 flex justify-center">
+          <div className="w-fit shadow-2xl">
              <ResumePreview />
           </div>
         </div>

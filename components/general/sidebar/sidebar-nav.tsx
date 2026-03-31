@@ -16,10 +16,13 @@ interface SidebarNavProps {
 export function SidebarNav({ navigation, onClose }: SidebarNavProps) {
   const pathname = usePathname();
   const router = useRouter();
-
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    // If it's resume builder or we're on resume builder (overlay mode), close sidebar
-    if (href === "/dashboard/resume-builder" || pathname === "/dashboard/resume-builder") {
+    const routesThatCloseSidebar = [
+      "/dashboard/resume-builder",
+      "/dashboard/cover-letter"
+    ];
+
+    if (routesThatCloseSidebar.includes(href)) {
       if (onClose) {
         onClose();
       }

@@ -3,91 +3,41 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
+import ClassicTemplate from "./templates/ClassicTemplate";
+import ModernTemplate from "./templates/ModernTemplate";
+import MinimalTemplate from "./templates/MinimalTemplate";
 
 const CoverLetterPreview = () => {
-  const { personalInfo, date, employerInfo, salutation, body, signOff, mode, manualContent } = 
-    useSelector((state: RootState) => state.coverLetter);
+  const state = useSelector((state: RootState) => state.coverLetter);
+  const { template } = state;
+
+  const renderTemplate = () => {
+    switch (template) {
+      case "modern":
+        return <ModernTemplate data={state} />;
+      case "minimal":
+        return <MinimalTemplate data={state} />;
+      default:
+        return <ClassicTemplate data={state} />;
+    }
+  };
 
   return (
-    <div className="cover-letter-preview-container bg-white border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl tracking-tight">
+    <div className="cover-letter-preview-container bg-white border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl">
       <div className="mobile-scale-wrapper">
-        <div id="cover-letter-preview" className="print:shadow-none print:border-none w-full min-h-[1123px] p-[20mm] bg-white text-gray-900 font-serif leading-relaxed">
-          
-          {/* Header / Personal Info */}
-          <div className="text-center mb-10">
-            <h1 className="text-2xl font-bold uppercase tracking-widest mb-2">
-              {personalInfo.fullName}
-            </h1>
-            <div className="text-[13px] text-gray-600 flex flex-wrap justify-center gap-x-2">
-              <span>{personalInfo.address}</span>
-              <span>•</span>
-              <span>{personalInfo.phone}</span>
-              <span>•</span>
-              <span>{personalInfo.email}</span>
-              {personalInfo.linkedin && (
-                <>
-                  <span>•</span>
-                  <span>{personalInfo.linkedin}</span>
-                </>
-              )}
-              {personalInfo.github && (
-                <>
-                  <span>•</span>
-                  <span>{personalInfo.github}</span>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Date */}
-          <div className="mb-8 text-[15px]">
-            {date}
-          </div>
-
-          {/* Employer Info */}
-          <div className="mb-8 text-[15px] space-y-1">
-            <p className="font-bold">{employerInfo.managerName}</p>
-            <p>{employerInfo.teamName}</p>
-            <p>{employerInfo.companyName}</p>
-          </div>
-
-          {/* Salutation */}
-          <div className="mb-6 text-[15px]">
-            {salutation}
-          </div>
-
-          {/* Body */}
-          <div className="text-[15px] text-justify">
-            {mode === "structured" ? (
-              <div className="space-y-4">
-                <p>{body.intro}</p>
-                <p>{body.body1}</p>
-                {body.body2 && <p>{body.body2}</p>}
-                {body.body3 && <p>{body.body3}</p>}
-                <p>{body.conclusion}</p>
-              </div>
-            ) : (
-              <div className="whitespace-pre-line leading-relaxed">
-                {manualContent}
-              </div>
-            )}
-          </div>
-
-          {/* Closing */}
-          <div className="mt-8 text-[15px]">
-            <p className="mb-8">{signOff}</p>
-            <p className="font-bold">{personalInfo.fullName}</p>
-          </div>
-
+        <div id="cover-letter-preview" className="print:shadow-none print:border-none w-full min-h-[1123px]">
+          {renderTemplate()}
         </div>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: `
+        /* --- A4 PAGE SETTINGS --- */
         @page {
           size: A4;
           margin: 0;
         }
 
+        /* A4 dimensions for preview (desktop) */
         .cover-letter-preview-container {
           width: 210mm;
           min-height: 297mm;
@@ -101,12 +51,15 @@ const CoverLetterPreview = () => {
           min-height: 297mm;
           overflow: hidden;
           margin: 0;
+          padding: 0;
         }
 
         @media screen and (max-width: 1200px) {
           .cover-letter-preview-container {
             width: 100% !important;
             min-height: auto !important;
+            height: auto !important;
+            overflow: visible !important;
           }
           .mobile-scale-wrapper {
             transform: scale(0.65);
@@ -142,7 +95,7 @@ const CoverLetterPreview = () => {
             left: 0;
             width: 210mm !important;
             height: 297mm !important;
-            padding: 20mm !important;
+            padding: 0 !important;
           }
         }
       `}} />

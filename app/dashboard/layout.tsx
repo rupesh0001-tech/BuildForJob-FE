@@ -8,17 +8,17 @@ import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isResumeBuilder = pathname === "/dashboard/resume-builder";
-  const [isSidebarOpen, setIsSidebarOpen] = useState(!isResumeBuilder);
+  const isBuilderPage = pathname === "/dashboard/resume-builder" || pathname === "/dashboard/cover-letter";
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isBuilderPage);
 
-  // Close sidebar when navigating to resume builder
+  // Close sidebar when navigating to builder pages
   React.useEffect(() => {
-    if (isResumeBuilder) {
+    if (isBuilderPage) {
       setIsSidebarOpen(false);
     } else {
        setIsSidebarOpen(true);
     }
-  }, [isResumeBuilder]);
+  }, [isBuilderPage]);
 
   return (
     <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-purple-500/30 transition-colors duration-300">
@@ -29,13 +29,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar 
         isOpen={isSidebarOpen} 
         onClose={() => setIsSidebarOpen(false)} 
-        isOverlay={isResumeBuilder}
+        isOverlay={isBuilderPage}
       />
       
-      {/* Overlay for Resume Builder */}
-      {isResumeBuilder && isSidebarOpen && (
+      {/* Overlay for Builders */}
+      {isBuilderPage && isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md z-[45]" 
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md z-45" 
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -46,8 +46,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <DashboardHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
         
         <main className={cn(
-          "flex-1 overflow-y-auto p-6 md:p-8 relative transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
-          isResumeBuilder && isSidebarOpen && "blur-md pointer-events-none"
+          "flex-1 overflow-y-auto p-6 md:p-8 relative transition-all duration-500 ease-in-out",
+          isBuilderPage && isSidebarOpen && "blur-md pointer-events-none"
         )}>
           {children}
         </main>

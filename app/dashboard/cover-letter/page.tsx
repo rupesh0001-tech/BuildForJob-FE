@@ -3,6 +3,7 @@
 import React from "react";
 import CoverLetterForm from "@/components/cover-letter/CoverLetterForm";
 import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
+import CoverLetterThemeSelector from "@/components/cover-letter/CoverLetterThemeSelector";
 import { Download, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -12,77 +13,44 @@ const CoverLetterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md border-b border-gray-200 dark:border-white/10 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link 
-            href="/dashboard"
-            className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors text-gray-500"
-          >
-            <ChevronLeft size={20} />
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Cover Letter Builder</h1>
-            <p className="text-sm text-gray-500">Draft a professional application letter</p>
-          </div>
-        </div>
-
-        <button
-          onClick={handlePrint}
-          className="flex items-center gap-2 px-6 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg shadow-purple-500/20 transition-all active:scale-95"
+    <div className="max-w-8xl mx-auto space-y-6 pb-20 p-4 md:p-6">
+      {/* Top Header */}
+      <div className="flex justify-between items-center gap-4">
+        <Link 
+          href="/dashboard"
+          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors group"
         >
-          <Download size={18} />
-          <span>Download PDF</span>
-        </button>
-      </header>
-
-      {/* Split Content */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 h-[calc(100vh-73px)]">
-        
-        {/* Form Container */}
-        <div className="h-full overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white dark:bg-zinc-900/40">
-          <div className="max-w-2xl mx-auto">
-            <CoverLetterForm />
+          <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-white/5 group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
+            <ChevronLeft size={16} />
           </div>
+          Back to Dashboard
+        </Link>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm hover:scale-[1.05] transition-transform shadow-xl"
+          >
+            <Download size={18} />
+            <span className="hidden sm:inline">Download PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center h-full w-full">
+        {/* Form Section */}
+        <div className="w-full lg:w-[420px] shrink-0 h-full overflow-y-auto custom-scrollbar">
+          <CoverLetterForm />
         </div>
 
-        {/* Preview Container */}
-        <div className="h-full overflow-y-auto p-6 md:p-10 bg-gray-100 dark:bg-zinc-950 hidden xl:flex justify-center border-l border-gray-200 dark:border-white/10 custom-scrollbar">
-          <div className="max-w-[210mm]">
+        {/* Preview Section */}
+        <div className="w-fit bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-0 overflow-hidden flex flex-col">
+          <div className="h-full overflow-y-auto custom-scrollbar p-2 md:p-4 shadow-2xl">
             <CoverLetterPreview />
           </div>
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(168, 85, 247, 0.2);
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(168, 85, 247, 0.4);
-        }
-
-        @media print {
-          header, aside, .xl\:grid-cols-2 > div:first-child {
-            display: none !important;
-          }
-          .xl\:grid-cols-2 {
-            grid-template-columns: 1fr !important;
-            height: auto !important;
-          }
-          .custom-scrollbar {
-            overflow: visible !important;
-          }
-        }
-      `}} />
     </div>
   );
 };

@@ -18,6 +18,7 @@ export interface CoverLetterState {
   salutation: string;
   mode: "structured" | "manual";
   manualContent: string;
+  template: string;
   body: {
     intro: string;
     body1: string;
@@ -50,6 +51,7 @@ const initialState: CoverLetterState = {
   salutation: "Dear Hiring Manager,",
   mode: "structured",
   manualContent: "",
+  template: "classic",
   body: {
     intro: "I am writing to express my interest in the Software Engineer Intern position at JPMorgan Chase & Co., which I learned about through my campus placement program. As a Bachelor of Engineering student in Computer Engineering at Dr. D. Y. Patil Institute of Technology, I am excited about the opportunity to apply my full-stack development skills to real-world financial technology systems.",
     body1: "Currently, I work as a Software Engineering Intern at COOLCLIQ, where I develop full-stack applications using TypeScript, Node.js, Express, Prisma, and PostgreSQL, along with cloud services on AWS. In this role, I designed and deployed backend APIs capable of handling more than 10,000 daily transactions with high reliability while also contributing to frontend improvements that enhanced user engagement.",
@@ -79,6 +81,9 @@ const coverLetterSlice = createSlice({
     updateMode: (state, action: PayloadAction<"structured" | "manual">) => {
       state.mode = action.payload;
     },
+    updateTemplate: (state, action: PayloadAction<string>) => {
+      state.template = action.payload;
+    },
     updateManualContent: (state, action: PayloadAction<string>) => {
       state.manualContent = action.payload;
     },
@@ -98,6 +103,7 @@ export const {
   updateEmployerInfo,
   updateSalutation,
   updateMode,
+  updateTemplate,
   updateManualContent,
   updateBody,
   updateSignOff,

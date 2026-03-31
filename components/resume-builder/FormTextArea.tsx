@@ -32,7 +32,7 @@ const FormTextArea = ({
         onChange={onChange}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 dark:text-white resize-none"
+        className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 dark:text-white resize-none"
       />
     </div>
   );

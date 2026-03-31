@@ -5,23 +5,23 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 
 const CoverLetterPreview = () => {
-  const { personalInfo, date, employerInfo, salutation, body, signOff } = 
+  const { personalInfo, date, employerInfo, salutation, body, signOff, mode, manualContent } = 
     useSelector((state: RootState) => state.coverLetter);
 
   return (
-    <div className="cover-letter-preview-container bg-white border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl">
+    <div className="cover-letter-preview-container bg-white border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl tracking-tight">
       <div className="mobile-scale-wrapper">
         <div id="cover-letter-preview" className="print:shadow-none print:border-none w-full min-h-[1123px] p-[20mm] bg-white text-gray-900 font-serif leading-relaxed">
           
           {/* Header / Personal Info */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <h1 className="text-2xl font-bold uppercase tracking-widest mb-2">
               {personalInfo.fullName}
             </h1>
             <div className="text-[13px] text-gray-600 flex flex-wrap justify-center gap-x-2">
               <span>{personalInfo.address}</span>
               <span>•</span>
-              <span>({personalInfo.phone.split(' ')[0]}) {personalInfo.phone.split(' ').slice(1).join(' ')}</span>
+              <span>{personalInfo.phone}</span>
               <span>•</span>
               <span>{personalInfo.email}</span>
               {personalInfo.linkedin && (
@@ -40,29 +40,37 @@ const CoverLetterPreview = () => {
           </div>
 
           {/* Date */}
-          <div className="mb-6 text-[15px]">
+          <div className="mb-8 text-[15px]">
             {date}
           </div>
 
           {/* Employer Info */}
-          <div className="mb-6 text-[15px] space-y-1">
+          <div className="mb-8 text-[15px] space-y-1">
             <p className="font-bold">{employerInfo.managerName}</p>
             <p>{employerInfo.teamName}</p>
             <p>{employerInfo.companyName}</p>
           </div>
 
           {/* Salutation */}
-          <div className="mb-4 text-[15px]">
+          <div className="mb-6 text-[15px]">
             {salutation}
           </div>
 
           {/* Body */}
-          <div className="text-[15px] space-y-4 text-justify">
-            <p>{body.intro}</p>
-            <p>{body.body1}</p>
-            {body.body2 && <p>{body.body2}</p>}
-            {body.body3 && <p>{body.body3}</p>}
-            <p>{body.conclusion}</p>
+          <div className="text-[15px] text-justify">
+            {mode === "structured" ? (
+              <div className="space-y-4">
+                <p>{body.intro}</p>
+                <p>{body.body1}</p>
+                {body.body2 && <p>{body.body2}</p>}
+                {body.body3 && <p>{body.body3}</p>}
+                <p>{body.conclusion}</p>
+              </div>
+            ) : (
+              <div className="whitespace-pre-line leading-relaxed">
+                {manualContent}
+              </div>
+            )}
           </div>
 
           {/* Closing */}

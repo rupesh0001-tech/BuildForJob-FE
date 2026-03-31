@@ -65,8 +65,8 @@ export default function ResumeBuilderPage() {
         </div>
 
         {/* Preview Section */}
-        <div className="flex-1 max-w-[1000px] bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-4 flex justify-center overflow-hidden">
-          <div className="w-fit shadow-2xl overflow-y-auto h-full custom-scrollbar">
+        <div className="w-fit bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-0 overflow-hidden flex flex-col">
+          <div className="h-full overflow-y-auto custom-scrollbar p-2 md:p-4 shadow-2xl">
              <ResumePreview />
           </div>
         </div>

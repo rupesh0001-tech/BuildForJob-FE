@@ -1,18 +1,25 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Briefcase, Globe, Code, Users, Camera } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export function FooterSection() {
+  const { theme } = useTheme();
+  // Hydration fix
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <footer className="border-t border-black/5 dark:border-white/5 bg-gray-50/50 dark:bg-black pt-24 pb-12 overflow-hidden relative">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-6 gap-10 mb-20 relative z-10">
         <div className="col-span-2 md:col-span-2">
            <div className="flex items-center gap-2 mb-6">
-            <div className="bg-linear-to-tr from-purple-600 to-blue-500 p-2 rounded-xl">
-              <Briefcase size={20} className="text-white" />
-            </div>
-            <span className="font-bold text-xl tracking-tight text-black dark:text-white">
-              BuildForJob
+            <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-linear-to-r from-black to-gray-600 dark:from-white dark:to-gray-400">
+              {theme === "light" ? <img src="./logo-black.png" width={140} height={140} alt="logo" /> : <img src="./logo-light.png" width={140} height={140} alt="logo" />}
             </span>
           </div>
           <p className="text-gray-500 text-sm mb-6 max-w-sm">

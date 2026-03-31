@@ -17,11 +17,9 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="bg-linear-to-tr from-purple-600 to-blue-500 p-2 rounded-xl">
-            <Briefcase size={20} className="text-white" />
-          </div>
+          
           <span className="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-linear-to-r from-black to-gray-600 dark:from-white dark:to-gray-400">
-            BuildForJob
+            {theme === "light" ? <img src="./logo-black.png" width={140} height={140} alt="logo" /> : <img src="./logo-light.png" width={140} height={140} alt="logo" />}
           </span>
         </div>
 

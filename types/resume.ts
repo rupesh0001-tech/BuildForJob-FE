@@ -7,6 +7,7 @@ export interface ResumeData {
   education: ResumeState["educationData"];
   project: ResumeState["projectData"];
   skills: string[];
+  sectionVisibility: ResumeState["sectionVisibility"];
 }
 
 export interface TemplateProps {

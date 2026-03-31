@@ -81,14 +81,26 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
             value={formData.startDate}
             onChange={handleChange}
           />
-          <FormInput
-            name="endDate"
-            label="End Date"
-            type="month"
-            icon={<Calendar size={16} />}
-            value={formData.endDate}
-            onChange={handleChange}
-          />
+          <div className="flex flex-col gap-2">
+            <FormInput
+              name="endDate"
+              label="End Date"
+              type="month"
+              icon={<Calendar size={16} />}
+              value={formData.endDate}
+              onChange={handleChange}
+              disabled={formData.is_current}
+            />
+            <div className="mt-1">
+              <FormInput
+                name="is_current"
+                label="I currently work here (Present)"
+                type="checkbox"
+                checked={formData.is_current}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
         </div>
 
         <FormInput

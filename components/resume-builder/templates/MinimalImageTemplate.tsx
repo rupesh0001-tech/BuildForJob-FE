@@ -72,7 +72,7 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                     </section>
 
                     {/* Education */}
-                    {data.education && data.education.length > 0 && (
+                    {data.sectionVisibility.education && data.education && data.education.length > 0 && (
                         <section className="mb-8">
                             <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
                                 EDUCATION
@@ -82,9 +82,10 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                                     <div key={index}>
                                         <p className="font-semibold uppercase">{edu.degree}</p>
                                         <p className="text-zinc-600">{edu.institution}</p>
-                                        <p className="text-xs text-zinc-500">
-                                            {formatDate(edu.graduation_date)}
-                                        </p>
+                                        <div className="flex justify-between items-center text-xs text-zinc-500">
+                                            <span>{formatDate(edu.graduation_date)}</span>
+                                            {edu.gpa && <span>{edu.graduationType === "cgpa" ? "GPA" : "%"}: {edu.gpa}</span>}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -92,14 +93,14 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                     )}
 
                     {/* Skills */}
-                    {data.skills && data.skills.length > 0 && (
+                    {data.sectionVisibility.skills && data.skills && data.skills.length > 0 && (
                         <section>
                             <h2 className="text-sm font-semibold tracking-widest text-zinc-600 mb-3">
                                 SKILLS
                             </h2>
                             <ul className="space-y-1 text-sm">
                                 {data.skills.map((skill, index) => (
-                                    <li key={index}>{skill}</li>
+                                    <li key={index} className="capitalize">{skill}</li>
                                 ))}
                             </ul>
                         </section>
@@ -110,24 +111,24 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                 <main className="col-span-2 p-8 pt-0">
 
                     {/* Summary */}
-                    {data.professional_summary && (
+                    {data.sectionVisibility.summary && data.professional_summary && (
                         <section className="mb-8">
                             <h2 className="text-sm font-semibold tracking-widest mb-3" style={{ color: accentColor }} >
                                 SUMMARY
                             </h2>
-                            <p className="text-zinc-700 leading-relaxed">
+                            <p className="text-zinc-700 leading-relaxed whitespace-pre-line">
                                 {data.professional_summary}
                             </p>
                         </section>
                     )}
 
                     {/* Experience */}
-                    {data.experience && data.experience.length > 0 && (
-                        <section>
+                    {data.sectionVisibility.experience && data.experience && data.experience.length > 0 && (
+                        <section className="mb-8">
                             <h2 className="text-sm font-semibold tracking-widest mb-4" style={{ color: accentColor }} >
                                 EXPERIENCE
                             </h2>
-                            <div className="space-y-6 mb-8">
+                            <div className="space-y-6">
                                 {data.experience.map((exp, index) => (
                                     <div key={index}>
                                         <div className="flex justify-between items-center">
@@ -144,7 +145,7 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                                         </p>
                                         {exp.description && (
                                             <ul className="list-disc list-inside text-sm text-zinc-700 leading-relaxed space-y-1">
-                                                {exp.description.split("\n").map((line, i) => (
+                                                {exp.description.split("\n").filter(l => l.trim()).map((line, i) => (
                                                     <li key={i}>{line}</li>
                                                 ))}
                                             </ul>
@@ -156,7 +157,7 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                     )}
 
                     {/* Projects */}
-                    {data.project && data.project.length > 0 && (
+                    {data.sectionVisibility.projects && data.project && data.project.length > 0 && (
                         <section>
                             <h2 className="text-sm uppercase tracking-widest font-semibold" style={{ color: accentColor }}>
                                 PROJECTS
@@ -165,15 +166,13 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                                 {data.project.map((project, index) => (
                                     <div key={index}>
                                         <h3 className="text-md font-medium text-zinc-800 mt-3">{project.name}</h3>
-                                        <p className="text-sm mb-1" style={{ color: accentColor }} >
-                                            {project.type}
+                                        <p className="text-xs font-bold mb-1 uppercase tracking-tighter" style={{ color: accentColor }} >
+                                            {project.techStack}
                                         </p>
                                         {project.description && (
-                                            <ul className="list-disc list-inside text-sm text-zinc-700  space-y-1">
-                                                {project.description.split("\n").map((line, i) => (
-                                                    <li key={i}>{line}</li>
-                                                ))}
-                                            </ul>
+                                            <p className="text-sm text-zinc-700 leading-normal">
+                                                {project.description}
+                                            </p>
                                         )}
                                     </div>
                                 ))}

@@ -21,6 +21,7 @@ const Education = ({ setFormTab }: EducationProps) => {
     field: "",
     graduation_date: "",
     gpa: "",
+    graduationType: "cgpa",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,6 +41,7 @@ const Education = ({ setFormTab }: EducationProps) => {
       field: "",
       graduation_date: "",
       gpa: "",
+      graduationType: "cgpa",
     });
   };
 
@@ -88,14 +90,31 @@ const Education = ({ setFormTab }: EducationProps) => {
           />
         </div>
 
+        <div className="flex gap-2 p-1 bg-gray-100 dark:bg-white/5 rounded-xl self-start mb-1">
+          {["cgpa", "percentage"].map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, graduationType: type as any }))}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+                formData.graduationType === type
+                  ? "bg-white dark:bg-purple-600 text-purple-600 dark:text-white shadow-sm"
+                  : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+
         <FormInput
           name="gpa"
-          label="GPA / Grade"
+          label={formData.graduationType === "cgpa" ? "CGPA" : "Percentage (%)"}
           type="text"
           icon={<BarChart size={16} />}
           value={formData.gpa}
           onChange={handleChange}
-          placeholder="3.8 / 4.0"
+          placeholder={formData.graduationType === "cgpa" ? "3.8 / 4.0" : "85%"}
         />
 
         <button

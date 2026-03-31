@@ -20,6 +20,7 @@ const ResumePreview = () => {
     skillData,
     template,
     accentColor,
+    sectionVisibility,
   } = useSelector((state: RootState) => state.resume);
 
   const data = {
@@ -29,6 +30,7 @@ const ResumePreview = () => {
     education: educationData,
     project: projectData,
     skills: skillData,
+    sectionVisibility: sectionVisibility,
   };
 
   const renderTemplate = () => {

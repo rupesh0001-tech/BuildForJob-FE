@@ -28,12 +28,12 @@ const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {
           </div>
         </div>
 
-        {skills && skills.length > 0 && (
+        {data.sectionVisibility.skills && skills && skills.length > 0 && (
           <div className="space-y-4">
             <h2 className="text-xl font-bold border-b border-white/20 pb-2 uppercase tracking-widest text-purple-400">Skills</h2>
             <div className="flex flex-wrap gap-2">
               {skills.map((skill, idx) => (
-                <span key={idx} className="bg-white/10 px-3 py-1 rounded-md text-xs">
+                <span key={idx} className="bg-white/10 px-3 py-1 rounded-md text-xs capitalize">
                   {skill}
                 </span>
               ))}
@@ -41,14 +41,17 @@ const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {
           </div>
         )}
         
-        {education && education.length > 0 && (
+        {data.sectionVisibility.education && education && education.length > 0 && (
           <div className="space-y-4">
             <h2 className="text-xl font-bold border-b border-white/20 pb-2 uppercase tracking-widest text-purple-400">Education</h2>
             {education.map((edu, idx) => (
               <div key={idx} className="space-y-1">
-                <p className="font-bold text-sm">{edu.degree}</p>
+                <p className="font-bold text-sm tracking-tight">{edu.degree}</p>
                 <p className="text-xs text-gray-400">{edu.institution}</p>
-                <p className="text-[10px] text-gray-500">{edu.graduation_date}</p>
+                <div className="flex justify-between items-center text-[10px] text-gray-500 font-bold uppercase">
+                  <span>{edu.graduation_date}</span>
+                  {edu.gpa && <span>{edu.graduationType === "cgpa" ? "GPA" : "%"}: {edu.gpa}</span>}
+                </div>
               </div>
             ))}
           </div>
@@ -56,7 +59,7 @@ const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-10 bg-gray-50">
+      <div className="flex-1 p-10 bg-gray-50 uppercase-none">
         <div className="mb-10">
           <h1 className="text-5xl font-black uppercase text-gray-900 tracking-tighter mb-2">
             {personal_info.full_name?.split(" ")[0]}
@@ -65,25 +68,25 @@ const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {
           <p className="text-lg font-medium text-gray-500 uppercase tracking-[0.2em]">{personal_info.profession}</p>
         </div>
 
-        {professional_summary && (
+        {data.sectionVisibility.summary && professional_summary && (
           <div className="mb-10">
              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-gray-400 mb-4">About Me</h2>
-             <p className="text-gray-600 italic leading-relaxed">{professional_summary}</p>
+             <p className="text-gray-600 italic leading-relaxed normal-case whitespace-pre-line">{professional_summary}</p>
           </div>
         )}
 
-        {experience && experience.length > 0 && (
+        {data.sectionVisibility.experience && experience && experience.length > 0 && (
           <div className="mb-10">
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-gray-400 mb-6">Experience</h2>
             <div className="space-y-8">
               {experience.map((exp, idx) => (
                 <div key={idx} className="group">
                   <div className="flex justify-between items-end mb-2">
-                    <h3 className="text-xl font-bold text-gray-900">{exp.position}</h3>
+                    <h3 className="text-xl font-bold text-gray-900 normal-case">{exp.position}</h3>
                     <span className="text-xs font-bold text-gray-400">{exp.startDate} - {exp.is_current ? "Present" : exp.endDate}</span>
                   </div>
                   <p className="font-bold text-purple-600 mb-3 uppercase tracking-wider text-xs">{exp.company}</p>
-                  <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed">
+                  <div className="text-sm text-gray-600 whitespace-pre-line leading-relaxed normal-case">
                     {exp.description}
                   </div>
                 </div>
@@ -92,15 +95,17 @@ const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {
           </div>
         )}
 
-        {project && project.length > 0 && (
+        {data.sectionVisibility.projects && project && project.length > 0 && (
           <div>
             <h2 className="text-xs font-black uppercase tracking-[0.3em] text-gray-400 mb-6">Recent Work</h2>
             <div className="grid grid-cols-1 gap-6">
               {project.map((proj, idx) => (
                 <div key={idx} className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
-                  <h3 className="font-bold text-gray-900 mb-1">{proj.name}</h3>
-                  <p className="text-xs text-gray-400 mb-2">{proj.type}</p>
-                  <p className="text-sm text-gray-600">{proj.description}</p>
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="font-bold text-gray-900 normal-case">{proj.name}</h3>
+                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest">{proj.techStack}</span>
+                  </div>
+                  <p className="text-sm text-gray-600 normal-case">{proj.description}</p>
                 </div>
               ))}
             </div>

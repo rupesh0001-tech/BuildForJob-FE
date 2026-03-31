@@ -32,33 +32,33 @@ const MinimalTemplate = ({ data, accentColor }: TemplateProps) => {
             </header>
 
             {/* Professional Summary */}
-            {data.professional_summary && (
+            {data.sectionVisibility.summary && data.professional_summary && (
                 <section className="mb-10">
-                    <p className=" text-gray-700">
+                    <p className=" text-gray-700 leading-relaxed whitespace-pre-line">
                         {data.professional_summary}
                     </p>
                 </section>
             )}
 
             {/* Experience */}
-            {data.experience && data.experience.length > 0 && (
+            {data.sectionVisibility.experience && data.experience && data.experience.length > 0 && (
                 <section className="mb-10">
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
-                        Experience
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-bold" style={{ color: accentColor }}>
+                        Professional Experience
                     </h2>
 
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {data.experience.map((exp, index) => (
                             <div key={index}>
                                 <div className="flex justify-between items-baseline mb-1">
-                                    <h3 className="text-lg font-medium">{exp.position}</h3>
-                                    <span className="text-sm text-gray-500">
+                                    <h3 className="text-xl font-medium tracking-tight text-gray-900">{exp.position}</h3>
+                                    <span className="text-sm text-gray-500 font-medium">
                                         {formatDate(exp.startDate)} - {exp.is_current ? "Present" : formatDate(exp.endDate)}
                                     </span>
                                 </div>
-                                <p className="text-gray-600 mb-2">{exp.company}</p>
+                                <p className="text-gray-600 font-bold mb-3">{exp.company}</p>
                                 {exp.description && (
-                                    <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+                                    <div className="text-[15px] text-gray-700 leading-relaxed whitespace-pre-line">
                                         {exp.description}
                                     </div>
                                 )}
@@ -69,17 +69,20 @@ const MinimalTemplate = ({ data, accentColor }: TemplateProps) => {
             )}
 
             {/* Projects */}
-            {data.project && data.project.length > 0 && (
+            {data.sectionVisibility.projects && data.project && data.project.length > 0 && (
                 <section className="mb-10">
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-bold" style={{ color: accentColor }}>
                         Projects
                     </h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {data.project.map((proj, index) => (
-                            <div key={index} className="flex flex-col gap-2 justify-between items-baseline">
-                                <h3 className="text-lg font-medium ">{proj.name}</h3>
-                                <p className="text-gray-600">{proj.description}</p>
+                            <div key={index} className="flex flex-col gap-1">
+                                <div className="flex justify-between items-baseline">
+                                    <h3 className="text-lg font-medium text-gray-900">{proj.name}</h3>
+                                    <span className="text-xs font-bold uppercase tracking-widest" style={{ color: accentColor }}>{proj.techStack}</span>
+                                </div>
+                                <p className="text-[15px] text-gray-600 leading-relaxed">{proj.description}</p>
                             </div>
                         ))}
                     </div>
@@ -87,23 +90,27 @@ const MinimalTemplate = ({ data, accentColor }: TemplateProps) => {
             )}
 
             {/* Education */}
-            {data.education && data.education.length > 0 && (
+            {data.sectionVisibility.education && data.education && data.education.length > 0 && (
                 <section className="mb-10">
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-bold" style={{ color: accentColor }}>
                         Education
                     </h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {data.education.map((edu, index) => (
                             <div key={index} className="flex justify-between items-baseline">
                                 <div>
-                                    <h3 className="font-medium">
+                                    <h3 className="font-medium text-gray-900">
                                         {edu.degree} {edu.field && `in ${edu.field}`}
                                     </h3>
                                     <p className="text-gray-600">{edu.institution}</p>
-                                    {edu.gpa && <p className="text-sm text-gray-500">GPA: {edu.gpa}</p>}
+                                    {edu.gpa && (
+                                        <p className="text-sm text-gray-500 font-bold">
+                                            {edu.graduationType === "cgpa" ? "GPA" : "Percentage"}: {edu.gpa}
+                                        </p>
+                                    )}
                                 </div>
-                                <span className="text-sm text-gray-500">
+                                <span className="text-sm text-gray-500 font-medium">
                                     {formatDate(edu.graduation_date)}
                                 </span>
                             </div>
@@ -113,14 +120,16 @@ const MinimalTemplate = ({ data, accentColor }: TemplateProps) => {
             )}
 
             {/* Skills */}
-            {data.skills && data.skills.length > 0 && (
+            {data.sectionVisibility.skills && data.skills && data.skills.length > 0 && (
                 <section>
-                    <h2 className="text-sm uppercase tracking-widest mb-6 font-medium" style={{ color: accentColor }}>
+                    <h2 className="text-sm uppercase tracking-widest mb-6 font-bold" style={{ color: accentColor }}>
                         Skills
                     </h2>
 
-                    <div className="text-gray-700">
-                        {data.skills.join(" • ")}
+                    <div className="text-gray-700 font-medium tracking-tight flex flex-wrap gap-x-2 gap-y-1">
+                        {data.skills.map((skill, idx) => (
+                            <span key={idx} className="capitalize">{skill}{idx < data.skills.length - 1 ? " • " : ""}</span>
+                        ))}
                     </div>
                 </section>
             )}

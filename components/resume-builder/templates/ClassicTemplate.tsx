@@ -54,38 +54,40 @@ const ClassicTemplate = ({ data, accentColor }: TemplateProps) => {
             </header>
 
             {/* Professional Summary */}
-            {data.professional_summary && (
+            {data.sectionVisibility.summary && data.professional_summary && (
                 <section className="mb-6">
-                    <h2 className="text-xl font-semibold mb-3" style={{ color: accentColor }}>
-                        PROFESSIONAL SUMMARY
+                    <h2 className="text-xl font-semibold mb-3 uppercase tracking-wider" style={{ color: accentColor }}>
+                        Professional Summary
                     </h2>
-                    <p className="text-gray-700 leading-relaxed">{data.professional_summary}</p>
+                    <p className="text-gray-700 leading-relaxed whitespace-pre-line">{data.professional_summary}</p>
                 </section>
             )}
 
             {/* Experience */}
-            {data.experience && data.experience.length > 0 && (
+            {data.sectionVisibility.experience && data.experience && data.experience.length > 0 && (
                 <section className="mb-6">
-                    <h2 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>
-                        PROFESSIONAL EXPERIENCE
+                    <h2 className="text-xl font-semibold mb-4 uppercase tracking-wider" style={{ color: accentColor }}>
+                        Professional Experience
                     </h2>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {data.experience.map((exp, index) => (
                             <div key={index} className="border-l-4 pl-4" style={{ borderColor: accentColor }}>
                                 <div className="flex justify-between items-start mb-2">
                                     <div>
-                                        <h3 className="font-semibold text-gray-900">{exp.position}</h3>
-                                        <p className="text-gray-700 font-medium">{exp.company}</p>
+                                        <h3 className="font-bold text-gray-900 text-lg uppercase tracking-tight">{exp.position}</h3>
+                                        <p className="text-gray-800 font-bold italic">{exp.company}</p>
                                     </div>
-                                    <div className="text-right text-sm text-gray-600">
+                                    <div className="text-right text-sm font-bold text-gray-600">
                                         <p>{formatDate(exp.startDate)} - {exp.is_current ? "Present" : formatDate(exp.endDate)}</p>
                                     </div>
                                 </div>
                                 {exp.description && (
-                                    <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                                        {exp.description}
-                                    </div>
+                                    <ul className="list-disc list-inside text-gray-700 leading-relaxed space-y-1 text-sm">
+                                        {exp.description.split("\n").filter(l => l.trim()).map((line, i) => (
+                                            <li key={i}>{line}</li>
+                                        ))}
+                                    </ul>
                                 )}
                             </div>
                         ))}
@@ -94,43 +96,50 @@ const ClassicTemplate = ({ data, accentColor }: TemplateProps) => {
             )}
 
             {/* Projects */}
-            {data.project && data.project.length > 0 && (
+            {data.sectionVisibility.projects && data.project && data.project.length > 0 && (
                 <section className="mb-6">
-                    <h2 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>
-                        PROJECTS
+                    <h2 className="text-xl font-semibold mb-4 uppercase tracking-wider" style={{ color: accentColor }}>
+                        Key Projects
                     </h2>
 
-                    <ul className="space-y-3 ">
+                    <div className="space-y-4">
                         {data.project.map((proj, index) => (
-                            <div key={index} className="flex justify-between items-start border-l-4 border-gray-300 pl-6">
-                                <div>
-                                    <li className="font-semibold text-gray-800 ">{proj.name}</li>
-                                    <p className="text-gray-600">{proj.description}</p>
+                            <div key={index} className="border-l-4 border-gray-200 pl-4 py-1">
+                                <div className="flex justify-between items-baseline mb-1">
+                                    <h3 className="font-bold text-gray-800 uppercase tracking-tight">{proj.name}</h3>
+                                    <span className="text-xs font-bold px-2 py-0.5 bg-gray-100 rounded-full" style={{ color: accentColor }}>
+                                        {proj.techStack}
+                                    </span>
                                 </div>
+                                <p className="text-sm text-gray-600 leading-relaxed">{proj.description}</p>
                             </div>
                         ))}
-                    </ul>
+                    </div>
                 </section>
             )}
 
             {/* Education */}
-            {data.education && data.education.length > 0 && (
+            {data.sectionVisibility.education && data.education && data.education.length > 0 && (
                 <section className="mb-6">
-                    <h2 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>
-                        EDUCATION
+                    <h2 className="text-xl font-semibold mb-4 uppercase tracking-wider" style={{ color: accentColor }}>
+                        Education
                     </h2>
 
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {data.education.map((edu, index) => (
                             <div key={index} className="flex justify-between items-start">
                                 <div>
-                                    <h3 className="font-semibold text-gray-900">
+                                    <h3 className="font-bold text-gray-900 uppercase">
                                         {edu.degree} {edu.field && `in ${edu.field}`}
                                     </h3>
-                                    <p className="text-gray-700">{edu.institution}</p>
-                                    {edu.gpa && <p className="text-sm text-gray-600">GPA: {edu.gpa}</p>}
+                                    <p className="text-gray-700 font-medium italic">{edu.institution}</p>
+                                    {edu.gpa && (
+                                        <p className="text-sm font-bold text-gray-600">
+                                            {edu.graduationType === "cgpa" ? "GPA" : "Percentage"}: {edu.gpa}
+                                        </p>
+                                    )}
                                 </div>
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm font-bold text-gray-600">
                                     <p>{formatDate(edu.graduation_date)}</p>
                                 </div>
                             </div>
@@ -140,16 +149,17 @@ const ClassicTemplate = ({ data, accentColor }: TemplateProps) => {
             )}
 
             {/* Skills */}
-            {data.skills && data.skills.length > 0 && (
+            {data.sectionVisibility.skills && data.skills && data.skills.length > 0 && (
                 <section className="mb-6">
-                    <h2 className="text-xl font-semibold mb-4" style={{ color: accentColor }}>
-                        CORE SKILLS
+                    <h2 className="text-xl font-semibold mb-3 uppercase tracking-wider" style={{ color: accentColor }}>
+                        Technical Skills
                     </h2>
 
-                    <div className="flex gap-4 flex-wrap">
+                    <div className="flex gap-x-6 gap-y-2 flex-wrap">
                         {data.skills.map((skill, index) => (
-                            <div key={index} className="text-gray-700">
-                                • {skill}
+                            <div key={index} className="text-gray-700 font-medium flex items-center gap-2 capitalize">
+                                <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: accentColor }} />
+                                {skill}
                             </div>
                         ))}
                     </div>

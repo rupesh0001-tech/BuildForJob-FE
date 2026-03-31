@@ -56,19 +56,19 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 
 			<div className="p-8">
 				{/* Professional Summary */}
-				{data.professional_summary && (
+				{data.sectionVisibility.summary && data.professional_summary && (
 					<section className="mb-8">
-						<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
+						<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200 uppercase tracking-wide">
 							Professional Summary
 						</h2>
-						<p className="text-gray-700 ">{data.professional_summary}</p>
+						<p className="text-gray-700 whitespace-pre-line leading-relaxed">{data.professional_summary}</p>
 					</section>
 				)}
 
 				{/* Experience */}
-				{data.experience && data.experience.length > 0 && (
+				{data.sectionVisibility.experience && data.experience && data.experience.length > 0 && (
 					<section className="mb-8">
-						<h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200">
+						<h2 className="text-2xl font-light mb-6 pb-2 border-b border-gray-200 uppercase tracking-wide">
 							Experience
 						</h2>
 
@@ -97,20 +97,19 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 				)}
 
 				{/* Projects */}
-				{data.project && data.project.length > 0 && (
+				{data.sectionVisibility.projects && data.project && data.project.length > 0 && (
 					<section className="mb-8">
-						<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
+						<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200 uppercase tracking-wide">
 							Projects
 						</h2>
 
 						<div className="space-y-6">
 							{data.project.map((p, index) => (
 								<div key={index} className="relative pl-6 border-l border-gray-200" style={{borderLeftColor: accentColor}}>
-
-
 									<div className="flex justify-between items-start">
 										<div>
 											<h3 className="text-lg font-medium text-gray-900">{p.name}</h3>
+											<p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: accentColor }}>{p.techStack}</p>
 										</div>
 									</div>
 									{p.description && (
@@ -126,9 +125,9 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 
 				<div className="grid sm:grid-cols-2 gap-8">
 					{/* Education */}
-					{data.education && data.education.length > 0 && (
+					{data.sectionVisibility.education && data.education && data.education.length > 0 && (
 						<section>
-							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
+							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200 uppercase tracking-wide">
 								Education
 							</h2>
 
@@ -141,7 +140,7 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 										<p style={{ color: accentColor }}>{edu.institution}</p>
 										<div className="flex justify-between items-center text-sm text-gray-600">
 											<span>{formatDate(edu.graduation_date)}</span>
-											{edu.gpa && <span>GPA: {edu.gpa}</span>}
+											{edu.gpa && <span>{edu.graduationType === "cgpa" ? "GPA" : "%"}: {edu.gpa}</span>}
 										</div>
 									</div>
 								))}
@@ -150,9 +149,9 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 					)}
 
 					{/* Skills */}
-					{data.skills && data.skills.length > 0 && (
+					{data.sectionVisibility.skills && data.skills && data.skills.length > 0 && (
 						<section>
-							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200">
+							<h2 className="text-2xl font-light mb-4 pb-2 border-b border-gray-200 uppercase tracking-wide">
 								Skills
 							</h2>
 
@@ -160,7 +159,7 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 								{data.skills.map((skill, index) => (
 									<span
 										key={index}
-										className="px-3 py-1 text-sm text-white rounded-full"
+										className="px-3 py-1 text-sm text-white rounded-full capitalize"
 										style={{ backgroundColor: accentColor }}
 									>
 										{skill}

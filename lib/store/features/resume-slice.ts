@@ -17,7 +17,7 @@ export interface Experience {
   startDate: string;
   endDate: string;
   description: string;
-  is_current: boolean;
+  is_current: boolean;  // "Present" checkbox
   _id?: string;
 }
 
@@ -27,12 +27,13 @@ export interface Education {
   field: string;
   graduation_date: string;
   gpa: string;
+  graduationType: "cgpa" | "percentage"; // New toggle
   _id?: string;
 }
 
 export interface Project {
   name: string;
-  type: string;
+  techStack: string; // Renamed from type
   description: string;
   _id?: string;
 }
@@ -46,6 +47,13 @@ export interface ResumeState {
   skillData: string[];
   template: string;
   accentColor: string;
+  sectionVisibility: {
+    summary: boolean;
+    experience: boolean;
+    education: boolean;
+    projects: boolean;
+    skills: boolean;
+  };
 }
 
 const initialState: ResumeState = {
@@ -66,6 +74,13 @@ const initialState: ResumeState = {
   skillData: [],
   template: "classic",
   accentColor: "#4E61D3",
+  sectionVisibility: {
+    summary: true,
+    experience: true,
+    education: true,
+    projects: true,
+    skills: true,
+  },
 };
 
 export const resumeSlice = createSlice({
@@ -96,6 +111,9 @@ export const resumeSlice = createSlice({
     setAccentColor: (state, action: PayloadAction<string>) => {
       state.accentColor = action.payload;
     },
+    setSectionVisibility: (state, action: PayloadAction<Partial<ResumeState["sectionVisibility"]>>) => {
+      state.sectionVisibility = { ...state.sectionVisibility, ...action.payload };
+    },
     updateResume: (state, action: PayloadAction<Partial<ResumeState>>) => {
       return { ...state, ...action.payload };
     },
@@ -111,6 +129,7 @@ export const {
   setSkill,
   setTemplate,
   setAccentColor,
+  setSectionVisibility,
   updateResume,
 } = resumeSlice.actions;
 

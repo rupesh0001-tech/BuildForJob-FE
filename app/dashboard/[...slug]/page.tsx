@@ -1,13 +1,34 @@
 "use client";
+
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, notFound } from 'next/navigation';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button2 } from "@/components/general/buttons/button2";
 
+const PLANNED_ROUTES = [
+  "/dashboard/resumes/ats",
+  "/dashboard/resumes/enhancer",
+  "/dashboard/resumes",
+  "/dashboard/resumes/versions",
+  "/dashboard/cover-letters/builder",
+  "/dashboard/cover-letters",
+  "/dashboard/portfolio",
+  "/dashboard/portfolio/create",
+  "/dashboard/linkedin/enhancer",
+  "/dashboard/connect/github",
+  "/dashboard/connect/linkedin",
+  "/dashboard/settings/profile",
+];
+
 export default function ComingSoonPage() {
   const pathname = usePathname();
-  const pageName = pathname.split('/').pop()?.replace(/-/g, ' ') || 'Page';
+  
+  if (pathname && !PLANNED_ROUTES.includes(pathname)) {
+    notFound();
+  }
+  
+  const pageName = pathname?.split('/').pop()?.replace(/-/g, ' ') || 'Page';
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center animation-fade-in">

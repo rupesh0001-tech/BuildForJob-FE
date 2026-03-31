@@ -6,7 +6,7 @@ import { RootState } from "@/lib/store/store";
 import { setProject, Project as ProjectType } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
 import FormTextArea from "../FormTextArea";
-import { FileSignature, Layers, Trash2, Plus } from "lucide-react";
+import { FileSignature, Layers, Trash2, Plus, Code } from "lucide-react";
 
 interface ProjectProps {
   setFormTab: (tab: number) => void;
@@ -18,7 +18,7 @@ const Project = ({ setFormTab }: ProjectProps) => {
 
   const [formData, setFormData] = useState<ProjectType>({
     name: "",
-    type: "",
+    techStack: "",
     description: "",
   });
 
@@ -35,7 +35,7 @@ const Project = ({ setFormTab }: ProjectProps) => {
     dispatch(setProject([...projectData, newProject]));
     setFormData({
       name: "",
-      type: "",
+      techStack: "",
       description: "",
     });
   };
@@ -57,12 +57,12 @@ const Project = ({ setFormTab }: ProjectProps) => {
         />
 
         <FormInput
-          name="type"
-          label="Project Type"
-          icon={<Layers size={16} />}
-          value={formData.type}
+          name="techStack"
+          label="Tech Stack"
+          icon={<Code size={16} />}
+          value={formData.techStack}
           onChange={handleChange as any}
-          placeholder="Web Application"
+          placeholder="React, Node.js, MongoDB"
         />
 
         <FormTextArea
@@ -95,7 +95,7 @@ const Project = ({ setFormTab }: ProjectProps) => {
             >
               <div>
                 <p className="font-bold text-gray-900 dark:text-white">{p.name}</p>
-                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{p.type}</p>
+                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{p.techStack}</p>
                 {p.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{p.description}</p>}
               </div>
               <button

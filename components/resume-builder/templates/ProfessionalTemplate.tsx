@@ -30,17 +30,25 @@ const ProfessionalTemplate = ({ data, accentColor }: TemplateProps) => {
         </div>
       </div>
 
+      {/* Professional Summary */}
+      {data.sectionVisibility.summary && professional_summary && (
+        <div className="mt-4">
+          <h2 className="uppercase font-bold border-b border-gray-400 text-base mb-2 tracking-widest">Summary</h2>
+          <p className="text-[13px] text-gray-700 whitespace-pre-line">{professional_summary}</p>
+        </div>
+      )}
+
       {/* Education */}
-      {education && education.length > 0 && (
+      {data.sectionVisibility.education && education && education.length > 0 && (
         <div className="mt-4">
           <h2 className="uppercase font-bold border-b border-gray-400 text-base mb-2 tracking-widest">Education</h2>
           {education.map((edu, idx) => (
-            <div key={idx} className="mb-3">
+            <div key={idx} className="mb-3 text-[13px]">
               <div className="flex justify-between font-bold">
                 <span>● {edu.institution}</span>
               </div>
-              <div className="flex justify-between italic text-xs">
-                <span>{edu.degree}{edu.field ? `, ${edu.field}` : ""} {edu.gpa ? `; GPA: ${edu.gpa}` : ""}</span>
+              <div className="flex justify-between italic">
+                <span>{edu.degree}{edu.field ? `, ${edu.field}` : ""} {edu.gpa ? `; ${edu.graduationType === "cgpa" ? "GPA" : "Percentage"}: ${edu.gpa}` : ""}</span>
                 <span>{edu.graduation_date}</span>
               </div>
             </div>
@@ -49,17 +57,17 @@ const ProfessionalTemplate = ({ data, accentColor }: TemplateProps) => {
       )}
 
       {/* Experience */}
-      {experience && experience.length > 0 && (
+      {data.sectionVisibility.experience && experience && experience.length > 0 && (
         <div className="mt-4">
           <h2 className="uppercase font-bold border-b border-gray-400 text-base mb-2 tracking-widest">Experience</h2>
           {experience.map((exp, idx) => (
             <div key={idx} className="mb-4">
-              <div className="flex justify-between font-bold">
+              <div className="flex justify-between font-bold text-[13px]">
                 <span>● {exp.company}</span>
               </div>
-              <div className="flex justify-between italic text-xs mb-1">
+              <div className="flex justify-between italic text-[13px] mb-1">
                 <span>{exp.position}</span>
-                <span>{exp.startDate} – {exp.endDate}</span>
+                <span>{exp.startDate} – {exp.is_current ? "Present" : exp.endDate}</span>
               </div>
               <ul className="list-none pl-4 space-y-1 text-[13px]">
                 {exp.description.split('\n').filter(l => l.trim()).map((line, lIdx) => (
@@ -74,13 +82,13 @@ const ProfessionalTemplate = ({ data, accentColor }: TemplateProps) => {
       )}
 
       {/* Projects */}
-      {project && project.length > 0 && (
+      {data.sectionVisibility.projects && project && project.length > 0 && (
         <div className="mt-4">
           <h2 className="uppercase font-bold border-b border-gray-400 text-base mb-2 tracking-widest">Projects</h2>
           <ul className="list-none pl-4 space-y-1 text-[13px]">
             {project.map((proj, idx) => (
               <li key={idx} className="relative before:content-['●'] before:absolute before:-left-4 before:text-[10px] before:top-0.5">
-                <span className="font-bold">{proj.name}:</span> {proj.description}
+                <span className="font-bold">{proj.name}:</span> {proj.techStack} - {proj.description}
               </li>
             ))}
           </ul>
@@ -88,12 +96,12 @@ const ProfessionalTemplate = ({ data, accentColor }: TemplateProps) => {
       )}
 
       {/* Skills */}
-      {skills && skills.length > 0 && (
+      {data.sectionVisibility.skills && skills && skills.length > 0 && (
         <div className="mt-4">
           <h2 className="uppercase font-bold border-b border-gray-400 text-base mb-2 tracking-widest">Skills</h2>
           <div className="text-[13px] leading-6">
             {skills.map((skill, idx) => (
-              <span key={idx}>{skill}{idx < skills.length - 1 ? ", " : ""}</span>
+              <span key={idx} className="capitalize">{skill}{idx < skills.length - 1 ? ", " : ""}</span>
             ))}
           </div>
         </div>

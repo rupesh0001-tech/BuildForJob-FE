@@ -31,8 +31,7 @@ export const navigation = [
   {
     title: "Cover Letters",
     items: [
-      { name: "Cover Letter Builder", href: "/dashboard/cover-letters/builder", icon: Edit },
-      { name: "My Cover Letters", href: "/dashboard/cover-letters", icon: Mail },
+      { name: "Cover Letter Builder", href: "/dashboard/cover-letter", icon: Edit },
     ]
   },
   {

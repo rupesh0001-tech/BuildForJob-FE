@@ -7,9 +7,18 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const pathname = usePathname();
   const isResumeBuilder = pathname === "/dashboard/resume-builder";
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isResumeBuilder);
+
+  // Close sidebar when navigating to resume builder
+  React.useEffect(() => {
+    if (isResumeBuilder) {
+      setIsSidebarOpen(false);
+    } else {
+       setIsSidebarOpen(true);
+    }
+  }, [isResumeBuilder]);
 
   return (
     <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-purple-500/30 transition-colors duration-300">
@@ -19,7 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       
       <Sidebar 
         isOpen={isSidebarOpen} 
-        onClose={isResumeBuilder ? () => setIsSidebarOpen(false) : undefined} 
+        onClose={() => setIsSidebarOpen(false)} 
         isOverlay={isResumeBuilder}
       />
       

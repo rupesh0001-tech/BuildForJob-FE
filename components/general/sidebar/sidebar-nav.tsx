@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import React from "react";
@@ -15,6 +15,16 @@ interface SidebarNavProps {
 
 export function SidebarNav({ navigation, onClose }: SidebarNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // If it's resume builder or we're on resume builder (overlay mode), close sidebar
+    if (href === "/dashboard/resume-builder" || pathname === "/dashboard/resume-builder") {
+      if (onClose) {
+        onClose();
+      }
+    }
+  };
 
   return (
     <nav className="flex-1 space-y-8 px-4 py-6 overflow-y-auto scrollbar-hide">
@@ -30,7 +40,7 @@ export function SidebarNav({ navigation, onClose }: SidebarNavProps) {
                 <Link
                   key={item.name}
                   href={item.href}
-                  onClick={onClose}
+                  onClick={(e) => handleLinkClick(e, item.href)}
                   className={cn(
                     "flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-lg transition-all group",
                     isActive

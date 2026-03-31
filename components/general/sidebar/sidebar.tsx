@@ -65,12 +65,15 @@ export const navigation = [
 
 interface SidebarProps {
   isOpen: boolean;
+  onClose?: () => void;
+  isOverlay?: boolean;
 }
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, isOverlay }: SidebarProps) {
   return (
     <div className={cn(
-      "flex h-full flex-col bg-transparent pb-4 shrink-0 transition-all duration-300 ease-in-out border-r border-black/5 dark:border-white/5",
+      "flex h-full flex-col bg-white dark:bg-[#08080a] pb-4 shrink-0 transition-all duration-300 ease-in-out border-r border-black/5 dark:border-white/5 shadow-2xl",
+      isOverlay ? "fixed top-0 left-0 z-50" : "relative z-30",
       isOpen 
         ? "w-64 opacity-100 translate-x-0" 
         : "w-0 opacity-0 -translate-x-full overflow-hidden border-none pointer-events-none"
@@ -78,7 +81,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
       {isOpen && (
         <>
           <SidebarBrand />
-          <SidebarNav navigation={navigation} />
+          <SidebarNav navigation={navigation} onClose={onClose} />
           <SidebarUser />
         </>
       )}

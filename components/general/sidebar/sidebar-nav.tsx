@@ -10,9 +10,10 @@ interface SidebarNavProps {
     title: string;
     items: { name: string; href: string; icon: LucideIcon }[];
   }[];
+  onClose?: () => void;
 }
 
-export function SidebarNav({ navigation }: SidebarNavProps) {
+export function SidebarNav({ navigation, onClose }: SidebarNavProps) {
   const pathname = usePathname();
 
   return (
@@ -29,6 +30,7 @@ export function SidebarNav({ navigation }: SidebarNavProps) {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={onClose}
                   className={cn(
                     "flex items-center gap-3 px-2 py-2 text-sm font-medium rounded-lg transition-all group",
                     isActive

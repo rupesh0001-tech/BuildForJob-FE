@@ -58,15 +58,15 @@ export default function ResumeBuilderPage() {
         </button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start h-[full] overflow-hidden">
+      <div className="flex flex-col lg:flex-row gap-8 items-start justify-center h-full w-full">
         {/* Form Section */}
-        <div className="w-full lg:w-[400px] shrink-0 h-full overflow-y-auto pr-2 custom-scrollbar">
+        <div className="w-full lg:w-[420px] shrink-0 h-full overflow-y-auto custom-scrollbar">
           <ResumeForm />
         </div>
 
         {/* Preview Section */}
-        <div className="flex-1 w-full bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10  h-full p-4 md:p-8 flex justify-center">
-          <div className="w-fit shadow-2xl">
+        <div className="flex-1 max-w-[1000px] bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-4 flex justify-center overflow-hidden">
+          <div className="w-fit shadow-2xl overflow-y-auto h-full custom-scrollbar">
              <ResumePreview />
           </div>
         </div>

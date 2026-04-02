@@ -30,15 +30,15 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
-      <body className="min-h-full flex flex-col font-sans">
-        <ReduxProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+      <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans`} suppressHydrationWarning>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          <ReduxProvider>
             {children}
             <Toaster position="top-right" />
-          </ThemeProvider>
-        </ReduxProvider>
+          </ReduxProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

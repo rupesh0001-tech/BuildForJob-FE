@@ -12,7 +12,7 @@ const ModernTemplate = ({ data }: TemplateProps) => {
   const { personalInfo, date, employerInfo, salutation, body, signOff, mode, manualContent } = data;
 
   return (
-    <div className="w-full min-h-[1123px] bg-white text-gray-900 font-sans flex border-l-[32px] border-purple-600">
+    <div className="w-full min-h-[1123px] bg-white text-gray-900 font-sans flex border-l-32 border-purple-600">
       <div className="flex-1 p-[15mm] flex flex-col">
         {/* Header */}
         <div className="mb-12">
@@ -21,7 +21,7 @@ const ModernTemplate = ({ data }: TemplateProps) => {
               <span className="text-purple-600 block leading-none">{personalInfo.fullName?.split(" ").slice(1).join(" ")}</span>
             </h1>
             
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-bold text-gray-400 uppercase tracking-widest pt-4 border-t-2 border-gray-100">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-bold text-gray-400 uppercase tracking-widest pt-4 border-t-2 border-gray-200">
                 {personalInfo.email && <div className="flex items-center gap-2"><Mail size={14} className="text-purple-600" />{personalInfo.email}</div>}
                 {personalInfo.phone && <div className="flex items-center gap-2"><Phone size={14} className="text-purple-600" />{personalInfo.phone}</div>}
                 {personalInfo.address && <div className="flex items-center gap-2"><MapPin size={14} className="text-purple-600" />{personalInfo.address}</div>}
@@ -60,14 +60,14 @@ const ModernTemplate = ({ data }: TemplateProps) => {
         </div>
 
         {/* Signature */}
-        <div className="mt-16 pt-8 border-t-2 border-gray-100 flex justify-between items-end">
+        <div className="mt-16 pt-8 border-t-2 border-gray-200 flex justify-between items-end">
             <div>
                 <p className="text-xs font-black uppercase text-purple-600 tracking-widest mb-3">{signOff}</p>
                 <p className="text-2xl font-black uppercase text-gray-950 tracking-tighter">{personalInfo.fullName}</p>
             </div>
             <div className="flex gap-4">
-                {personalInfo.linkedin && <LinkIcon size={20} className="text-gray-300" />}
-                {personalInfo.github && <Github size={20} className="text-gray-300" />}
+                {personalInfo.linkedin && <LinkIcon size={20} className="text-gray-400" />}
+                {personalInfo.github && <Github size={20} className="text-gray-400" />}
             </div>
         </div>
       </div>

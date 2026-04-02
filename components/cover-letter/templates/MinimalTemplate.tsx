@@ -26,7 +26,7 @@ const MinimalTemplate = ({ data }: TemplateProps) => {
       </header>
 
       {/* Meta Info */}
-      <div className="flex justify-between items-end mb-12 border-b border-zinc-100 pb-8">
+      <div className="flex justify-between items-end mb-12 border-b border-zinc-300 pb-8">
           <div className="space-y-1">
               <p className="text-[10px] font-black uppercase text-zinc-400 tracking-[0.2em] mb-2 font-mono">Recipient</p>
               <p className="font-black text-lg">{employerInfo.managerName}</p>

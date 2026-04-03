@@ -33,7 +33,7 @@ export default function RootLayout({
       className="h-full antialiased"
     >
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans`} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
           <ReduxProvider>
             {children}
             <Toaster position="top-right" />

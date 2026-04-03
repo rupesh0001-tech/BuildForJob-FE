@@ -23,6 +23,7 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const resume = useSelector((state: RootState) => state.resume);
   const [activeTab, setActiveTab] = useState("personal");
+  const [newSkill, setNewSkill] = useState("");
 
   const tabs = [
     { id: "personal", label: "Identity", icon: User },
@@ -103,7 +104,7 @@ const ProfilePage = () => {
       <div className="flex-1 min-h-[400px] relative">
          <textarea
             value={resume.professionalSummaryData}
-            onChange={(e) => dispatch(setProfessionalSummary(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => dispatch(setProfessionalSummary(e.target.value))}
             placeholder="Write your story..."
             className="w-full h-full bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 text-gray-900 dark:text-white outline-none focus:border-purple-500/50 transition-all text-sm leading-relaxed resize-none"
          />
@@ -136,24 +137,24 @@ const ProfilePage = () => {
                   <Trash2 size={16} />
                 </button>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                   <SleekInput label="Company" value={exp.company} onChange={(e) => {
+                   <SleekInput label="Company" value={exp.company} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                      const newData = [...resume.experienceData];
                      newData[idx] = { ...exp, company: e.target.value };
                      dispatch(setExperience(newData));
                    }} />
-                   <SleekInput label="Position" value={exp.position} onChange={(e) => {
+                   <SleekInput label="Position" value={exp.position} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                      const newData = [...resume.experienceData];
                      newData[idx] = { ...exp, position: e.target.value };
                      dispatch(setExperience(newData));
                    }} />
-                   <SleekInput label="From" type="month" value={exp.startDate} onChange={(e) => {
+                   <SleekInput label="From" type="month" value={exp.startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                      const newData = [...resume.experienceData];
                      newData[idx] = { ...exp, startDate: e.target.value };
                      dispatch(setExperience(newData));
                    }} />
                    <div className="flex items-end gap-3">
                       <div className="flex-1">
-                         <SleekInput label="To" type="month" value={exp.endDate} disabled={exp.is_current} onChange={(e) => {
+                         <SleekInput label="To" type="month" value={exp.endDate} disabled={exp.is_current} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                            const newData = [...resume.experienceData];
                            newData[idx] = { ...exp, endDate: e.target.value };
                            dispatch(setExperience(newData));
@@ -164,7 +165,7 @@ const ProfilePage = () => {
                            type="checkbox" 
                            id={`current-${idx}`}
                            checked={exp.is_current} 
-                           onChange={(e) => {
+                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                               const newData = [...resume.experienceData];
                               newData[idx] = { ...exp, is_current: e.target.checked };
                               dispatch(setExperience(newData));
@@ -178,7 +179,7 @@ const ProfilePage = () => {
                       <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Responsibilities</label>
                       <textarea 
                          value={exp.description}
-                         onChange={(e) => {
+                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                            const newData = [...resume.experienceData];
                            newData[idx] = { ...exp, description: e.target.value };
                            dispatch(setExperience(newData));
@@ -218,23 +219,23 @@ const ProfilePage = () => {
                       <GraduationCap size={18} />
                    </div>
                    <div className="space-y-4">
-                      <SleekInput label="Institute" value={edu.institution} onChange={(e) => {
+                      <SleekInput label="Institute" value={edu.institution} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         const newData = [...resume.educationData];
                         newData[idx] = { ...edu, institution: e.target.value };
                         dispatch(setEducation(newData));
                       }} />
-                      <SleekInput label="Field of Study" value={edu.field} onChange={(e) => {
+                      <SleekInput label="Field of Study" value={edu.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                         const newData = [...resume.educationData];
                         newData[idx] = { ...edu, field: e.target.value };
                         dispatch(setEducation(newData));
                       }} />
                       <div className="grid grid-cols-2 gap-4">
-                         <SleekInput label="Grad Date" type="month" value={edu.graduation_date} onChange={(e) => {
+                         <SleekInput label="Grad Date" type="month" value={edu.graduation_date} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                            const newData = [...resume.educationData];
                            newData[idx] = { ...edu, graduation_date: e.target.value };
                            dispatch(setEducation(newData));
                          }} />
-                         <SleekInput label="Grade / GPA" value={edu.gpa} onChange={(e) => {
+                         <SleekInput label="Grade / GPA" value={edu.gpa} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                            const newData = [...resume.educationData];
                            newData[idx] = { ...edu, gpa: e.target.value };
                            dispatch(setEducation(newData));
@@ -271,12 +272,12 @@ const ProfilePage = () => {
                    <div className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 dark:border-white/10">
                       <Code2 size={18} />
                    </div>
-                   <SleekInput label="Project Name" value={p.name} onChange={(e) => {
+                   <SleekInput label="Project Name" value={p.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                      const newData = [...resume.projectData];
                      newData[idx] = { ...p, name: e.target.value };
                      dispatch(setProject(newData));
                    }} placeholder="e.g. Portfolio v2" />
-                   <SleekInput label="Technologies" value={p.techStack} onChange={(e: any) => {
+                   <SleekInput label="Technologies" value={p.techStack} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                      const newData = [...resume.projectData];
                      newData[idx] = { ...p, techStack: e.target.value };
                      dispatch(setProject(newData));
@@ -287,7 +288,7 @@ const ProfilePage = () => {
                         className="w-full bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 outline-none text-sm resize-none min-h-[100px]"
                         placeholder="Metrics, features, outcomes..."
                         value={p.description}
-                        onChange={(e) => {
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                           const newData = [...resume.projectData];
                           newData[idx] = { ...p, description: e.target.value };
                           dispatch(setProject(newData));
@@ -302,7 +303,6 @@ const ProfilePage = () => {
   );
 
   const renderSkills = () => {
-    const [newSkill, setNewSkill] = useState("");
     const addSkill = (e?: React.FormEvent) => {
       e?.preventDefault();
       if (newSkill.trim() && !resume.skillData.includes(newSkill.trim())) {
@@ -318,20 +318,21 @@ const ProfilePage = () => {
             <p className="text-sm text-gray-500">Your core technical competencies and soft skills.</p>
          </div>
 
-         <div className="max-w-xl">
-            <form onSubmit={addSkill} className="flex bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 p-1.5 focus-within:border-purple-500/50 transition-all">
+          <div className="max-w-xl">
+            <div className="flex bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 p-1.5 focus-within:border-purple-500/50 transition-all">
                <input 
                  type="text" 
                  value={newSkill}
                  onChange={(e) => setNewSkill(e.target.value)}
+                 onKeyDown={(e) => e.key === 'Enter' && addSkill()}
                  className="flex-1 px-4 py-2.5 bg-transparent outline-none font-medium text-sm text-gray-900 dark:text-white"
                  placeholder="Search or enter skills..."
                />
-               <button type="submit" className="px-5 bg-black dark:bg-white text-white dark:text-black rounded-lg font-bold text-xs shadow-xs active:scale-95 transition-all">
+               <button onClick={() => addSkill()} className="px-5 bg-black dark:bg-white text-white dark:text-black rounded-lg font-bold text-xs shadow-xs active:scale-95 transition-all">
                   Add
                </button>
-            </form>
-         </div>
+            </div>
+          </div>
 
          <div className="flex flex-wrap gap-2 pt-2">
             {resume.skillData.map((skill, idx) => (

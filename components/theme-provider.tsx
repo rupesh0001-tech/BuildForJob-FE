@@ -17,5 +17,12 @@ export function ThemeProvider({
     return <>{children}</>;
   }
 
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  return (
+    <NextThemesProvider 
+      {...props} 
+      enableSystem={false} // Force off system detection to minimize script injection
+    >
+      {children}
+    </NextThemesProvider>
+  );
 }

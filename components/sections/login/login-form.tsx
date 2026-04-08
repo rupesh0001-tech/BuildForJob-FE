@@ -29,7 +29,11 @@ export function LoginForm() {
         toast.success("Login successful!");
         router.push("/dashboard");
       } else {
-        toast.error(resultAction.payload as string || "Login failed");
+        const errorMessage = resultAction.payload as string || "Login failed";
+        toast.error(errorMessage);
+        if (errorMessage.toLowerCase().includes("verify your email")) {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        }
       }
     } catch (error) {
       toast.error("An unexpected error occurred");

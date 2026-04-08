@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button1 } from "@/components/general/buttons/button1";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { verifyOtp } from "@/store/slices/authSlice";
+import { verifyOtp, resendOtp } from "@/store/slices/authSlice";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -22,6 +22,21 @@ export function VerifyEmailForm() {
       router.push("/register");
     }
   }, [email, router]);
+
+  const handleResend = async () => {
+    if (!email) return;
+
+    try {
+      const resultAction = await dispatch(resendOtp({ email, type: 'REGISTRATION' }));
+      if (resendOtp.fulfilled.match(resultAction)) {
+        toast.success("A new code has been sent to your email!");
+      } else {
+        toast.error(resultAction.payload as string || "Failed to resend code");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +94,12 @@ export function VerifyEmailForm() {
       
       <p className="text-center text-xs text-gray-500 mt-4">
         Didn't receive the code? {" "}
-        <button type="button" className="text-purple-600 dark:text-purple-400 font-medium hover:underline">
+        <button 
+          type="button" 
+          onClick={handleResend}
+          disabled={isLoading}
+          className="text-purple-600 dark:text-purple-400 font-medium hover:underline disabled:opacity-50"
+        >
           Resend Code
         </button>
       </p>

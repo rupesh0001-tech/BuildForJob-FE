@@ -24,6 +24,11 @@ export const authApi = {
     return response.data;
   },
 
+  resendOtp: async (data: { email: string; type: string }): Promise<any> => {
+    const response = await api.post('/verify/resend-otp', data);
+    return response.data;
+  },
+
   getProfile: async (): Promise<ProfileResponse> => {
     const response = await api.get<ProfileResponse>('/user/profile');
     return response.data;

@@ -65,6 +65,21 @@ export const verifyOtp = createAsyncThunk(
   }
 );
 
+export const resendOtp = createAsyncThunk(
+  'auth/resendOtp',
+  async (data: { email: string; type: string }, { rejectWithValue }) => {
+    try {
+      const response = await authApi.resendOtp(data);
+      if (response.success) {
+        return response.message;
+      }
+      return rejectWithValue(response.message);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to resend OTP');
+    }
+  }
+);
+
 export const fetchProfile = createAsyncThunk(
   'auth/fetchProfile',
   async (_, { rejectWithValue }) => {

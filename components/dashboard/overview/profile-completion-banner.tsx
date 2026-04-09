@@ -11,9 +11,25 @@ export function ProfileCompletionBanner() {
   if (!user) return null;
 
   const calculateCompletion = () => {
-    const fields = ['firstName', 'lastName', 'email', 'phone', 'location', 'jobTitle', 'bio'];
-    const completed = fields.filter(field => !!user[field as keyof typeof user]);
-    return Math.round((completed.length / fields.length) * 100);
+    if (!user) return 0;
+    let score = 0;
+    
+    // Basic Info (30%) - strictly non-social fields
+    const basicFields = ['firstName', 'lastName', 'phone', 'location', 'jobTitle', 'bio'];
+    const filledBasicCount = basicFields.filter(f => !!(user as any)[f]).length;
+    score += (filledBasicCount / basicFields.length) * 30;
+
+    // Sections (70%) - weighted by career importance
+    if ((user.experience?.length || 0) > 0) score += 20;
+    if ((user.education?.length || 0) > 0) score += 20;
+    if ((user.projects?.length || 0) > 0) score += 15;
+    
+    // Skills (15%) - requires at least 3 for full marks
+    const skillCount = user.skills?.length || 0;
+    if (skillCount >= 3) score += 15;
+    else if (skillCount > 0) score += 5;
+
+    return Math.min(100, Math.round(score));
   };
 
   const completionPercent = calculateCompletion();

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button1 } from "@/components/general/buttons/button1";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 type TabType = "personal" | "experience" | "education" | "projects" | "skills";
@@ -16,7 +17,17 @@ type TabType = "personal" | "experience" | "education" | "projects" | "skills";
 export default function ProfileSettingsPage() {
   const dispatch = useAppDispatch();
   const { user, isLoading } = useAppSelector((state) => state.auth);
-  const [activeTab, setActiveTab] = useState<TabType>("personal");
+  
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = (searchParams.get("tab") as TabType) || "personal";
+
+  const setActiveTab = (tab: TabType) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", tab);
+    router.replace(`?${params.toString()}`);
+  };
+
   const [isSaving, setIsSaving] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -40,7 +51,10 @@ export default function ProfileSettingsPage() {
   });
 
   useEffect(() => {
-    if (user) {
+    // Only update formData from user if we're not currently saving
+    // and if we have user data. This prevents local edits from being 
+    // overwritten by server data while the user is still typing or saving.
+    if (user && !isSaving) {
       setFormData({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -56,7 +70,7 @@ export default function ProfileSettingsPage() {
         socialLinks: user.socialLinks || { github: "", linkedin: "", twitter: "", website: "" },
       });
     }
-  }, [user]);
+  }, [user, isSaving]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -75,23 +89,27 @@ export default function ProfileSettingsPage() {
     if (!user) return 0;
     let score = 0;
     
-    // Basic Info (30%)
+    // Basic Info (30%) - strictly non-social fields
     const basicFields = ['firstName', 'lastName', 'phone', 'location', 'jobTitle', 'bio'];
-    const filledBasic = basicFields.filter(f => !!(formData as any)[f]).length;
-    score += (filledBasic / basicFields.length) * 30;
+    const filledBasicCount = basicFields.filter(f => !!(formData as any)[f]).length;
+    score += (filledBasicCount / basicFields.length) * 30;
 
-    // Sections (70%)
+    // Sections (70%) - weighted by career importance
     if (formData.experience.length > 0) score += 20;
     if (formData.education.length > 0) score += 20;
     if (formData.projects.length > 0) score += 15;
-    if (formData.skills.length >= 3) score += 15;
-    else if (formData.skills.length > 0) score += 5;
+    
+    // Skills (15%) - requires at least 3 for full marks
+    const skillCount = formData.skills.length;
+    if (skillCount >= 3) score += 15;
+    else if (skillCount > 0) score += 5;
 
     return Math.min(100, Math.round(score));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent | React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     setIsSaving(true);
     try {
       await dispatch(updateProfile(formData)).unwrap();
@@ -138,6 +156,7 @@ export default function ProfileSettingsPage() {
 
   const TabButton = ({ id, label, icon: Icon }: { id: TabType, label: string, icon: any }) => (
     <button
+      type="button"
       onClick={() => setActiveTab(id)}
       className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
         activeTab === id 
@@ -193,7 +212,7 @@ export default function ProfileSettingsPage() {
               <div className="w-full h-full rounded-full bg-linear-to-br from-purple-500 via-purple-600 to-blue-600 flex items-center justify-center text-white text-4xl font-extrabold shadow-2xl ring-4 ring-white dark:ring-white/5 transition-transform duration-500 group-hover:scale-105">
                 {user?.firstName?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
               </div>
-              <button className="absolute bottom-1 right-1 p-2.5 rounded-full bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-purple-500 shadow-xl hover:bg-purple-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95">
+              <button type="button" className="absolute bottom-1 right-1 p-2.5 rounded-full bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-purple-500 shadow-xl hover:bg-purple-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95">
                 <Camera size={18} />
               </button>
             </div>
@@ -227,7 +246,7 @@ export default function ProfileSettingsPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit} className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-sm space-y-8 relative overflow-hidden">
+          <div className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-sm space-y-8 relative overflow-hidden">
             <AnimatePresence mode="wait">
               {activeTab === "personal" && (
                 <motion.div 
@@ -404,12 +423,12 @@ export default function ProfileSettingsPage() {
               <div className="text-gray-400 text-xs italic">
                 {activeTab !== 'personal' && "Don't forget to save your changes!"}
               </div>
-              <Button1 type="submit" className="px-10 py-4 flex items-center gap-2 shadow-2xl shadow-purple-500/20" disabled={isSaving}>
+              <Button1 type="button" onClick={handleSubmit} className="px-10 py-4 flex items-center gap-2 shadow-2xl shadow-purple-500/20" disabled={isSaving}>
                 {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                 {isSaving ? "Syncing..." : "Save Profile"}
               </Button1>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

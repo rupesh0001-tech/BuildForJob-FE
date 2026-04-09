@@ -54,7 +54,12 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
 
     const mergedData = { ...currentData };
 
-    // 1. Personal Info Merge
+    // 1. Personal Info & Connection Merge
+    mergedData.socialLinks = { 
+      ...(mergedData.socialLinks || {}), 
+      github: githubData.profile.html_url 
+    };
+
     if (selectedFields.name === 'github') {
       mergedData.firstName = githubFirstName;
       mergedData.lastName = githubLastName;
@@ -70,7 +75,8 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
         name: p.name,
         description: p.description || "",
         techStack: p.tech || "",
-        url: p.github_url || p.url || ""
+        url: p.github_url || p.url || "",
+        isGithubSynced: true
       }));
     
     mergedData.projects = [...mergedData.projects, ...newProjects];
@@ -79,7 +85,10 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
     const currentSkillNames = new Set(mergedData.skills.map((s: any) => s.name.toLowerCase()));
     const newSkills = selectedSkills
       .filter(s => !currentSkillNames.has(s.toLowerCase()))
-      .map(s => ({ name: s }));
+      .map(s => ({ 
+        name: s,
+        isGithubSynced: true
+      }));
 
     mergedData.skills = [...mergedData.skills, ...newSkills];
 

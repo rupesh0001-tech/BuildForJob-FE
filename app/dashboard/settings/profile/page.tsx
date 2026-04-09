@@ -5,7 +5,7 @@ import { fetchProfile, updateProfile } from "@/store/slices/authSlice";
 import { 
   Mail, User as UserIcon, Phone, MapPin, Briefcase, FileText, 
   Camera, Save, Loader2, Plus, Trash2, GraduationCap, 
-  Code, Globe, Linkedin, Github, Twitter, RefreshCw
+  Code, Globe, Linkedin, Github, Twitter, RefreshCw, Check
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button1 } from "@/components/general/buttons/button1";
@@ -34,6 +34,7 @@ export default function ProfileSettingsPage() {
   const [isFetchingGithub, setIsFetchingGithub] = useState(false);
   const [githubSyncData, setGithubSyncData] = useState<any>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -43,7 +44,7 @@ export default function ProfileSettingsPage() {
     location: "",
     jobTitle: "",
     bio: "",
-    skills: [] as { name: string }[],
+    skills: [] as { name: string, isGithubSynced?: boolean }[],
     experience: [] as any[],
     education: [] as any[],
     projects: [] as any[],
@@ -54,6 +55,8 @@ export default function ProfileSettingsPage() {
       website: ""
     },
   });
+
+  const isAlreadySynced = hasSynced || (formData.projects?.some((p: any) => p.isGithubSynced) || formData.skills?.some((s: any) => s.isGithubSynced));
 
   const handleGithubSync = async () => {
     const githubUrl = formData.socialLinks.github;
@@ -69,7 +72,6 @@ export default function ProfileSettingsPage() {
       const data = await fetchGitHubData(username);
       setGithubSyncData(data);
       setShowSyncModal(true);
-      toast.success("GitHub data fetched successfully!");
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch GitHub data");
     } finally {
@@ -77,15 +79,44 @@ export default function ProfileSettingsPage() {
     }
   };
 
-  const onGithubDataMerged = (mergedData: any) => {
-    setFormData(mergedData);
-    toast.success("GitHub data merged into profile!");
+  const handleDisconnect = async () => {
+    if (!confirm("Are you sure? This will disconnect GitHub and REMOVE all projects and skills synced from it.")) return;
+    
+    try {
+      setIsSaving(true);
+      const updatedData = {
+        ...formData,
+        socialLinks: { ...formData.socialLinks, github: "" },
+        skills: (formData.skills || []).filter((s: any) => !s.isGithubSynced),
+        projects: (formData.projects || []).filter((p: any) => !p.isGithubSynced)
+      };
+      
+      await dispatch(updateProfile(updatedData)).unwrap();
+      setFormData(updatedData as any);
+      setHasSynced(false);
+      toast.success("GitHub disconnected and synced data removed.");
+    } catch (error: any) {
+      toast.error(error || "Failed to disconnect");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const onGithubDataMerged = async (mergedData: any) => {
+    try {
+      setIsSaving(true);
+      await dispatch(updateProfile(mergedData)).unwrap();
+      setFormData(mergedData);
+      setHasSynced(true);
+      toast.success("GitHub data merged into profile!");
+    } catch (error: any) {
+      toast.error(error || "Failed to save synced data");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   useEffect(() => {
-    // Only update formData from user if we're not currently saving
-    // and if we have user data. This prevents local edits from being 
-    // overwritten by server data while the user is still typing or saving.
     if (user && !isSaving) {
       setFormData({
         firstName: user.firstName || "",
@@ -120,22 +151,15 @@ export default function ProfileSettingsPage() {
   const calculateCompletion = () => {
     if (!user) return 0;
     let score = 0;
-    
-    // Basic Info (30%) - strictly non-social fields
     const basicFields = ['firstName', 'lastName', 'phone', 'location', 'jobTitle', 'bio'];
     const filledBasicCount = basicFields.filter(f => !!(formData as any)[f]).length;
     score += (filledBasicCount / basicFields.length) * 30;
-
-    // Sections (70%) - weighted by career importance
     if (formData.experience.length > 0) score += 20;
     if (formData.education.length > 0) score += 20;
     if (formData.projects.length > 0) score += 15;
-    
-    // Skills (15%) - requires at least 3 for full marks
     const skillCount = formData.skills.length;
     if (skillCount >= 3) score += 15;
     else if (skillCount > 0) score += 5;
-
     return Math.min(100, Math.round(score));
   };
 
@@ -153,7 +177,6 @@ export default function ProfileSettingsPage() {
     }
   };
 
-  // List manipulators
   const addItem = (section: keyof typeof formData, defaultItem: any) => {
     setFormData(prev => ({
       ...prev,
@@ -274,21 +297,37 @@ export default function ProfileSettingsPage() {
                 </div>
               ))}
               <div className="pt-4 px-2">
-                <button 
-                  type="button"
-                  onClick={handleGithubSync}
-                  disabled={isFetchingGithub || !formData.socialLinks.github}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-black dark:bg-white/10 hover:bg-gray-800 dark:hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-black/10"
-                >
-                  {isFetchingGithub ? (
-                    <RefreshCw size={16} className="animate-spin" />
-                  ) : (
-                    <Github size={16} className="transition-transform group-hover:scale-110" />
+                <div className="flex items-center gap-2">
+                  {!isAlreadySynced && (
+                    <button 
+                      type="button"
+                      onClick={handleGithubSync}
+                      disabled={isFetchingGithub || !formData.socialLinks.github}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-black dark:bg-white/10 hover:bg-gray-800 dark:hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50 group shadow-lg"
+                    >
+                      {isFetchingGithub ? (
+                        <RefreshCw size={16} className="animate-spin" />
+                      ) : (
+                        <Github size={16} className="transition-transform group-hover:scale-110" />
+                      )}
+                      {isFetchingGithub ? "Fetching..." : "Sync with GitHub"}
+                    </button>
                   )}
-                  {isFetchingGithub ? "Fetching Details..." : "Sync with GitHub"}
-                </button>
+                  {formData.socialLinks.github && (
+                    <button
+                      type="button"
+                      onClick={handleDisconnect}
+                      disabled={isSaving}
+                      className={`p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg ${!isAlreadySynced ? "" : "w-full flex items-center justify-center gap-2"}`}
+                      title={isAlreadySynced ? "Connected (Click to Disconnect)" : "Disconnect & Remove Synced Data"}
+                    >
+                      <Trash2 size={16} />
+                      {isAlreadySynced && <span className="text-xs font-bold">Connected (Disconnect)</span>}
+                    </button>
+                  )}
+                </div>
                 <p className="text-[9px] text-gray-400 text-center mt-2 group-hover:text-purple-500 transition-colors">
-                  Import projects and skills from your profile
+                  {isAlreadySynced ? "GitHub data is currently linked to your profile." : "Import projects and skills from your profile"}
                 </p>
               </div>
             </div>
@@ -353,7 +392,7 @@ export default function ProfileSettingsPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                    <label className="text-[11px) uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
                       <Briefcase size={12} className="text-purple-500" /> Job Title
                     </label>
                     <input 
@@ -363,7 +402,7 @@ export default function ProfileSettingsPage() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                    <label className="text-[11px uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
                       <FileText size={12} className="text-purple-500" /> Bio / Professional Summary
                     </label>
                     <textarea 
@@ -475,7 +514,7 @@ export default function ProfileSettingsPage() {
               </div>
               <Button1 type="button" onClick={handleSubmit} className="px-10 py-4 flex items-center gap-2 shadow-2xl shadow-purple-500/20" disabled={isSaving}>
                 {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                {isSaving ? "Syncing..." : "Save Profile"}
+                {isSaving ? "Saving..." : "Save Profile"}
               </Button1>
             </div>
           </div>
@@ -495,5 +534,3 @@ export default function ProfileSettingsPage() {
     </div>
   );
 }
-
-

@@ -1,13 +1,15 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAppSelector } from "@/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { fetchProfile } from "@/store/slices/authSlice";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, token } = useAppSelector((state) => state.auth);
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [mounted, setMounted] = React.useState(false);
 
   useEffect(() => {
@@ -15,10 +17,14 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (mounted && !isLoading && !isAuthenticated && !token) {
-      router.push("/login");
+    if (mounted) {
+      if (!isLoading && !isAuthenticated && !token) {
+        router.push("/login");
+      } else if (token && !isAuthenticated && !isLoading) {
+        dispatch(fetchProfile());
+      }
     }
-  }, [isAuthenticated, isLoading, token, router, mounted]);
+  }, [isAuthenticated, isLoading, token, router, mounted, dispatch]);
 
   // Don't render anything that depends on client-only state during SSR
   if (!mounted) {

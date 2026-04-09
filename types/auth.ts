@@ -12,7 +12,7 @@ export interface User {
   createdAt?: string;
 
   // Profile Builder Fields
-  skills?: { id?: string; name: string }[];
+  skills?: { id?: string; name: string; isGithubSynced?: boolean }[];
   experience?: {
     id?: string;
     company: string;
@@ -36,6 +36,7 @@ export interface User {
     name: string;
     techStack?: string | null;
     description?: string | null;
+    isGithubSynced?: boolean;
   }[];
   socialLinks?: any;
 }

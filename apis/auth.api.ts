@@ -34,6 +34,11 @@ export const authApi = {
     return response.data;
   },
 
+  updateProfile: async (data: any): Promise<ProfileResponse> => {
+    const response = await api.patch<ProfileResponse>('/user/profile', data);
+    return response.data;
+  },
+
   logout: async () => {
     // Usually frontend only, but can be API call
     return { success: true };

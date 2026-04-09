@@ -1,470 +1,418 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchProfile, updateProfile } from "@/store/slices/authSlice";
 import { 
-  User, Briefcase, FileText, GraduationCap, 
-  Code2, Lightbulb, Save, Trash2, Plus, 
-  MapPin, Mail, Phone, Globe, Linkedin,
-  ChevronRight, Sparkles, Image as ImageIcon,
-  Github, Twitter, Info
+  Mail, User as UserIcon, Phone, MapPin, Briefcase, FileText, 
+  Camera, Save, Loader2, Plus, Trash2, GraduationCap, 
+  Code, Globe, Linkedin, Github, Twitter
 } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "@/lib/store/store";
-import { 
-  setPersonalInfo, setProfessionalSummary, setExperience, 
-  setEducation, setProject, setSkill 
-} from "@/lib/store/features/resume-slice";
-import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { Button1 } from "@/components/general/buttons/button1";
+import { toast } from "sonner";
 
-const ProfilePage = () => {
-  const dispatch = useDispatch();
-  const resume = useSelector((state: RootState) => state.resume);
-  const [activeTab, setActiveTab] = useState("personal");
-  const [newSkill, setNewSkill] = useState("");
+type TabType = "personal" | "experience" | "education" | "projects" | "skills";
 
-  const tabs = [
-    { id: "personal", label: "Identity", icon: User },
-    { id: "summary", label: "Bio", icon: FileText },
-    { id: "experience", label: "Experience", icon: Briefcase },
-    { id: "education", label: "Education", icon: GraduationCap },
-    { id: "projects", label: "Projects", icon: Code2 },
-    { id: "skills", label: "Expertise", icon: Lightbulb },
-  ];
+export default function ProfileSettingsPage() {
+  const dispatch = useAppDispatch();
+  const { user, isLoading } = useAppSelector((state) => state.auth);
+  const [activeTab, setActiveTab] = useState<TabType>("personal");
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    location: "",
+    jobTitle: "",
+    bio: "",
+    skills: [] as { name: string }[],
+    experience: [] as any[],
+    education: [] as any[],
+    projects: [] as any[],
+    socialLinks: {
+      github: "",
+      linkedin: "",
+      twitter: "",
+      website: ""
+    },
+  });
 
-  const handleSave = () => {
-    toast.success("Profile changes synchronized.");
-  };
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        location: user.location || "",
+        jobTitle: user.jobTitle || "",
+        bio: user.bio || "",
+        skills: user.skills || [],
+        experience: user.experience || [],
+        education: user.education || [],
+        projects: user.projects || [],
+        socialLinks: user.socialLinks || { github: "", linkedin: "", twitter: "", website: "" },
+      });
+    }
+  }, [user]);
 
-  const renderPersonalInfo = () => {
-    const data = resume.personalInfoData;
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      dispatch(setPersonalInfo({ ...data, [e.target.name]: e.target.value }));
-    };
-
-    return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <div className="flex items-start gap-8 pb-8 border-b border-gray-100 dark:border-white/5">
-          <div className="relative group shrink-0">
-            <div className="w-24 h-24 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
-              {data.image ? (
-                <img src={data.image} alt="Profile" className="w-full h-full object-cover rounded-2xl" />
-              ) : (
-                <ImageIcon size={24} className="text-gray-400" />
-              )}
-            </div>
-            <button className="absolute -bottom-2 -right-2 p-1.5 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-lg shadow-xs hover:scale-110 transition-transform">
-               <Plus size={14} className="text-gray-600 dark:text-gray-300" />
-            </button>
-          </div>
-          <div className="space-y-1 py-1">
-             <h3 className="text-xl font-bold text-gray-900 dark:text-white">Profile Identity</h3>
-             <p className="text-sm text-gray-500 max-w-sm">
-                This information will be used as the default for all your generated resumes and portfolios.
-             </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-          <SleekInput label="Full Name" name="full_name" value={data.full_name} onChange={handleChange} icon={<User size={16} />} placeholder="Jane Doe" />
-          <SleekInput label="Work Title" name="profession" value={data.profession} onChange={handleChange} icon={<Briefcase size={16} />} placeholder="Senior Architect" />
-          <SleekInput label="Email" name="email" value={data.email} onChange={handleChange} icon={<Mail size={16} />} placeholder="jane@example.com" />
-          <SleekInput label="Phone" name="phone" value={data.phone} onChange={handleChange} icon={<Phone size={16} />} placeholder="+1 (555) 000-0000" />
-          <SleekInput label="Base Location" name="location" value={data.location} onChange={handleChange} icon={<MapPin size={16} />} placeholder="London, UK" />
-          <SleekInput label="Website / Portfolio" name="website" value={data.website} onChange={handleChange} icon={<Globe size={16} />} placeholder="https://janedoe.com" />
-        </div>
-
-        <div className="pt-4 space-y-4">
-           <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-              <Sparkles size={14} className="text-purple-500" /> Social Dimensions
-           </h4>
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <SleekInput name="linkedin" label="LinkedIn" value={data.linkedin} onChange={handleChange} icon={<Linkedin size={14} />} placeholder="Profile Link" />
-              <SleekInput label="GitHub" icon={<Github size={14} />} placeholder="Link" />
-              <SleekInput label="Twitter / X" icon={<Twitter size={14} />} placeholder="Link" />
-           </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderSummary = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 h-full flex flex-col">
-      <div className="flex items-center justify-between">
-         <div className="space-y-0.5">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Professional Bio</h3>
-            <p className="text-sm text-gray-500">A high-level summary of your career milestones.</p>
-         </div>
-         <button className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-600 rounded-xl font-bold text-xs hover:bg-purple-500/20 transition-all border border-purple-500/20">
-            <Sparkles size={14} /> AI Rewriter
-         </button>
-      </div>
-      <div className="flex-1 min-h-[400px] relative">
-         <textarea
-            value={resume.professionalSummaryData}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => dispatch(setProfessionalSummary(e.target.value))}
-            placeholder="Write your story..."
-            className="w-full h-full bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 text-gray-900 dark:text-white outline-none focus:border-purple-500/50 transition-all text-sm leading-relaxed resize-none"
-         />
-      </div>
-    </div>
-  );
-
-  const renderExperience = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-       <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-             <h3 className="text-xl font-bold text-gray-900 dark:text-white">Career History</h3>
-             <p className="text-sm text-gray-500">Manage your past and current professional roles.</p>
-          </div>
-          <button 
-            onClick={() => dispatch(setExperience([{ company: "", position: "", startDate: "", endDate: "", description: "", is_current: false }, ...resume.experienceData]))}
-            className="flex items-center gap-2 px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-lg"
-          >
-            <Plus size={16} /> New Entry
-          </button>
-       </div>
-
-       <div className="space-y-6">
-          {resume.experienceData.map((exp, idx) => (
-             <div key={idx} className="group relative bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 hover:shadow-md transition-all">
-                <button 
-                  onClick={() => dispatch(setExperience(resume.experienceData.filter((_, i) => i !== idx)))}
-                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                >
-                  <Trash2 size={16} />
-                </button>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                   <SleekInput label="Company" value={exp.company} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                     const newData = [...resume.experienceData];
-                     newData[idx] = { ...exp, company: e.target.value };
-                     dispatch(setExperience(newData));
-                   }} />
-                   <SleekInput label="Position" value={exp.position} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                     const newData = [...resume.experienceData];
-                     newData[idx] = { ...exp, position: e.target.value };
-                     dispatch(setExperience(newData));
-                   }} />
-                   <SleekInput label="From" type="month" value={exp.startDate} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                     const newData = [...resume.experienceData];
-                     newData[idx] = { ...exp, startDate: e.target.value };
-                     dispatch(setExperience(newData));
-                   }} />
-                   <div className="flex items-end gap-3">
-                      <div className="flex-1">
-                         <SleekInput label="To" type="month" value={exp.endDate} disabled={exp.is_current} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                           const newData = [...resume.experienceData];
-                           newData[idx] = { ...exp, endDate: e.target.value };
-                           dispatch(setExperience(newData));
-                         }} />
-                      </div>
-                      <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl mb-0.5">
-                         <input 
-                           type="checkbox" 
-                           id={`current-${idx}`}
-                           checked={exp.is_current} 
-                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                              const newData = [...resume.experienceData];
-                              newData[idx] = { ...exp, is_current: e.target.checked };
-                              dispatch(setExperience(newData));
-                           }}
-                           className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500" 
-                         />
-                         <label htmlFor={`current-${idx}`} className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Current</label>
-                      </div>
-                   </div>
-                   <div className="md:col-span-2">
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Responsibilities</label>
-                      <textarea 
-                         value={exp.description}
-                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                           const newData = [...resume.experienceData];
-                           newData[idx] = { ...exp, description: e.target.value };
-                           dispatch(setExperience(newData));
-                         }}
-                         placeholder="Describe your impact..."
-                         className="w-full min-h-[100px] bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 text-sm outline-none focus:border-purple-500/50 transition-all resize-none"
-                      />
-                   </div>
-                </div>
-             </div>
-          ))}
-       </div>
-    </div>
-  );
-
-  const renderEducation = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-       <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-             <h3 className="text-xl font-bold text-gray-900 dark:text-white">Academic Journey</h3>
-             <p className="text-sm text-gray-500">Your educational background and certifications.</p>
-          </div>
-          <button 
-           onClick={() => dispatch(setEducation([{ institution: "", degree: "", field: "", graduation_date: "", gpa: "", graduationType: "cgpa" }, ...resume.educationData]))}
-           className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-all"
-          >
-            Add Institution
-          </button>
-       </div>
-
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {resume.educationData.map((edu, idx) => (
-             <div key={idx} className="group relative bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 hover:shadow-xs transition-all">
-                <button onClick={() => dispatch(setEducation(resume.educationData.filter((_, i) => i !== idx)))} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
-                <div className="space-y-4">
-                   <div className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 dark:border-white/10">
-                      <GraduationCap size={18} />
-                   </div>
-                   <div className="space-y-4">
-                      <SleekInput label="Institute" value={edu.institution} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const newData = [...resume.educationData];
-                        newData[idx] = { ...edu, institution: e.target.value };
-                        dispatch(setEducation(newData));
-                      }} />
-                      <SleekInput label="Field of Study" value={edu.field} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        const newData = [...resume.educationData];
-                        newData[idx] = { ...edu, field: e.target.value };
-                        dispatch(setEducation(newData));
-                      }} />
-                      <div className="grid grid-cols-2 gap-4">
-                         <SleekInput label="Grad Date" type="month" value={edu.graduation_date} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                           const newData = [...resume.educationData];
-                           newData[idx] = { ...edu, graduation_date: e.target.value };
-                           dispatch(setEducation(newData));
-                         }} />
-                         <SleekInput label="Grade / GPA" value={edu.gpa} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                           const newData = [...resume.educationData];
-                           newData[idx] = { ...edu, gpa: e.target.value };
-                           dispatch(setEducation(newData));
-                         }} />
-                      </div>
-                   </div>
-                </div>
-             </div>
-          ))}
-       </div>
-    </div>
-  );
-
-  const renderProjects = () => (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-       <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-             <h3 className="text-xl font-bold text-gray-900 dark:text-white">Project Showcase</h3>
-             <p className="text-sm text-gray-500">Feature your most impactful technical builds.</p>
-          </div>
-          <button 
-           onClick={() => dispatch(setProject([{ name: "", techStack: "", description: "" }, ...resume.projectData]))}
-           className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm shadow-lg active:scale-95 transition-all"
-          >
-            Add Project
-          </button>
-       </div>
-
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {resume.projectData.map((p, idx) => (
-             <div key={idx} className="group relative bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-6 hover:shadow-xs transition-all flex flex-col">
-                <button onClick={() => dispatch(setProject(resume.projectData.filter((_, i) => i !== idx)))} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"><Trash2 size={16} /></button>
-                <div className="space-y-4 flex-1">
-                   <div className="w-10 h-10 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-400 border border-gray-100 dark:border-white/10">
-                      <Code2 size={18} />
-                   </div>
-                   <SleekInput label="Project Name" value={p.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                     const newData = [...resume.projectData];
-                     newData[idx] = { ...p, name: e.target.value };
-                     dispatch(setProject(newData));
-                   }} placeholder="e.g. Portfolio v2" />
-                   <SleekInput label="Technologies" value={p.techStack} onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                     const newData = [...resume.projectData];
-                     newData[idx] = { ...p, techStack: e.target.value };
-                     dispatch(setProject(newData));
-                   }} />
-                   <div>
-                      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-2 px-1">Case Study Highlights</label>
-                      <textarea 
-                        className="w-full bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 outline-none text-sm resize-none min-h-[100px]"
-                        placeholder="Metrics, features, outcomes..."
-                        value={p.description}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
-                          const newData = [...resume.projectData];
-                          newData[idx] = { ...p, description: e.target.value };
-                          dispatch(setProject(newData));
-                        }}
-                      />
-                   </div>
-                </div>
-             </div>
-          ))}
-       </div>
-    </div>
-  );
-
-  const renderSkills = () => {
-    const addSkill = (e?: React.FormEvent) => {
-      e?.preventDefault();
-      if (newSkill.trim() && !resume.skillData.includes(newSkill.trim())) {
-        dispatch(setSkill([...resume.skillData, newSkill.trim()]));
-        setNewSkill("");
-      }
-    };
-
-    return (
-      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500">
-         <div className="space-y-1">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">Expertise Catalog</h3>
-            <p className="text-sm text-gray-500">Your core technical competencies and soft skills.</p>
-         </div>
-
-          <div className="max-w-xl">
-            <div className="flex bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 p-1.5 focus-within:border-purple-500/50 transition-all">
-               <input 
-                 type="text" 
-                 value={newSkill}
-                 onChange={(e) => setNewSkill(e.target.value)}
-                 onKeyDown={(e) => e.key === 'Enter' && addSkill()}
-                 className="flex-1 px-4 py-2.5 bg-transparent outline-none font-medium text-sm text-gray-900 dark:text-white"
-                 placeholder="Search or enter skills..."
-               />
-               <button onClick={() => addSkill()} className="px-5 bg-black dark:bg-white text-white dark:text-black rounded-lg font-bold text-xs shadow-xs active:scale-95 transition-all">
-                  Add
-               </button>
-            </div>
-          </div>
-
-         <div className="flex flex-wrap gap-2 pt-2">
-            {resume.skillData.map((skill, idx) => (
-              <div 
-                key={idx} 
-                className="group flex items-center gap-2 pl-4 pr-2.5 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:border-purple-500/30 transition-all"
-              >
-                 {skill}
-                 <button onClick={() => dispatch(setSkill(resume.skillData.filter((_, i) => i !== idx)))} className="p-0.5 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
-              </div>
-            ))}
-         </div>
-      </div>
-    );
-  };
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "personal": return renderPersonalInfo();
-      case "summary": return renderSummary();
-      case "experience": return renderExperience();
-      case "education": return renderEducation();
-      case "projects": return renderProjects();
-      case "skills": return renderSkills();
-      default: return renderPersonalInfo();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: { ...((prev as any)[parent]), [child]: value }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  const calculateCompletion = () => {
+    if (!user) return 0;
+    let score = 0;
+    
+    // Basic Info (30%)
+    const basicFields = ['firstName', 'lastName', 'phone', 'location', 'jobTitle', 'bio'];
+    const filledBasic = basicFields.filter(f => !!(formData as any)[f]).length;
+    score += (filledBasic / basicFields.length) * 30;
+
+    // Sections (70%)
+    if (formData.experience.length > 0) score += 20;
+    if (formData.education.length > 0) score += 20;
+    if (formData.projects.length > 0) score += 15;
+    if (formData.skills.length >= 3) score += 15;
+    else if (formData.skills.length > 0) score += 5;
+
+    return Math.min(100, Math.round(score));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      await dispatch(updateProfile(formData)).unwrap();
+      toast.success("Profile updated successfully!");
+    } catch (error: any) {
+      toast.error(error || "Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // List manipulators
+  const addItem = (section: keyof typeof formData, defaultItem: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: [...(prev[section] as any[]), defaultItem]
+    }));
+  };
+
+  const removeItem = (section: keyof typeof formData, index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: (prev[section] as any[]).filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateListItem = (section: keyof typeof formData, index: number, field: string, value: any) => {
+    setFormData(prev => {
+      const newList = [...(prev[section] as any[])];
+      newList[index] = { ...newList[index], [field]: value };
+      return { ...prev, [section]: newList };
+    });
+  };
+
+  if (isLoading && !user) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="animate-spin text-purple-500" size={32} />
+      </div>
+    );
+  }
+
+  const completionPercent = calculateCompletion();
+
+  const TabButton = ({ id, label, icon: Icon }: { id: TabType, label: string, icon: any }) => (
+    <button
+      onClick={() => setActiveTab(id)}
+      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+        activeTab === id 
+          ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20" 
+          : "text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"
+      }`}
+    >
+      <Icon size={16} />
+      {label}
+    </button>
+  );
+
   return (
-    <div className="max-w-7xl mx-auto flex flex-col h-[calc(100vh-120px)] lg:h-[calc(100vh-140px)] animate-in fade-in duration-500">
-      <div className="flex flex-col lg:flex-row gap-8 h-full">
-        {/* Navigation Sidebar: Sleek & Matching */}
-        <div className="w-full lg:w-64 shrink-0 overflow-x-auto lg:overflow-visible flex lg:flex-col gap-1 pb-2 lg:pb-0 scroll-hide">
-          <div className="hidden lg:block mb-4 px-2">
-             <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">Settings</h2>
-          </div>
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "group flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap min-w-fit flex-1 lg:flex-none",
-                activeTab === tab.id 
-                  ? "bg-purple-500/10 text-purple-600 border border-purple-500/20" 
-                  : "text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 border border-transparent"
-              )}
-            >
-              <tab.icon size={18} className={cn("transition-colors", activeTab === tab.id ? "text-purple-600" : "text-gray-400 group-hover:text-gray-700")} />
-              <span className="flex-1 text-left">{tab.label}</span>
-              <ChevronRight size={14} className={cn("hidden lg:block transition-opacity", activeTab === tab.id ? "opacity-100" : "opacity-0")} />
-            </button>
-          ))}
-          
-          <div className="hidden lg:block mt-auto p-2 bg-purple-50 dark:bg-purple-500/5 border border-purple-100 dark:border-purple-500/10 rounded-2xl">
-             <div className="flex items-center gap-2 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-2">
-                <Info size={12} /> Sync Info
+    <div className="max-w-4xl mx-auto pb-20 space-y-8">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Profile Builder</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Enhance your profile to generate professional resumes instantly.</p>
+        </div>
+        <div className="flex items-center gap-4 bg-white dark:bg-[#111116] border border-gray-200 dark:border-white/10 px-5 py-3 rounded-2xl shadow-sm">
+          <div className="relative w-14 h-14 flex items-center justify-center">
+             <svg className="w-full h-full -rotate-90" viewBox="0 0 44 44">
+                <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" className="text-gray-100 dark:text-white/5" />
+                <motion.circle 
+                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-purple-500/30 blur-[2px]"
+                  initial={{ strokeDasharray: "0 113.1" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 113.1} 113.1` }} transition={{ duration: 1.2, ease: "circOut" }}
+                />
+                <motion.circle 
+                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-purple-500"
+                  initial={{ strokeDasharray: "0 113.1" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 113.1} 113.1` }} transition={{ duration: 1, ease: "circOut" }}
+                />
+             </svg>
+             <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-[10px] font-bold text-black dark:text-white">{completionPercent}%</span>
              </div>
-             <p className="text-[11px] text-purple-600/70 dark:text-purple-400/60 leading-relaxed">
-                Changes here affect all resume templates and your digital portfolio.
-             </p>
-             <Button1 onClick={handleSave} className="w-full mt-4 py-2.5 text-xs">
-                Save Profile
-             </Button1>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <TabButton id="personal" label="Personal" icon={UserIcon} />
+        <TabButton id="experience" label="Experience" icon={Briefcase} />
+        <TabButton id="education" label="Education" icon={GraduationCap} />
+        <TabButton id="projects" label="Projects" icon={Code} />
+        <TabButton id="skills" label="Skills" icon={Plus} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1 space-y-6">
+          <div className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-8 text-center shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-purple-500 to-blue-600" />
+            <div className="relative w-32 h-32 mx-auto mb-6">
+              <div className="w-full h-full rounded-full bg-linear-to-br from-purple-500 via-purple-600 to-blue-600 flex items-center justify-center text-white text-4xl font-extrabold shadow-2xl ring-4 ring-white dark:ring-white/5 transition-transform duration-500 group-hover:scale-105">
+                {user?.firstName?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
+              </div>
+              <button className="absolute bottom-1 right-1 p-2.5 rounded-full bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-purple-500 shadow-xl hover:bg-purple-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95">
+                <Camera size={18} />
+              </button>
+            </div>
+            <h2 className="text-xl font-bold text-black dark:text-white tracking-tight">{formData.firstName} {formData.lastName}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{formData.jobTitle || "Your Career Start"}</p>
+          </div>
+
+          <div className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-6 shadow-sm space-y-4">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2">Social Profiles</h3>
+            <div className="space-y-3">
+              {[
+                { name: 'socialLinks.linkedin', icon: Linkedin, label: 'LinkedIn', placeholder: 'linkedin.com/in/...' },
+                { name: 'socialLinks.github', icon: Github, label: 'GitHub', placeholder: 'github.com/...' },
+                { name: 'socialLinks.twitter', icon: Twitter, label: 'Twitter', placeholder: 'twitter.com/...' },
+                { name: 'socialLinks.website', icon: Globe, label: 'Portfolio', placeholder: 'yourwebsite.com' },
+              ].map(s => (
+                <div key={s.name} className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-white/5 border border-transparent hover:border-purple-500/30 transition-all group">
+                  <s.icon size={18} className="text-gray-400 group-hover:text-purple-500" />
+                  <input 
+                    type="text" 
+                    name={s.name} 
+                    value={(formData as any).socialLinks[s.name.split('.')[1]]} 
+                    onChange={handleChange}
+                    placeholder={s.placeholder}
+                    className="bg-transparent border-none outline-none text-xs w-full text-black dark:text-white"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Unified Display Panel */}
-        <div className="flex-1 bg-white/80 dark:bg-black/40 backdrop-blur-md border border-gray-200 dark:border-white/10 rounded-3xl p-6 lg:p-10 shadow-xs flex flex-col overflow-y-auto overflow-x-hidden custom-scrollbar">
-          <AnimatePresence mode="wait">
-            <motion.div
-               key={activeTab}
-               initial={{ opacity: 0, y: 5 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: -5 }}
-               transition={{ duration: 0.2 }}
-               className="h-full"
-            >
-              {renderContent()}
-            </motion.div>
-          </AnimatePresence>
+        <div className="lg:col-span-2">
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-sm space-y-8 relative overflow-hidden">
+            <AnimatePresence mode="wait">
+              {activeTab === "personal" && (
+                <motion.div 
+                  key="personal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <UserIcon size={12} className="text-purple-500" /> First Name
+                      </label>
+                      <input 
+                        type="text" name="firstName" value={formData.firstName} onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <UserIcon size={12} className="text-purple-500" /> Last Name
+                      </label>
+                      <input 
+                        type="text" name="lastName" value={formData.lastName} onChange={handleChange}
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                      <Mail size={12} className="text-purple-500" /> Email Address
+                    </label>
+                    <input type="email" value={formData.email} disabled className="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-gray-500 cursor-not-allowed" />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <Phone size={12} className="text-purple-500" /> Phone Number
+                      </label>
+                      <input 
+                        type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 (555) 000-0000"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <MapPin size={12} className="text-purple-500" /> Location
+                      </label>
+                      <input 
+                        type="text" name="location" value={formData.location} onChange={handleChange} placeholder="City, Country"
+                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                      <Briefcase size={12} className="text-purple-500" /> Job Title
+                    </label>
+                    <input 
+                      type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                      <FileText size={12} className="text-purple-500" /> Bio / Professional Summary
+                    </label>
+                    <textarea 
+                      name="bio" value={formData.bio} onChange={handleChange} rows={4} placeholder="Describe yourself..."
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium resize-none min-h-[120px]"
+                    />
+                  </div>
+                </motion.div>
+              )}
+
+              {activeTab === "experience" && (
+                <motion.div key="experience" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                  {formData.experience.map((exp, index) => (
+                    <div key={index} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 relative group">
+                      <button type="button" onClick={() => removeItem("experience", index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm"><Trash2 size={16} /></button>
+                      <div className="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Company" value={exp.company} onChange={e => updateListItem("experience", index, "company", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="text" placeholder="Position" value={exp.position} onChange={e => updateListItem("experience", index, "position", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="date" value={exp.startDate} onChange={e => updateListItem("experience", index, "startDate", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="date" value={exp.endDate} disabled={exp.isCurrent} onChange={e => updateListItem("experience", index, "endDate", e.target.value)} className={`px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl ${exp.isCurrent ? 'opacity-30' : ''}`} />
+                        <label className="col-span-2 flex items-center gap-2 text-xs font-bold text-gray-500 px-1 cursor-pointer">
+                          <input type="checkbox" checked={exp.isCurrent} onChange={e => updateListItem("experience", index, "isCurrent", e.target.checked)} className="rounded border-gray-300 dark:border-white/10 text-purple-600 focus:ring-purple-500" />
+                          Currently Working Here
+                        </label>
+                        <textarea placeholder="Description" value={exp.description} onChange={e => updateListItem("experience", index, "description", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl min-h-[100px]" />
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addItem("experience", { company: "", position: "", startDate: "", endDate: "", description: "", isCurrent: false })} className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 text-gray-500 hover:text-purple-500 hover:border-purple-500/50 transition-all font-bold flex items-center justify-center gap-2"><Plus size={18} /> Add Experience</button>
+                </motion.div>
+              )}
+
+              {activeTab === "education" && (
+                <motion.div key="education" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                  {formData.education.map((edu, index) => (
+                    <div key={index} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 relative group">
+                      <button type="button" onClick={() => removeItem("education", index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm"><Trash2 size={16} /></button>
+                      <div className="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="Institution" value={edu.institution} onChange={e => updateListItem("education", index, "institution", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="text" placeholder="Degree" value={edu.degree} onChange={e => updateListItem("education", index, "degree", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="text" placeholder="Field of Study" value={edu.field} onChange={e => updateListItem("education", index, "field", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="date" value={edu.graduationDate} onChange={e => updateListItem("education", index, "graduationDate", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="text" placeholder="GPA / Percentage" value={edu.gpa} onChange={e => updateListItem("education", index, "gpa", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addItem("education", { institution: "", degree: "", field: "", graduationDate: "", gpa: "", graduationType: "cgpa" })} className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 text-gray-500 hover:text-purple-500 hover:border-purple-500/50 transition-all font-bold flex items-center justify-center gap-2"><Plus size={18} /> Add Education</button>
+                </motion.div>
+              )}
+
+              {activeTab === "projects" && (
+                <motion.div key="projects" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                  {formData.projects.map((proj, index) => (
+                    <div key={index} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 relative group">
+                      <button type="button" onClick={() => removeItem("projects", index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm"><Trash2 size={16} /></button>
+                      <div className="grid grid-cols-1 gap-4">
+                        <input type="text" placeholder="Project Name" value={proj.name} onChange={e => updateListItem("projects", index, "name", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <input type="text" placeholder="Tech Stack (e.g. Next.js, Prisma, Tailwind)" value={proj.techStack} onChange={e => updateListItem("projects", index, "techStack", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                        <textarea placeholder="Description" value={proj.description} onChange={e => updateListItem("projects", index, "description", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl min-h-[100px]" />
+                      </div>
+                    </div>
+                  ))}
+                  <button type="button" onClick={() => addItem("projects", { name: "", techStack: "", description: "" })} className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 text-gray-500 hover:text-purple-500 hover:border-purple-500/50 transition-all font-bold flex items-center justify-center gap-2"><Plus size={18} /> Add Project</button>
+                </motion.div>
+              )}
+
+              {activeTab === "skills" && (
+                <motion.div key="skills" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                  <div className="flex flex-wrap gap-2">
+                    {formData.skills.map((skill, index) => (
+                      <div key={index} className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-500 rounded-full border border-purple-500/30 group">
+                        <span className="text-sm font-bold">{skill.name}</span>
+                        <button type="button" onClick={() => removeItem("skills", index)} className="hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Add a skill (e.g. React.js)" 
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = (e.target as HTMLInputElement).value.trim();
+                          if (val) {
+                            addItem("skills", { name: val });
+                            (e.target as HTMLInputElement).value = "";
+                          }
+                        }
+                      }}
+                      className="flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border dark:border-white/10 focus:ring-2 focus:ring-purple-500/30 outline-none" 
+                    />
+                    <button type="button" onClick={(e) => {
+                      const input = (e.currentTarget.previousSibling as HTMLInputElement);
+                      if (input.value.trim()) {
+                        addItem("skills", { name: input.value.trim() });
+                        input.value = "";
+                      }
+                    }} className="px-6 rounded-xl bg-purple-500 text-white font-bold hover:bg-purple-600 transition-all">Add</button>
+                  </div>
+                  <p className="text-[10px] text-gray-400 text-center uppercase tracking-widest">Press Enter to add multiple skills</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="pt-8 border-t dark:border-white/5 flex justify-between items-center">
+              <div className="text-gray-400 text-xs italic">
+                {activeTab !== 'personal' && "Don't forget to save your changes!"}
+              </div>
+              <Button1 type="submit" className="px-10 py-4 flex items-center gap-2 shadow-2xl shadow-purple-500/20" disabled={isSaving}>
+                {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
+                {isSaving ? "Syncing..." : "Save Profile"}
+              </Button1>
+            </div>
+          </form>
         </div>
-      </div>
-      
-      {/* Mobile Footer Sync */}
-      <div className="lg:hidden fixed bottom-6 left-6 right-6 z-50">
-         <Button1 onClick={handleSave} className="w-full py-4 shadow-2xl">
-            Save Changes
-         </Button1>
       </div>
     </div>
   );
-};
+}
 
-// Sleek Dashboard-style Input
-const SleekInput = ({ label, icon, className, ...props }: any) => (
-  <div className={cn("space-y-1.5 flex-1", className)}>
-    <label className="text-[10px] font-black uppercase text-gray-400 tracking-[0.15em] ml-1">{label}</label>
-    <div className="relative group/field">
-      <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within/field:text-purple-500 transition-colors pointer-events-none">
-        {icon || <Info size={14} />}
-      </div>
-      <input
-        {...props}
-        className={cn(
-          "w-full bg-gray-50/50 dark:bg-black/10 border border-gray-200 dark:border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-gray-900 dark:text-white font-medium text-sm outline-none focus:ring-2 focus:ring-purple-500/10 focus:border-purple-500/40 transition-all placeholder:text-gray-300",
-          props.disabled && "opacity-50 cursor-not-allowed"
-        )}
-      />
-    </div>
-  </div>
-);
-
-// Compatibility bridge
-const ProfileInput = ({ label, className, ...props }: any) => (
-   <SleekInput label={label} className={className} {...props} />
-);
-
-const ArrowRight = ({ className, size }: { className?: string, size?: number }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width={size || 24} 
-    height={size || 24} 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className={className}
-  >
-    <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-  </svg>
-);
-
-export default ProfilePage;

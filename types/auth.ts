@@ -3,8 +3,41 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  phone?: string;
+  bio?: string;
+  location?: string;
+  avatarUrl?: string;
+  jobTitle?: string;
   isVerified?: boolean;
   createdAt?: string;
+
+  // Profile Builder Fields
+  skills?: { id?: string; name: string }[];
+  experience?: {
+    id?: string;
+    company: string;
+    position: string;
+    startDate: string;
+    endDate?: string | null;
+    description?: string | null;
+    isCurrent: boolean;
+  }[];
+  education?: {
+    id?: string;
+    institution: string;
+    degree: string;
+    field: string;
+    graduationDate: string;
+    gpa?: string | null;
+    graduationType?: string | null;
+  }[];
+  projects?: {
+    id?: string;
+    name: string;
+    techStack?: string | null;
+    description?: string | null;
+  }[];
+  socialLinks?: any;
 }
 
 export interface ApiResponse {

@@ -95,6 +95,21 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (data: any, { rejectWithValue }) => {
+    try {
+      const response = await authApi.updateProfile(data);
+      if (response.success && response.data) {
+        return response.data;
+      }
+      return rejectWithValue(response.message);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -157,6 +172,21 @@ const authSlice = createSlice({
       .addCase(fetchProfile.rejected, (state) => {
         state.isLoading = false;
         state.isAuthenticated = false;
+        state.token = null;
+        state.user = null;
+        localStorage.removeItem('token');
+      })
+      // Update Profile
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

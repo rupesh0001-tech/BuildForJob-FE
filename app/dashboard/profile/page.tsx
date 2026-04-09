@@ -9,10 +9,6 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const { user, isLoading } = useAppSelector((state) => state.auth);
 
-  useEffect(() => {
-    dispatch(fetchProfile());
-  }, [dispatch]);
-
   if (isLoading && !user) {
     return (
       <div className="flex items-center justify-center h-full">

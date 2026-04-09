@@ -110,7 +110,7 @@ export function DashboardHeader({ isSidebarOpen, setIsSidebarOpen }: DashboardHe
                 
                 <div className="space-y-1">
                   <Link 
-                    href="/dashboard/profile"
+                    href="/dashboard/settings/profile"
                     onClick={() => setIsProfileOpen(false)}
                     className="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 text-sm font-medium text-gray-700 dark:text-gray-300 transition-colors"
                   >

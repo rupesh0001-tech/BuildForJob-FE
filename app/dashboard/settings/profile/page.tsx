@@ -5,12 +5,14 @@ import { fetchProfile, updateProfile } from "@/store/slices/authSlice";
 import { 
   Mail, User as UserIcon, Phone, MapPin, Briefcase, FileText, 
   Camera, Save, Loader2, Plus, Trash2, GraduationCap, 
-  Code, Globe, Linkedin, Github, Twitter
+  Code, Globe, Linkedin, Github, Twitter, RefreshCw
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button1 } from "@/components/general/buttons/button1";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { fetchGitHubData, extractUsername } from "@/lib/github/github-api";
+import { GithubSyncModal } from "@/components/profile/GithubSyncModal";
 
 type TabType = "personal" | "experience" | "education" | "projects" | "skills";
 
@@ -29,6 +31,9 @@ export default function ProfileSettingsPage() {
   };
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isFetchingGithub, setIsFetchingGithub] = useState(false);
+  const [githubSyncData, setGithubSyncData] = useState<any>(null);
+  const [showSyncModal, setShowSyncModal] = useState(false);
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -49,6 +54,33 @@ export default function ProfileSettingsPage() {
       website: ""
     },
   });
+
+  const handleGithubSync = async () => {
+    const githubUrl = formData.socialLinks.github;
+    const username = extractUsername(githubUrl);
+
+    if (!username) {
+      toast.error("Please provide a valid GitHub profile URL first");
+      return;
+    }
+
+    setIsFetchingGithub(true);
+    try {
+      const data = await fetchGitHubData(username);
+      setGithubSyncData(data);
+      setShowSyncModal(true);
+      toast.success("GitHub data fetched successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to fetch GitHub data");
+    } finally {
+      setIsFetchingGithub(false);
+    }
+  };
+
+  const onGithubDataMerged = (mergedData: any) => {
+    setFormData(mergedData);
+    toast.success("GitHub data merged into profile!");
+  };
 
   useEffect(() => {
     // Only update formData from user if we're not currently saving
@@ -241,6 +273,24 @@ export default function ProfileSettingsPage() {
                   />
                 </div>
               ))}
+              <div className="pt-4 px-2">
+                <button 
+                  type="button"
+                  onClick={handleGithubSync}
+                  disabled={isFetchingGithub || !formData.socialLinks.github}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-black dark:bg-white/10 hover:bg-gray-800 dark:hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-black/10"
+                >
+                  {isFetchingGithub ? (
+                    <RefreshCw size={16} className="animate-spin" />
+                  ) : (
+                    <Github size={16} className="transition-transform group-hover:scale-110" />
+                  )}
+                  {isFetchingGithub ? "Fetching Details..." : "Sync with GitHub"}
+                </button>
+                <p className="text-[9px] text-gray-400 text-center mt-2 group-hover:text-purple-500 transition-colors">
+                  Import projects and skills from your profile
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -431,7 +481,19 @@ export default function ProfileSettingsPage() {
           </div>
         </div>
       </div>
+
+      {githubSyncData && (
+        <GithubSyncModal 
+          key={githubSyncData.profile.html_url}
+          isOpen={showSyncModal}
+          onClose={() => setShowSyncModal(false)}
+          githubData={githubSyncData}
+          currentData={formData}
+          onSync={onGithubDataMerged}
+        />
+      )}
     </div>
   );
 }
+
 

@@ -7,20 +7,9 @@ export function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
   return (
     <NextThemesProvider 
       {...props} 
-      enableSystem={false} // Force off system detection to minimize script injection
     >
       {children}
     </NextThemesProvider>

@@ -4,16 +4,24 @@ import React, { useState } from "react";
 import { 
   Github, ArrowRight, Loader2, User, 
   MapPin, Users, BookOpen, Star, 
-  ExternalLink, Code2, Terminal, Info 
+  ExternalLink, Code2, Terminal, Info, RefreshCw 
 } from "lucide-react";
 import { extractUsername, fetchGitHubData } from "@/lib/github/github-api";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { GithubSyncModal } from "@/components/profile/GithubSyncModal";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { updateProfile } from "@/store/slices/authSlice";
+
 export default function GitHubConnectPage() {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [githubData, setGithubData] = useState<any>(null);
+  const [showSyncModal, setShowSyncModal] = useState(false);
 
   const handleFetch = async () => {
     const username = extractUsername(url);
@@ -27,13 +35,34 @@ export default function GitHubConnectPage() {
     try {
       const data = await fetchGitHubData(username);
       setGithubData(data);
-      toast.success(`Successfully fetched @${username}'s data!`);
+      setShowSyncModal(true);
     } catch (error: any) {
       toast.error(error.message || "Something went wrong while fetching data.");
     } finally {
       setLoading(false);
     }
   };
+
+  const onGithubDataMerged = async (mergedData: any) => {
+    try {
+      await dispatch(updateProfile(mergedData)).unwrap();
+      toast.success("Profile synchronized and saved successfully!");
+    } catch (error: any) {
+      toast.error(error || "Failed to sync profile");
+    }
+  };
+
+  const currentProfileData = user ? {
+    firstName: user.firstName || "",
+    lastName: user.lastName || "",
+    bio: user.bio || "",
+    location: user.location || "",
+    skills: user.skills || [],
+    projects: user.projects || [],
+    experience: user.experience || [],
+    education: user.education || [],
+    socialLinks: user.socialLinks || { github: "", linkedin: "", twitter: "", website: "" }
+  } : null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-12 pb-20 pt-6">
@@ -256,15 +285,28 @@ export default function GitHubConnectPage() {
             
             <div className="pt-8 flex justify-center">
               <button 
-                onClick={() => toast.info("Synchronization logic would go here!")}
-                className="px-10 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold shadow-xl shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all"
+                onClick={() => setShowSyncModal(true)}
+                className="px-10 py-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-bold shadow-xl shadow-purple-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-3"
               >
+                <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
                 Sync with my Profile
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      {githubData && currentProfileData && (
+        <GithubSyncModal 
+          key={githubData.profile.html_url}
+          isOpen={showSyncModal}
+          onClose={() => setShowSyncModal(false)}
+          githubData={githubData}
+          currentData={currentProfileData}
+          onSync={onGithubDataMerged}
+        />
+      )}
     </div>
   );
 }
+

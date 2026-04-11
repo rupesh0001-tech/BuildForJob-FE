@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import ResumeForm from "@/components/resume-builder/ResumeForm";
 import ResumePreview from "@/components/resume-builder/ResumePreview";
@@ -7,8 +6,61 @@ import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { updateResume } from "@/lib/store/features/resume-slice";
+import { toast } from "sonner";
 
 export default function ResumeBuilderPage() {
+  const searchParams = useSearchParams();
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  const magic = searchParams.get("magic");
+
+  useEffect(() => {
+    if (magic === "true" && user) {
+      const resumeData = {
+        personalInfoData: {
+          full_name: `${user.firstName} ${user.lastName}`,
+          email: user.email,
+          phone: user.phone || "",
+          location: user.location || "",
+          linkedin: user.socialLinks?.linkedin || "",
+          website: user.socialLinks?.website || "",
+          profession: user.jobTitle || "",
+          image: user.avatarUrl || "",
+        },
+        professionalSummaryData: user.bio || `Ambitious ${user.jobTitle || "professional"} with a background in ${user.skills?.[0]?.name || "technology"}. Proven track record of delivering high-quality results.`,
+        experienceData: (user.experience || []).map((exp: any) => ({
+          company: exp.company,
+          position: exp.position,
+          startDate: exp.startDate,
+          endDate: exp.endDate || "",
+          description: exp.description || "",
+          is_current: exp.isCurrent,
+        })),
+        educationData: (user.education || []).map((edu: any) => ({
+          institution: edu.institution,
+          degree: edu.degree,
+          field: edu.field,
+          graduation_date: edu.graduationDate,
+          gpa: edu.gpa || "",
+          graduationType: (edu.graduationType as any) || "cgpa",
+        })),
+        projectData: (user.projects || []).map((p: any) => ({
+          name: p.name,
+          techStack: p.techStack || "",
+          description: p.description || "",
+        })),
+        skillData: (user.skills || []).map((s: any) => s.name),
+      };
+
+      dispatch(updateResume(resumeData as any));
+      toast.success("Resume magically generated from your profile!");
+    }
+  }, [magic, user, dispatch]);
+
   const handleDownload = async () => {
     const element = document.getElementById("resume-preview");
     if (!element) return;

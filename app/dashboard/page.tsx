@@ -32,7 +32,7 @@ export default function DashboardOverviewPage() {
   return (
     <div className="max-w-6xl mx-auto animation-fade-in pb-12">
       <ProfileCompletionBanner />
-      {completionPercent >= 100 && <MagicBuilder />}
+      {/* {completionPercent >= 100 && <MagicBuilder />} */}
       <OverviewHeader name={user?.firstName || "there"} />
       <QuickActions />
 

@@ -62,15 +62,26 @@ export async function fetchGitHubData(username: string, token?: string) {
       }
     }
 
-    // 5. Format Projects
-    const projects = repos.map((repo: any) => ({
-      name: repo.name,
-      description: repo.description,
-      tech: repo.language,
-      stars: repo.stargazers_count,
-      url: repo.html_url,
-      updated_at: repo.updated_at,
-    }));
+    // 5. Format Projects (Deduplicated and filtered)
+    const uniqueRepos = new Map();
+    repos.forEach((repo: any) => {
+      // Prioritize non-forks and unique names
+      if (!uniqueRepos.has(repo.name) || !repo.fork) {
+        uniqueRepos.set(repo.name, repo);
+      }
+    });
+
+    const projects = Array.from(uniqueRepos.values())
+      .filter((repo: any) => !repo.fork) // Usually users only want their own projects
+      .slice(0, 50) // Reasonable limit
+      .map((repo: any) => ({
+        name: repo.name,
+        description: repo.description,
+        tech: repo.language,
+        stars: repo.stargazers_count,
+        url: repo.html_url,
+        updated_at: repo.updated_at,
+      }));
 
     return {
       profile: {

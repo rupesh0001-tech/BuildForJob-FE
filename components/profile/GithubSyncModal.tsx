@@ -31,18 +31,18 @@ interface GithubSyncModalProps {
 
 export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSync }: GithubSyncModalProps) {
   const [selectedFields, setSelectedFields] = useState<Record<string, 'current' | 'github'>>({
-    name: 'current',
-    bio: 'current',
-    location: 'current',
-    website: 'current'
+    name: 'github',
+    bio: 'github',
+    location: 'github',
+    website: 'github'
   });
 
-  const [selectedProjects, setSelectedProjects] = useState<number[]>(
-    githubData?.projects ? githubData.projects.map((_: any, i: number) => i) : []
+  const [selectedProjects, setSelectedProjects] = useState<string[]>(
+    githubData?.projects ? githubData.projects.map((p: any) => p.name) : []
   );
 
   const [selectedSkills, setSelectedSkills] = useState<string[]>(
-    githubData?.skills || []
+    Array.from(new Set(githubData?.skills || []))
   );
 
   if (!isOpen) return null;
@@ -68,9 +68,9 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
     if (selectedFields.location === 'github') mergedData.location = githubData.profile.location;
     if (selectedFields.website === 'github') mergedData.socialLinks.website = githubData.profile.blog;
 
-    // 2. Projects Merge (Append)
+    // 2. Projects Merge (Replace Synced ones)
     const newProjects = githubData.projects
-      .filter((_, i) => selectedProjects.includes(i))
+      .filter((p) => selectedProjects.includes(p.name))
       .map(p => ({
         name: p.name,
         description: p.description || "",
@@ -79,18 +79,20 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
         isGithubSynced: true
       }));
     
-    mergedData.projects = [...mergedData.projects, ...newProjects];
+    // Remove existing synced projects first to avoid duplicates/stale data
+    const nonSyncedProjects = (mergedData.projects || []).filter((p: any) => !p.isGithubSynced);
+    mergedData.projects = [...nonSyncedProjects, ...newProjects];
 
-    // 3. Skills Merge (Append unique)
-    const currentSkillNames = new Set(mergedData.skills.map((s: any) => s.name.toLowerCase()));
-    const newSkills = selectedSkills
-      .filter(s => !currentSkillNames.has(s.toLowerCase()))
-      .map(s => ({ 
-        name: s,
-        isGithubSynced: true
-      }));
+    // 3. Skills Merge (Replace Synced ones - uniqueness already handled in selection)
+    // Filter out existing synced skills
+    const nonSyncedSkills = (mergedData.skills || []).filter((s: any) => !s.isGithubSynced);
+    
+    const newSkills = selectedSkills.map(s => ({ 
+      name: s,
+      isGithubSynced: true
+    }));
 
-    mergedData.skills = [...mergedData.skills, ...newSkills];
+    mergedData.skills = [...nonSyncedSkills, ...newSkills];
 
     onSync(mergedData);
     onClose();
@@ -191,7 +193,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
                   <h4 className="font-bold text-black dark:text-white uppercase tracking-wider text-xs">Import Projects ({githubData.projects.length})</h4>
                 </div>
                 <button 
-                  onClick={() => setSelectedProjects(selectedProjects.length === githubData.projects.length ? [] : githubData.projects.map((_, i) => i))}
+                  onClick={() => setSelectedProjects(selectedProjects.length === githubData.projects.length ? [] : githubData.projects.map((p: any) => p.name))}
                   className="text-[10px] font-bold text-purple-500 hover:underline"
                 >
                   {selectedProjects.length === githubData.projects.length ? 'Deselect All' : 'Select All'}
@@ -199,26 +201,26 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                {githubData.projects.map((proj, i) => (
+                {githubData.projects.map((proj) => (
                   <button
-                    key={i}
+                    key={proj.name}
                     onClick={() => {
-                      if (selectedProjects.includes(i)) {
-                        setSelectedProjects(selectedProjects.filter(idx => idx !== i));
+                      if (selectedProjects.includes(proj.name)) {
+                        setSelectedProjects(selectedProjects.filter(name => name !== proj.name));
                       } else {
-                        setSelectedProjects([...selectedProjects, i]);
+                        setSelectedProjects([...selectedProjects, proj.name]);
                       }
                     }}
                     className={`p-4 rounded-2xl border transition-all text-left group flex items-start gap-4 ${
-                      selectedProjects.includes(i)
+                      selectedProjects.includes(proj.name)
                       ? 'bg-purple-500/5 border-purple-500'
                       : 'bg-white dark:bg-white/5 border-gray-100 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10'
                     }`}
                   >
                     <div className={`mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                      selectedProjects.includes(i) ? 'bg-purple-500 border-purple-500 text-white' : 'border-gray-300 dark:border-white/20'
+                      selectedProjects.includes(proj.name) ? 'bg-purple-500 border-purple-500 text-white' : 'border-gray-300 dark:border-white/20'
                     }`}>
-                      {selectedProjects.includes(i) && <Check size={12} />}
+                      {selectedProjects.includes(proj.name) && <Check size={12} />}
                     </div>
                     <div>
                       <h5 className="text-sm font-bold text-black dark:text-white group-hover:text-purple-500 transition-colors uppercase tracking-tight">{proj.name}</h5>
@@ -244,7 +246,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {githubData.skills.map(skill => (
+                {[...new Set(githubData.skills)].map(skill => (
                   <button
                     key={skill}
                     onClick={() => {

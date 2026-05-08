@@ -40,29 +40,23 @@ export const navigation = [
     ]
   },
   {
-    title: "Portfolio",
-    items: [
-      { name: "My Portfolios", href: "/dashboard/portfolio", icon: Globe },
-      { name: "Create Portfolio", href: "/dashboard/portfolio/create", icon: MonitorUp },
-    ]
-  },
-  {
-    title: "LinkedIn Tools",
-    items: [
-      { name: "Profile Enhancer", href: "/dashboard/linkedin/enhancer", icon: TrendingUp },
-    ]
-  },
-  {
     title: "Connect Profiles",
     items: [
       { name: "Connect GitHub", href: "/dashboard/connect/github", icon: LinkIcon },
-      { name: "Connect LinkedIn", href: "/dashboard/connect/linkedin", icon: Briefcase },
     ]
   },
   {
     title: "Settings",
     items: [
       { name: "Profile", href: "/dashboard/settings/profile", icon: User },
+    ]
+  },
+  {
+    title: "Coming Soon",
+    items: [
+      { name: "Portfolio Builder", href: "#", icon: Globe, isComingSoon: true },
+      { name: "LinkedIn Enhancer", href: "#", icon: TrendingUp, isComingSoon: true },
+      { name: "LinkedIn Connector", href: "#", icon: Briefcase, isComingSoon: true },
     ]
   }
 ];

@@ -1,224 +1,383 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, Sparkles, Building2, Briefcase, ChevronRight, History, MoreVertical, Search, Target, ArrowRight, Trash2 } from "lucide-react";
-import Link from "next/link";
+import React, { useState, useEffect } from "react";
+import { 
+  Plus, 
+  Search, 
+  FileText, 
+  Download, 
+  Trash2, 
+  Upload, 
+  X,
+  Building2,
+  Calendar,
+  Loader2
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getVersions, createVersion, deleteVersion } from "@/apis/versions.api";
 
-const sampleVersions = [
-  { id: "1", company: "Google", role: "Frontend Engineer", resumeName: "FE Optimized V1", status: "Active" },
-  { id: "2", company: "Meta", role: "Software Engineer", resumeName: "React Specialization", status: "Applied" },
-  { id: "3", company: "Amazon", role: "SDE-1", resumeName: "Cloud Backend Version", status: "Draft" },
-];
+// Helper function for date formatting
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  }).format(date);
+};
 
-function VersionCardMenu({ resumeId }: { resumeId: string }) {
-  const [isOpen, setIsOpen] = React.useState(false);
+export default function VersionsPage() {
+  const [showModal, setShowModal] = useState(false);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
-  return (
-    <div className="relative">
-      <button 
-        onClick={(e) => {
-          e.preventDefault();
-          setIsOpen(!isOpen);
-        }}
-        className="p-2 text-gray-400 hover:text-black dark:hover:text-white transition-colors"
-      >
-        <MoreVertical size={16} />
-      </button>
+  // Form State
+  const [formData, setFormData] = useState({
+    versionName: "",
+    companyName: "",
+  });
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [clFile, setClFile] = useState<File | null>(null);
 
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <div 
-              className="fixed inset-0 z-10" 
-              onClick={(e) => {
-                e.preventDefault();
-                setIsOpen(false);
-              }} 
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -5 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -5 }}
-              className="absolute right-0 mt-1 w-44 bg-white dark:bg-[#12121a] border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-20 py-1.5 overflow-hidden text-left"
-            >
-              <Link 
-                href={`/dashboard/resume-builder?id=${resumeId}`}
-                className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-              >
-                <Sparkles size={14} className="text-purple-500" /> Edit Version
-              </Link>
-              <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log("Delete", resumeId);
-                  setIsOpen(false);
-                }}
-                className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left"
-              >
-                <Trash2 size={14} /> Delete Target
-              </button>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
+  useEffect(() => {
+    fetchVersions();
+  }, []);
+
+  const fetchVersions = async () => {
+    try {
+      setLoading(true);
+      const data = await getVersions();
+      setVersions(data);
+    } catch (error) {
+      console.error("Failed to fetch versions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resumeFile || !formData.versionName || !formData.companyName) return;
+
+    try {
+      setSubmitting(true);
+      const data = new FormData();
+      data.append("versionName", formData.versionName);
+      data.append("companyName", formData.companyName);
+      data.append("resume", resumeFile);
+      if (clFile) data.append("coverLetter", clFile);
+
+      await createVersion(data);
+      setShowModal(false);
+      resetForm();
+      fetchVersions();
+    } catch (error) {
+      console.error("Failed to create version:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this version?")) return;
+    try {
+      await deleteVersion(id);
+      fetchVersions();
+    } catch (error) {
+      console.error("Failed to delete version:", error);
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({ versionName: "", companyName: "" });
+    setResumeFile(null);
+    setClFile(null);
+  };
+
+  const filteredVersions = versions.filter(v => 
+    v.versionName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    v.companyName.toLowerCase().includes(searchQuery.toLowerCase())
   );
-}
-
-export default function ResumeVersionsPage() {
-  const [showCompanyModal, setShowCompanyModal] = useState(false);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-20">
+    <div className="max-w-7xl mx-auto space-y-8 pb-20 px-4 sm:px-6 lg:px-8">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2">
-            Tailored Versions <span className="text-xl">🎯</span>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+            Versions <span className="text-2xl">📑</span>
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Organize your resumes by company and role for focused applications.</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Manage and track different versions of your tailored resumes and cover letters.</p>
         </motion.div>
-      </div>
 
-      {/* Action Buttons Bar */}
-      <div className="flex flex-wrap items-center gap-3 bg-gray-50 dark:bg-white/5 p-3 rounded-2xl border border-gray-200 dark:border-white/10">
-        <Link href="/dashboard/resume-builder">
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl font-semibold text-xs uppercase"
-          >
-             <Plus size={16} /> New Resume
-          </motion.button>
-        </Link>
-        <Link href="/dashboard/resume-builder?magic=true">
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 text-white rounded-xl font-semibold text-xs uppercase shadow-lg shadow-purple-500/20"
-          >
-             <Sparkles size={16} /> Magic Build
-          </motion.button>
-        </Link>
-        <div className="h-6 w-[1px] bg-gray-200 dark:bg-white/10 hidden md:block" />
         <motion.button 
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => setShowCompanyModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 rounded-xl font-semibold text-xs uppercase hover:border-purple-500 transition-colors shadow-xs"
+          onClick={() => setShowModal(true)}
+          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm uppercase tracking-wider transition-all shadow-lg shadow-indigo-500/25"
         >
-           <Building2 size={16} /> Add Target
+          <Plus size={18} /> Create New Version
         </motion.button>
       </div>
 
-      {/* Info Tip */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center gap-3 text-sm font-medium text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-500/5 p-4 rounded-xl border border-amber-200 dark:border-amber-500/10"
-      >
-        <Target size={18} />
-        <span>Tailored resumes increase interview chances by up to 60%.</span>
-      </motion.div>
+      {/* Filters & Search */}
+      <div className="flex items-center justify-between gap-4 bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-200 dark:border-white/10 shadow-sm">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="Search versions or companies..." 
+            className="w-full pl-11 pr-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
 
-      {/* List Section */}
-      <div className="space-y-4">
-         <div className="flex items-center justify-between">
-           <h2 className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Application Targets</h2>
-           <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-              <input type="text" placeholder="Filter..." className="pl-9 pr-4 py-2 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-xs font-medium outline-none focus:ring-1 focus:ring-purple-500/50 w-40 md:w-56" />
-           </div>
-         </div>
-
-         <div className="grid grid-cols-1 gap-3">
-           {sampleVersions.map((app, idx) => (
-             <motion.div 
-               key={app.id}
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: idx * 0.1 }}
-               className="group bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-4 shadow-xs hover:border-purple-500/50 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-             >
-               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-gray-50 dark:bg-white/10 rounded-xl flex items-center justify-center text-gray-400 group-hover:text-purple-500 transition-colors">
-                    <Building2 size={20} />
-                 </div>
-                 <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-black dark:text-white">{app.company}</h4>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded uppercase ${
-                        app.status === 'Active' ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400' : 
-                        app.status === 'Applied' ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400' : 'bg-gray-100 dark:bg-gray-500/20 text-gray-500'
-                      }`}>{app.status}</span>
+      {/* Table Section */}
+      <div className="bg-white dark:bg-[#0c0c0e] rounded-3xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Version Name</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Company</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Resume</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Cover Letter</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Date</th>
+                <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+              {loading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center">
+                    <div className="flex items-center justify-center gap-2 text-gray-500">
+                      <Loader2 size={20} className="animate-spin text-indigo-500" />
+                      Loading versions...
                     </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                       <span className="text-xs text-gray-500 flex items-center gap-1">
-                          <Briefcase size={12} className="text-purple-500" /> {app.role}
-                       </span>
-                       <span className="text-xs text-gray-400 flex items-center gap-1 italic">
-                         <History size={12} /> {app.resumeName}
-                       </span>
-                    </div>
-                 </div>
-               </div>
-               
-               <div className="flex items-center gap-2">
-                  <button className="flex items-center gap-1.5 px-4 py-2 bg-gray-50 dark:bg-white/10 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all">
-                     View <ChevronRight size={14} />
-                  </button>
-                  <VersionCardMenu resumeId={app.id} />
-               </div>
-             </motion.div>
-           ))}
-         </div>
+                  </td>
+                </tr>
+              ) : filteredVersions.length > 0 ? (
+                filteredVersions.map((v, idx) => (
+                  <motion.tr 
+                    key={v.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-50 dark:bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                          <FileText size={20} />
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-white">{v.versionName}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
+                        <Building2 size={16} className="text-gray-400" />
+                        <span className="font-medium">{v.companyName}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
+                        <a 
+                          href={v.resumeUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-bold flex items-center gap-2 border border-blue-100 dark:border-blue-500/20 hover:bg-blue-100 transition-colors"
+                        >
+                          <Download size={14} />
+                          Resume
+                        </a>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2">
+                        {v.coverLetterUrl ? (
+                          <a 
+                            href={v.coverLetterUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg text-xs font-bold flex items-center gap-2 border border-purple-100 dark:border-purple-500/20 hover:bg-purple-100 transition-colors"
+                          >
+                            <Download size={14} />
+                            Cover Letter
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 text-xs italic">Not provided</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                        <Calendar size={14} />
+                        {formatDate(v.createdAt)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleDelete(v.id)}
+                          className="p-2 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors text-gray-400 hover:text-red-500"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                    No versions found matching your search.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Creation Modal */}
       <AnimatePresence>
-        {showCompanyModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm">
-             <motion.div 
-               initial={{ scale: 0.95, opacity: 0, y: 10 }}
-               animate={{ scale: 1, opacity: 1, y: 0 }}
-               exit={{ scale: 0.95, opacity: 0, y: 10 }}
-               className="bg-white dark:bg-[#0c0c0e] rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-200 dark:border-white/10 space-y-6"
-             >
-                <div>
-                  <h3 className="text-xl font-bold text-black dark:text-white">Define New Target</h3>
-                  <p className="text-sm text-gray-500 mt-1">Link a resume version to a specific company.</p>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-white dark:bg-[#0f0f12] rounded-[2.5rem] p-8 max-w-2xl w-full shadow-2xl border border-gray-200 dark:border-white/10 relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/5 rounded-full -ml-16 -mb-16 blur-3xl" />
+
+              <form onSubmit={handleCreate} className="relative">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Create New Version</h3>
+                    <p className="text-gray-500 dark:text-gray-400 mt-1">Tailor your application for a specific target.</p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <X size={24} className="text-gray-400" />
+                  </button>
                 </div>
 
-                <div className="space-y-4">
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1">Organization</label>
-                     <input type="text" placeholder="e.g. OpenAI" className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-purple-500 outline-none rounded-xl text-sm font-medium transition-all" />
-                   </div>
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1">Position / Role</label>
-                     <input type="text" placeholder="e.g. Senior Frontend" className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-purple-500 outline-none rounded-xl text-sm font-medium transition-all" />
-                   </div>
-                   <div className="space-y-1">
-                     <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 px-1">Resume Version</label>
-                     <select className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-purple-500 outline-none rounded-xl text-sm font-medium cursor-pointer appearance-none">
-                       <option>Master Professional Resume</option>
-                       <option>Full Stack Developer V2</option>
-                     </select>
-                   </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Version Name</label>
+                    <div className="relative">
+                      <FileText className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <input 
+                        required
+                        type="text" 
+                        value={formData.versionName}
+                        onChange={(e) => setFormData({ ...formData, versionName: e.target.value })}
+                        placeholder="e.g. Frontend v2" 
+                        className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-indigo-500 outline-none rounded-2xl text-sm font-semibold transition-all" 
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Company Name</label>
+                    <div className="relative">
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                      <input 
+                        required
+                        type="text" 
+                        value={formData.companyName}
+                        onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                        placeholder="e.g. Google" 
+                        className="w-full pl-11 pr-4 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-indigo-500 outline-none rounded-2xl text-sm font-semibold transition-all" 
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex gap-3 pt-2">
-                   <button onClick={() => setShowCompanyModal(false)} className="flex-1 py-3 bg-gray-50 dark:bg-white/5 rounded-xl font-semibold text-sm hover:bg-gray-100 transition-colors">Cancel</button>
-                   <button onClick={() => setShowCompanyModal(false)} className="flex-1 py-3 bg-purple-600 text-white rounded-xl font-semibold text-sm shadow-lg shadow-purple-500/20 hover:bg-purple-700 transition-all">Save Target</button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Resume Upload</label>
+                    <div className="relative group cursor-pointer">
+                      <input 
+                        type="file" 
+                        accept=".pdf"
+                        required
+                        className="hidden" 
+                        id="resume-upload" 
+                        onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                      />
+                      <label 
+                        htmlFor="resume-upload"
+                        className={`flex flex-col items-center justify-center gap-2 w-full p-6 bg-gray-50 dark:bg-white/5 border-2 border-dashed ${resumeFile ? 'border-green-500 bg-green-50/10' : 'border-gray-200 dark:border-white/10'} hover:border-indigo-500 dark:hover:border-indigo-500/50 rounded-2xl transition-all group-hover:bg-indigo-50/30 dark:group-hover:bg-indigo-500/5 cursor-pointer`}
+                      >
+                        <Upload size={24} className={resumeFile ? "text-green-500" : "text-indigo-500"} />
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 group-hover:text-indigo-600 transition-colors">
+                          {resumeFile ? resumeFile.name : "Choose Resume PDF"}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">Cover Letter Upload</label>
+                    <div className="relative group cursor-pointer">
+                      <input 
+                        type="file" 
+                        accept=".pdf"
+                        className="hidden" 
+                        id="cl-upload" 
+                        onChange={(e) => setClFile(e.target.files?.[0] || null)}
+                      />
+                      <label 
+                        htmlFor="cl-upload"
+                        className={`flex flex-col items-center justify-center gap-2 w-full p-6 bg-gray-50 dark:bg-white/5 border-2 border-dashed ${clFile ? 'border-green-500 bg-green-50/10' : 'border-gray-200 dark:border-white/10'} hover:border-purple-500 dark:hover:border-purple-500/50 rounded-2xl transition-all group-hover:bg-purple-50/30 dark:group-hover:bg-purple-500/5 cursor-pointer`}
+                      >
+                        <Upload size={24} className={clFile ? "text-green-500" : "text-purple-500"} />
+                        <span className="text-xs font-bold text-gray-500 dark:text-gray-400 group-hover:text-purple-600 transition-colors">
+                          {clFile ? clFile.name : "Choose Cover Letter PDF"}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
-             </motion.div>
+
+                <div className="flex gap-4 mt-10">
+                  <button 
+                    type="button"
+                    disabled={submitting}
+                    onClick={() => setShowModal(false)} 
+                    className="flex-1 py-4 bg-gray-100 dark:bg-white/5 rounded-2xl font-bold text-sm uppercase tracking-wider hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-gray-600 dark:text-gray-300 disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm uppercase tracking-wider shadow-xl shadow-indigo-500/25 hover:bg-indigo-700 transition-all transform hover:-translate-y-1 disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        Saving...
+                      </>
+                    ) : "Save Version"}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
           </div>
         )}
       </AnimatePresence>
     </div>
   );
- }
+}

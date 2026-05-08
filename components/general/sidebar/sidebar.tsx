@@ -24,7 +24,12 @@ export const navigation = [
       { name: "ATS Checker", href: "/dashboard/resumes/ats", icon: FileCheck },
       { name: "Resume Builder", href: "/dashboard/resume-builder", icon: FilePlus },
       { name: "My Resumes", href: "/dashboard/resumes", icon: Files },
-      { name: "Resume Versions", href: "/dashboard/resumes/versions", icon: History },
+    ]
+  },
+  {
+    title: "Versions",
+    items: [
+      { name: "All Versions", href: "/dashboard/resumes/versions", icon: History },
     ]
   },
   {

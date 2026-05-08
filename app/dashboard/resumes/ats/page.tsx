@@ -15,7 +15,7 @@ import {
   Info,
   X,
 } from "lucide-react";
-import { checkATSScore } from "@/apis/ats.api";
+import { checkATSScore, getATSSuggestions } from "@/apis/ats.api";
 import type { ATSResult } from "@/apis/ats.api";
 
 // ─── Score colour helpers ──────────────────────────────────────────────────
@@ -212,7 +212,9 @@ export default function ATSCheckerPage() {
   const [file, setFile] = useState<File | null>(null);
   const [jd, setJd] = useState("");
   const [loading, setLoading] = useState(false);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [result, setResult] = useState<ATSResult | null>(null);
+  const [suggestions, setSuggestions] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showBreakdown, setShowBreakdown] = useState(false);
 
@@ -221,6 +223,7 @@ export default function ATSCheckerPage() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setSuggestions(null);
     setShowBreakdown(false);
 
     try {
@@ -237,10 +240,33 @@ export default function ATSCheckerPage() {
     }
   };
 
+  const handleGetSuggestions = async () => {
+    if (!file || !jd || suggestions || suggestionsLoading) {
+      setShowBreakdown((p) => !p);
+      return;
+    }
+
+    setSuggestionsLoading(true);
+    setShowBreakdown(true);
+    try {
+      const text = await getATSSuggestions(file, jd);
+      setSuggestions(text);
+    } catch (err: any) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to get AI suggestions.";
+      setError(msg);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
+
   const handleReset = () => {
     setFile(null);
     setJd("");
     setResult(null);
+    setSuggestions(null);
     setError(null);
     setShowBreakdown(false);
   };
@@ -442,23 +468,24 @@ export default function ATSCheckerPage() {
               </div>
             </div>
 
-            {/* Breakdown toggle */}
-            {result.details && (
-              <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl overflow-hidden">
+            {/* Improvement Suggestions */}
+            {result && (
+              <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm">
                 <button
-                  id="ats-breakdown-toggle"
-                  onClick={() => setShowBreakdown((p) => !p)}
-                  className="w-full flex items-center justify-between px-6 py-4 text-sm font-semibold text-black dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  id="ats-improvements-toggle"
+                  onClick={handleGetSuggestions}
+                  className="w-full flex items-center justify-between px-8 py-5 text-sm font-bold text-black dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <Sparkles size={15} className="text-purple-500" />
-                    Per-requirement Breakdown
+                  <span className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <Sparkles size={16} className={`text-purple-600 dark:text-purple-400 ${suggestionsLoading ? 'animate-pulse' : ''}`} />
+                    </div>
+                    {suggestionsLoading ? 'Generating Analysis...' : 'See Detailed Improvements'}
                   </span>
-                  {showBreakdown ? (
-                    <ChevronUp size={16} className="text-gray-400" />
-                  ) : (
-                    <ChevronDown size={16} className="text-gray-400" />
-                  )}
+                  <div className="flex items-center gap-2 text-xs font-medium text-purple-500">
+                    {showBreakdown ? "Hide" : "Show"} Suggestions
+                    {showBreakdown ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                  </div>
                 </button>
 
                 <AnimatePresence>
@@ -467,51 +494,37 @@ export default function ATSCheckerPage() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.25 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="px-6 pb-6 pt-2 space-y-2 border-t border-gray-100 dark:border-white/10">
-                        {result.details.split("\n").map((line, i) => {
-                          const match = line.match(/→\s*(\d+)%/);
-                          const pct = match ? parseInt(match[1]) : 0;
-                          return (
-                            <div
-                              key={i}
-                              className="flex items-center gap-3 py-2"
-                            >
-                              <div className="flex-1 text-xs text-gray-600 dark:text-gray-400 font-medium">
-                                {line.replace(/→\s*\d+%/, "").replace("•", "").trim()}
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                <div className="w-20 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
-                                  <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${pct}%` }}
-                                    transition={{ delay: i * 0.05 }}
-                                    className={`h-full rounded-full ${
-                                      pct >= 75
-                                        ? "bg-emerald-500"
-                                        : pct >= 50
-                                        ? "bg-amber-500"
-                                        : "bg-red-400"
-                                    }`}
-                                  />
-                                </div>
-                                <span
-                                  className={`text-xs font-bold w-10 text-right ${
-                                    pct >= 75
-                                      ? "text-emerald-600 dark:text-emerald-400"
-                                      : pct >= 50
-                                      ? "text-amber-600 dark:text-amber-400"
-                                      : "text-red-500"
-                                  }`}
+                      <div className="px-8 pb-8 pt-2 space-y-4 border-t border-gray-100 dark:border-white/10">
+                        {suggestionsLoading ? (
+                           <div className="flex flex-col items-center py-10 gap-4">
+                              <div className="w-10 h-10 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
+                              <p className="text-sm text-gray-500 font-medium">Gemini is analyzing your resume...</p>
+                           </div>
+                        ) : suggestions ? (
+                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                            <div className="space-y-3">
+                              {suggestions.split('\n').filter(line => line.trim()).map((line, i) => (
+                                <motion.div 
+                                  key={i}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: i * 0.05 }}
+                                  className="flex gap-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed"
                                 >
-                                  {pct}%
-                                </span>
-                              </div>
+                                  <span className="text-purple-500 mt-1 shrink-0">
+                                    {line.trim().startsWith('*') || line.trim().startsWith('-') || line.trim().startsWith('•') ? '•' : (i + 1) + '.'}
+                                  </span>
+                                  <span>{line.replace(/^[*•-]\s*/, '').trim()}</span>
+                                </motion.div>
+                              ))}
                             </div>
-                          );
-                        })}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500 py-4 text-center">Click the button above to get AI suggestions.</p>
+                        )}
                       </div>
                     </motion.div>
                   )}

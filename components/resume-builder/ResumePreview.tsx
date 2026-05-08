@@ -9,6 +9,8 @@ import MinimalImageTemplate from "./templates/MinimalImageTemplate";
 import ClassicTemplate from "./templates/ClassicTemplate";
 import ProfessionalTemplate from "./templates/ProfessionalTemplate";
 import ImpactTemplate from "./templates/ImpactTemplate";
+import Resume, { ResumeData } from "@/components/resume-templates/resume-component";
+import { AccentColor } from "@/lib/resume-matcher/template-settings";
 
 const ResumePreview = () => {
   const {
@@ -33,8 +35,72 @@ const ResumePreview = () => {
     sectionVisibility: sectionVisibility,
   };
 
+  const mapAccentColor = (hex: string): AccentColor => {
+    const mapping: Record<string, AccentColor> = {
+      "#3b82f6": "blue",
+      "#22c55e": "green",
+      "#ef4444": "red",
+      "#f59e0b": "orange",
+      "#f97316": "orange",
+    };
+    return mapping[hex.toLowerCase()] || "blue";
+  };
+
+  // Map existing Redux state to the new ResumeData structure for premium templates
+  const premiumResumeData: ResumeData = {
+    personalInfo: {
+      name: personalInfoData.full_name,
+      title: personalInfoData.profession,
+      email: personalInfoData.email,
+      phone: personalInfoData.phone,
+      location: personalInfoData.location,
+      website: personalInfoData.website,
+      linkedin: personalInfoData.linkedin,
+    },
+    summary: professionalSummaryData,
+    workExperience: experienceData.map((exp, index) => ({
+      id: index,
+      title: exp.position,
+      company: exp.company,
+      years: `${exp.startDate} - ${exp.is_current ? 'Present' : exp.endDate}`,
+      description: exp.description ? exp.description.split('\n').filter(line => line.trim() !== '') : [],
+    })),
+    education: educationData.map((edu, index) => ({
+      id: index,
+      institution: edu.institution,
+      degree: edu.degree,
+      years: edu.graduation_date,
+      description: edu.field,
+    })),
+    personalProjects: projectData.map((p, index) => ({
+      id: index,
+      name: p.name,
+      role: p.techStack,
+      description: p.description ? p.description.split('\n').filter(line => line.trim() !== '') : [],
+    })),
+    additional: {
+      technicalSkills: skillData,
+    },
+    // Generate section metadata based on visibility
+    sectionMeta: [
+      { id: 'summary', key: 'summary', displayName: 'Summary', sectionType: 'text', isDefault: true, isVisible: sectionVisibility.summary, order: 0 },
+      { id: 'experience', key: 'workExperience', displayName: 'Experience', sectionType: 'itemList', isDefault: true, isVisible: sectionVisibility.experience, order: 1 },
+      { id: 'education', key: 'education', displayName: 'Education', sectionType: 'itemList', isDefault: true, isVisible: sectionVisibility.education, order: 2 },
+      { id: 'projects', key: 'personalProjects', displayName: 'Projects', sectionType: 'itemList', isDefault: true, isVisible: sectionVisibility.projects, order: 3 },
+      { id: 'skills', key: 'additional', displayName: 'Skills', sectionType: 'itemList', isDefault: true, isVisible: sectionVisibility.skills, order: 4 },
+    ]
+  };
+
   const renderTemplate = () => {
     switch (template) {
+      case "swiss-single":
+        return <Resume resumeData={premiumResumeData} template="swiss-single" />;
+      case "swiss-two-column":
+        return <Resume resumeData={premiumResumeData} template="swiss-two-column" />;
+      case "modern-premium":
+        return <Resume resumeData={premiumResumeData} template="modern" settings={{ accentColor: mapAccentColor(accentColor) }} />;
+      case "modern-two-column-premium":
+        return <Resume resumeData={premiumResumeData} template="modern-two-column" settings={{ accentColor: mapAccentColor(accentColor) }} />;
       case "modern":
         return <ModernTemplate data={data as any} accentColor={accentColor} />;
       case "minimal":

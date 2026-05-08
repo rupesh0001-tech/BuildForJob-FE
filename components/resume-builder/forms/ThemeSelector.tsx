@@ -12,6 +12,10 @@ const templates = [
   { name: "Minimal", id: "minimal" },
   { name: "Professional", id: "professional" },
   { name: "Impact", id: "impact" },
+  { name: "Swiss Single", id: "swiss-single" },
+  { name: "Swiss Two-Column", id: "swiss-two-column" },
+  { name: "Modern Premium", id: "modern-premium" },
+  { name: "Modern Two-Column", id: "modern-two-column-premium" },
 ];
 
 const ThemeSelector = () => {

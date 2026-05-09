@@ -76,7 +76,7 @@ const Project = ({ setFormTab }: ProjectProps) => {
         <button
           type="button"
           onClick={handleAdd}
-          className="w-full py-3 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+          className="w-full py-3 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
         >
           <Plus size={18} />
           Add Project
@@ -95,7 +95,7 @@ const Project = ({ setFormTab }: ProjectProps) => {
             >
               <div>
                 <p className="font-bold text-gray-900 dark:text-white">{p.name}</p>
-                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{p.techStack}</p>
+                <p className="text-sm text-primary dark:text-primary/80 font-medium">{p.techStack}</p>
                 {p.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{p.description}</p>}
               </div>
               <button

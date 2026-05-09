@@ -37,19 +37,29 @@ const CoverLetterForm = () => {
   return (
     <div className="w-full max-w-xl mx-auto lg:mx-0 p-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl backdrop-blur-xl">
       <div className="flex justify-between items-center w-full mb-6 gap-4 flex-wrap">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
-          Cover Letter Details
-        </h2>
+        <div className="flex flex-col">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">
+            Cover Letter Details
+          </h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Fill in the details to generate your cover letter
+          </p>
+        </div>
         <CoverLetterThemeSelector />
       </div>
 
       <div className="space-y-8 pt-6 border-t border-gray-100 dark:border-white/5">
         
         {/* Personal Info */}
-        <section className="space-y-4">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
-            <User size={20} /> Personal Information
-          </h3>
+        <section className="space-y-6">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+               Personal Information
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Your contact details and professional profiles
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormInput name="fullName" label="Full Name" value={state.personalInfo.fullName} onChange={handlePersonalInfo} icon={<User size={16}/>} />
             <FormInput name="address" label="Address" value={state.personalInfo.address} onChange={handlePersonalInfo} icon={<MapPin size={16}/>} />
@@ -68,10 +78,15 @@ const CoverLetterForm = () => {
         </section>
 
         {/* Employer Info */}
-        <section className="space-y-4 pt-6 border-t border-gray-100 dark:border-white/5">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
-            <Briefcase size={20} /> Employer Details
-          </h3>
+        <section className="space-y-6 pt-6 border-t border-gray-100 dark:border-white/5">
+          <div className="flex flex-col">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+              <Briefcase size={20} className="text-primary" /> Employer Details
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              Information about the company and hiring manager
+            </p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormInput name="managerName" label="Hiring Manager Name" value={state.employerInfo.managerName} onChange={handleEmployerInfo} icon={<User size={16}/>} />
             <FormInput name="teamName" label="Team/Department Name" value={state.employerInfo.teamName} onChange={handleEmployerInfo} icon={<Briefcase size={16}/>} />
@@ -87,16 +102,21 @@ const CoverLetterForm = () => {
         </section>
 
         {/* Letter Body */}
-        <section className="space-y-4 pt-6 border-t border-gray-100 dark:border-white/5">
+        <section className="space-y-6 pt-6 border-t border-gray-100 dark:border-white/5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
-              <Layout size={20} /> Letter Content
-            </h3>
+            <div className="flex flex-col">
+              <h3 className="text-lg font-bold flex items-center gap-2 text-gray-900 dark:text-white">
+                <Layout size={20} className="text-primary" /> Letter Content
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Choose between a guided structure or manual writing
+              </p>
+            </div>
             
             <div className="flex p-1 bg-gray-100 dark:bg-white/5 rounded-xl self-start">
               <button
                 onClick={() => dispatch(updateMode("structured"))}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                   state.mode === "structured" 
                     ? "bg-white dark:bg-primary text-primary dark:text-white shadow-sm"
                     : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
@@ -106,7 +126,7 @@ const CoverLetterForm = () => {
               </button>
               <button
                 onClick={() => dispatch(updateMode("manual"))}
-                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                   state.mode === "manual" 
                     ? "bg-white dark:bg-primary text-primary dark:text-white shadow-sm"
                     : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"

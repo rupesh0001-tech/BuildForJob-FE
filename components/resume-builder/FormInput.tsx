@@ -34,13 +34,13 @@ const FormInput = ({
           checked={checked}
           onChange={onChange}
           disabled={disabled}
-          className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500 cursor-pointer"
+          className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
         />
         <label
           htmlFor={name}
           className={cn(
             "text-sm font-medium cursor-pointer transition-colors",
-            disabled ? "text-gray-400" : "text-gray-700 dark:text-gray-300 group-hover:text-purple-600 dark:group-hover:text-purple-400"
+            disabled ? "text-gray-400" : "text-gray-700 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary/80"
           )}
         >
           {label}
@@ -67,7 +67,7 @@ const FormInput = ({
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
-            "w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none transition-all text-gray-900 dark:text-white",
+            "w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white",
             disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-zinc-800"
         )}
       />

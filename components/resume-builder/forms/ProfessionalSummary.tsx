@@ -44,7 +44,7 @@ const ProfessionalSummary = ({ setFormTab }: ProfessionalSummaryProps) => {
         <button
           type="button"
           disabled
-          className="w-full py-3 px-4 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed"
+          className="w-full py-3 px-4 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed"
         >
           <Sparkles size={18} />
           Enhance with AI (Coming Soon)

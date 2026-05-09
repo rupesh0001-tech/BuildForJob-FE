@@ -98,7 +98,7 @@ const Education = ({ setFormTab }: EducationProps) => {
               onClick={() => setFormData(prev => ({ ...prev, graduationType: type as any }))}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
                 formData.graduationType === type
-                  ? "bg-white dark:bg-purple-600 text-purple-600 dark:text-white shadow-sm"
+                  ? "bg-white dark:bg-primary text-primary dark:text-white shadow-sm"
                   : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
               }`}
             >
@@ -120,7 +120,7 @@ const Education = ({ setFormTab }: EducationProps) => {
         <button
           type="button"
           onClick={handleAdd}
-          className="w-full py-3 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-purple-100 dark:hover:bg-purple-900/30 transition-colors"
+          className="w-full py-3 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
         >
           <Plus size={18} />
           Add Education
@@ -139,7 +139,7 @@ const Education = ({ setFormTab }: EducationProps) => {
             >
               <div>
                 <p className="font-bold text-gray-900 dark:text-white">{edu.degree}</p>
-                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{edu.institution}</p>
+                <p className="text-sm text-primary dark:text-primary/80 font-medium">{edu.institution}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   Field: {edu.field} | Graduated: {edu.graduation_date}
                 </p>

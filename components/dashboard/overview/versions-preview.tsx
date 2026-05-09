@@ -69,14 +69,14 @@ export function VersionsPreview() {
             <div className="flex items-center gap-2">
               <Link 
                 href={`/dashboard/resumes/edit/${version.id}`}
-                className="text-[11px] font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
               >
                 Edit Version
               </Link>
               <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-white/10" />
               <Link 
                 href={`/dashboard/resumes/preview/${version.id}`}
-                className="text-[11px] font-bold text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
+                className="text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors"
               >
                 Preview
               </Link>

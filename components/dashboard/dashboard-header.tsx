@@ -52,8 +52,9 @@ export function DashboardHeader({ isSidebarOpen, setIsSidebarOpen }: DashboardHe
           {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
         
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400">
-           {isSidebarOpen ? "Dashboard Overview" : "BuildForJob App"}
+        <div className="flex items-center gap-2 text-md font-medium text-gray-600 dark:text-gray-400">
+           {isSidebarOpen ? "Dashboard Overview" : 
+           "Build for Job"}
         </div>
       </div>
       

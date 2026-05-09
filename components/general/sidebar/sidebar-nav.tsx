@@ -71,7 +71,7 @@ export function SidebarNav({ navigation, onClose }: SidebarNavProps) {
                     {item.name}
                   </div>
                   {isSoon && (
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-md uppercase tracking-tighter">
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-md uppercase tracking-tighter">
                       Soon
                     </span>
                   )}

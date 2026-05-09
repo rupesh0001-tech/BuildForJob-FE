@@ -79,7 +79,7 @@ export function ActivityFeed() {
         ))}
       </div>
       
-      <button className="mt-8 text-xs font-bold text-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors">
+      <button className="mt-8 text-xs font-semibold text-center text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors">
         View All Activity
       </button>
     </div>

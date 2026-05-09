@@ -86,7 +86,7 @@ function ScoreRing({ score }: { score: number }) {
       {/* Center label */}
       <div className="absolute flex flex-col items-center justify-center">
         <motion.span
-          className={`text-4xl font-black ${getScoreColor(score)}`}
+          className={`text-4xl font-semibold ${getScoreColor(score)}`}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
@@ -145,7 +145,7 @@ function DropZone({
             ? "border-purple-500/50 bg-purple-50/50 dark:bg-purple-500/5 cursor-default"
             : isDragging
             ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10 scale-[1.01]"
-            : "border-gray-200 dark:border-white/10 hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-500/5"
+            : "border-gray-300 dark:border-white/15 hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-500/5"
         }`}
     >
       <input
@@ -289,7 +289,7 @@ export default function ATSCheckerPage() {
           >
             {/* PDF Upload */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                 <FileText size={12} /> Resume PDF
               </label>
               <DropZone
@@ -303,7 +303,7 @@ export default function ATSCheckerPage() {
             <div className="space-y-2">
               <label
                 htmlFor="ats-jd-input"
-                className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
+                className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
               >
                 <Sparkles size={12} /> Job Description
               </label>
@@ -313,7 +313,7 @@ export default function ATSCheckerPage() {
                 onChange={(e) => setJd(e.target.value)}
                 placeholder="Paste the full job description here — requirements, responsibilities, skills…"
                 rows={10}
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-purple-500 outline-none rounded-2xl text-sm font-medium text-black dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all resize-none"
+                className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/15 focus:border-purple-500 outline-none rounded-2xl text-sm font-semibold text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all resize-none"
               />
               <p className="text-xs text-gray-400 text-right">
                 {jd.trim().split(/\s+/).filter(Boolean).length} words
@@ -330,7 +330,7 @@ export default function ATSCheckerPage() {
                   className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl"
                 >
                   <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{error}</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -414,24 +414,24 @@ export default function ATSCheckerPage() {
                 {/* Text */}
                 <div className="flex-1 text-center md:text-left space-y-4">
                   <div>
-                    <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
+                    <p className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">
                       ATS Match Score
                     </p>
-                    <h2 className="text-3xl font-black text-black dark:text-white">
+                    <h2 className="text-2xl font-semibold text-black dark:text-white">
                       {scoreInfo?.emoji} {scoreInfo?.label}
                     </h2>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-3 bg-white/40 dark:bg-white/5 rounded-xl">
-                      <p className="text-xs text-gray-500 font-medium">Resume Words</p>
-                      <p className="text-lg font-bold text-black dark:text-white">
+                      <p className="text-xs text-gray-500 font-semibold">Resume Words</p>
+                      <p className="text-lg font-semibold text-black dark:text-white">
                         {result.resumeWordCount.toLocaleString()}
                       </p>
                     </div>
                     <div className="p-3 bg-white/40 dark:bg-white/5 rounded-xl">
-                      <p className="text-xs text-gray-500 font-medium">JD Words</p>
-                      <p className="text-lg font-bold text-black dark:text-white">
+                      <p className="text-xs text-gray-500 font-semibold">JD Words</p>
+                      <p className="text-lg font-semibold text-black dark:text-white">
                         {result.jdWordCount.toLocaleString()}
                       </p>
                     </div>
@@ -459,11 +459,11 @@ export default function ATSCheckerPage() {
 
             {/* Improvement Suggestions */}
             {result && (
-              <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-white/5 border border-gray-300 dark:border-white/15 rounded-2xl overflow-hidden shadow-sm">
                 <button
                   id="ats-improvements-toggle"
                   onClick={handleGetSuggestions}
-                  className="w-full flex items-center justify-between px-8 py-5 text-sm font-bold text-black dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                  className="w-full flex items-center justify-between px-8 py-5 text-sm font-semibold text-black dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                 >
                   <span className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center">
@@ -486,11 +486,11 @@ export default function ATSCheckerPage() {
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="px-8 pb-8 pt-2 space-y-4 border-t border-gray-100 dark:border-white/10">
+                      <div className="px-8 pb-8 pt-2 space-y-4 border-t border-gray-300 dark:border-white/15">
                         {suggestionsLoading ? (
                            <div className="flex flex-col items-center py-10 gap-4">
                               <div className="w-10 h-10 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
-                              <p className="text-sm text-gray-500 font-medium">Gemini is analyzing your resume...</p>
+                              <p className="text-sm text-gray-500 font-semibold">Gemini is analyzing your resume...</p>
                            </div>
                         ) : suggestions ? (
                           <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -501,7 +501,7 @@ export default function ATSCheckerPage() {
                                   initial={{ opacity: 0, x: -10 }}
                                   animate={{ opacity: 1, x: 0 }}
                                   transition={{ delay: i * 0.05 }}
-                                  className="flex gap-3 text-sm text-gray-600 dark:text-gray-400 leading-relaxed"
+                                  className="flex gap-3 text-sm text-gray-800 dark:text-gray-400 leading-relaxed"
                                 >
                                   <span className="text-purple-500 mt-1 shrink-0">
                                     {line.trim().startsWith('*') || line.trim().startsWith('-') || line.trim().startsWith('•') ? '•' : (i + 1) + '.'}
@@ -525,7 +525,7 @@ export default function ATSCheckerPage() {
             <button
               id="ats-reset-btn"
               onClick={handleReset}
-              className="w-full py-3 rounded-2xl font-semibold text-sm border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-2xl font-semibold text-sm border border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw size={14} /> Check Another Resume
             </button>

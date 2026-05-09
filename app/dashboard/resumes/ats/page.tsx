@@ -275,18 +275,7 @@ export default function ATSCheckerPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-20">
-      {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 bg-purple-500/10 rounded-xl flex items-center justify-center">
-            <FileCheck size={20} className="text-purple-500" />
-          </div>
-          <h1 className="text-2xl font-bold text-black dark:text-white">ATS Checker</h1>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 ml-12">
-          Upload your resume and paste a job description to get an AI-powered match score.
-        </p>
-      </motion.div>
+
 
       {/* ── Form or Results ── */}
       <AnimatePresence mode="wait">

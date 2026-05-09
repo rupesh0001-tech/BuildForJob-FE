@@ -237,8 +237,8 @@ export default function ProfileSettingsPage() {
           <h1 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">Edit your Profile </h1>
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Edit your professional profile to generate high-impact resumes instantly. </p>
         </div>
-        <div className="flex items-center gap-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-6 py-4 rounded-2xl shadow-sm">
-          <div className="relative w-16 h-16 flex items-center justify-center">
+        <div className="flex items-center gap-4 bg-white dark:bg-black/40 backdrop-blur-md border border-gray-300 dark:border-white/10 px-5 py-2.5 rounded-2xl shadow-sm">
+          <div className="relative w-10 h-10 flex items-center justify-center">
              <svg className="w-full h-full -rotate-90" viewBox="0 0 44 44">
                 <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-100 dark:text-white/5" />
                 <motion.circle 
@@ -268,7 +268,7 @@ export default function ProfileSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-white/5 rounded-2xl   p-8 text-center shadow-sm relative overflow-hidden group">
+          <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-8 text-center shadow-sm relative overflow-hidden group backdrop-blur-xl">
             <div className="relative w-32 h-32 mx-auto mb-6">
               <div className="w-full h-full rounded-full bg-gradient-to-br from-[#001BB7] to-[#001BB7]/80 flex items-center justify-center text-white text-4xl font-semibold shadow-2xl transition-transform duration-500 group-hover:scale-105">
                 {user?.avatarUrl ? (
@@ -283,7 +283,7 @@ export default function ProfileSettingsPage() {
             <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2 tracking-wide uppercase">{formData.jobTitle || "Career Goal Unset"}</p>
           </div>
 
-          <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-6 shadow-sm space-y-5">
+          <div className="bg-white dark:bg-black/40 rounded-2xl border border-gray-300 dark:border-white/10 p-6 shadow-sm space-y-5 backdrop-blur-xl">
             <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Presence & Links</h3>
             <div className="space-y-3">
               {[
@@ -346,7 +346,7 @@ export default function ProfileSettingsPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-8 shadow-sm space-y-8 relative overflow-hidden">
+          <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl shadow-xl backdrop-blur-xl p-8 space-y-8 relative overflow-hidden">
             <AnimatePresence mode="wait">
               {activeTab === "personal" && (
                 <motion.div 
@@ -427,7 +427,7 @@ export default function ProfileSettingsPage() {
               {activeTab === "experience" && (
                 <motion.div key="experience" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                   {/* Add New Experience Form */}
-                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                  <div className="p-8 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 backdrop-blur-xl space-y-6">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
                         <Briefcase size={18} />
@@ -482,7 +482,7 @@ export default function ProfileSettingsPage() {
                       </div>
                     ) : (
                       formData.experience.map((exp, index) => (
-                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all">
+                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all backdrop-blur-sm">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-[#001BB7]/5 flex items-center justify-center text-[#001BB7]">
                               <Briefcase size={20} />
@@ -508,7 +508,7 @@ export default function ProfileSettingsPage() {
               {activeTab === "education" && (
                 <motion.div key="education" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                   {/* Add New Education Form */}
-                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                  <div className="p-8 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 backdrop-blur-xl space-y-6">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
                         <GraduationCap size={18} />
@@ -559,7 +559,7 @@ export default function ProfileSettingsPage() {
                       </div>
                     ) : (
                       formData.education.map((edu, index) => (
-                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all">
+                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all backdrop-blur-sm">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-[#001BB7]/5 flex items-center justify-center text-[#001BB7]">
                               <GraduationCap size={20} />
@@ -585,7 +585,7 @@ export default function ProfileSettingsPage() {
               {activeTab === "projects" && (
                 <motion.div key="projects" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                   {/* Add New Project Form */}
-                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                  <div className="p-8 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 backdrop-blur-xl space-y-6">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
                         <Code size={18} />
@@ -628,7 +628,7 @@ export default function ProfileSettingsPage() {
                       </div>
                     ) : (
                       formData.projects.map((proj, index) => (
-                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all">
+                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all backdrop-blur-sm">
                           <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-xl bg-[#001BB7]/5 flex items-center justify-center text-[#001BB7]">
                               <Code size={20} />
@@ -654,7 +654,7 @@ export default function ProfileSettingsPage() {
               {activeTab === "skills" && (
                 <motion.div key="skills" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
                   {/* Add New Skill Form */}
-                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                  <div className="p-8 rounded-2xl bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 backdrop-blur-xl space-y-6">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
                         <Plus size={18} />
@@ -702,7 +702,7 @@ export default function ProfileSettingsPage() {
                     ) : (
                       <div className="flex flex-wrap gap-3">
                         {formData.skills.map((skill, index) => (
-                          <div key={index} className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-white/5 text-[#001BB7] rounded-xl border border-gray-200 dark:border-white/10 group hover:border-[#001BB7]/30 transition-all shadow-sm">
+                          <div key={index} className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-black/40 text-[#001BB7] rounded-xl border border-gray-300 dark:border-white/10 group hover:border-[#001BB7]/30 transition-all shadow-sm backdrop-blur-sm">
                             <span className="text-xs font-semibold">{skill.name}</span>
                             <button type="button" onClick={() => removeItem("skills", index)} className="hover:text-red-500 transition-colors opacity-60 group-hover:opacity-100">
                               <Trash2 size={14} />

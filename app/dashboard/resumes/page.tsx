@@ -87,7 +87,7 @@ export default function ResumesPage() {
           whileHover={{ y: -2 }}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-200 dark:border-white/10 shadow-sm flex flex-col justify-between"
+          className="bg-white dark:bg-black/40 rounded-2xl p-6 border border-gray-300 dark:border-white/10 shadow-sm flex flex-col justify-between backdrop-blur-xl"
         >
           <div className="space-y-4">
             <div className="w-12 h-12 bg-primary/5 dark:bg-primary/10 rounded-xl flex items-center justify-center text-primary">
@@ -110,7 +110,7 @@ export default function ResumesPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-200 dark:border-white/10 shadow-sm flex flex-col justify-between"
+          className="bg-white dark:bg-black/40 rounded-2xl p-6 border border-gray-300 dark:border-white/10 shadow-sm flex flex-col justify-between backdrop-blur-xl"
         >
           <div className="space-y-4">
             <div className="w-12 h-12 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-xl flex items-center justify-center text-yellow-600 dark:text-yellow-400">
@@ -140,7 +140,7 @@ export default function ResumesPage() {
                initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: idx * 0.1 }}
-               className="group bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-5 shadow-xs hover:border-primary/50 transition-all"
+               className="group bg-white dark:bg-black/40 rounded-2xl border border-gray-300 dark:border-white/10 p-5 shadow-xs hover:border-primary/50 transition-all backdrop-blur-xl"
              >
                <div className="flex items-start justify-between mb-4">
                  <div className="p-3 bg-gray-50 dark:bg-white/10 rounded-xl group-hover:text-primary transition-colors">
@@ -170,7 +170,7 @@ export default function ResumesPage() {
 
            {/* Add New Mock Card */}
            <button onClick={() => handleStart(false)} className="group text-left">
-             <div className="h-full min-h-[220px] rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:text-primary group-hover:border-primary/50 transition-all bg-gray-50/50 dark:bg-white/5">
+             <div className="h-full min-h-[220px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:text-primary group-hover:border-primary/50 transition-all bg-gray-50/50 dark:bg-black/40 backdrop-blur-xl">
                 <Plus size={24} />
                 <span className="font-semibold uppercase tracking-wider text-xs">New Resume</span>
              </div>
@@ -186,7 +186,7 @@ export default function ResumesPage() {
               initial={{ scale: 0.95, opacity: 0, y: 10 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 10 }}
-              className="bg-white dark:bg-[#0c0c0e] rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-200 dark:border-white/10 space-y-6"
+              className="bg-white dark:bg-black/80 rounded-2xl p-8 max-w-md w-full shadow-2xl border border-gray-300 dark:border-white/10 space-y-6 backdrop-blur-2xl"
             >
               <div>
                 <h3 className="text-xl font-bold text-black dark:text-white">Project Details</h3>
@@ -201,7 +201,7 @@ export default function ResumesPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Senior Backend Engineer" 
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-primary outline-none rounded-xl text-sm font-medium transition-all" 
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-white/10 focus:border-primary outline-none rounded-xl text-sm font-medium transition-all" 
                   />
                 </div>
                 <div className="space-y-1">
@@ -211,7 +211,7 @@ export default function ResumesPage() {
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
                     placeholder="e.g. Google" 
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-primary outline-none rounded-xl text-sm font-medium transition-all" 
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-black/40 border border-gray-300 dark:border-white/10 focus:border-primary outline-none rounded-xl text-sm font-medium transition-all" 
                   />
                 </div>
               </div>

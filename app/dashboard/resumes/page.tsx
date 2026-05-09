@@ -80,19 +80,7 @@ export default function ResumesPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden">
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <h1 className="text-2xl font-bold text-black dark:text-white flex items-center gap-2">
-            My Resumes <span className="text-xl">📄</span>
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Manage, edit, and create new versions of your professional resume.</p>
-        </motion.div>
-      </div>
-
+      
       {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <motion.div 
@@ -122,29 +110,28 @@ export default function ResumesPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-primary rounded-2xl p-6 text-white shadow-lg shadow-primary/20 relative overflow-hidden flex flex-col justify-between"
+          className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-200 dark:border-white/10 shadow-sm flex flex-col justify-between"
         >
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16" />
-          <div className="relative space-y-4">
-            <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
-               <Sparkles size={24} className="text-yellow-300" />
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-yellow-500/10 dark:bg-yellow-500/20 rounded-xl flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+               <Sparkles size={24} />
             </div>
             <div>
-              <h3 className="text-lg font-semibold tracking-tight">Profile-to-Resume</h3>
-              <p className="text-sm text-white/80 mt-1 font-medium italic leading-relaxed">Instantly create a professional resume based on your profile data.</p>
+              <h3 className="text-lg font-semibold text-black dark:text-white">Profile-to-Resume</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Instantly create a professional resume based on your profile data.</p>
             </div>
           </div>
-          <button onClick={() => handleStart(true)} className="mt-8 relative z-10">
-            <button className="w-full py-3 bg-white text-primary rounded-xl font-semibold hover:bg-gray-50 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2">
+          <button onClick={() => handleStart(true)} className="mt-8">
+            <Button1 className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
                Create via Profile <Plus size={16} />
-            </button>
+            </Button1>
           </button>
         </motion.div>
       </div>
 
       {/* Past Resumes Section */}
       <div className="space-y-4">
-         <h2 className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Recent Creations</h2>
+         <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-500 uppercase tracking-wider">Recent Creations</h2>
 
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
            {sampleResumes.map((resume, idx) => (

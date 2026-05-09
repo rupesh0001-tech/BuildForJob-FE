@@ -31,7 +31,7 @@ const CoverLetterThemeSelector = () => {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all shadow-sm"
       >
-        <Palette size={16} className="text-purple-500" />
+        <Palette size={16} className="text-primary" />
         <span>{selectedTemplate.name} Template</span>
         <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
       </button>
@@ -45,7 +45,7 @@ const CoverLetterThemeSelector = () => {
                 key={temp.id}
                 className={`px-4 py-3 text-sm cursor-pointer transition-colors flex items-center justify-between group ${
                   temp.id === activeTemplate
-                    ? "bg-purple-600 text-white font-bold"
+                    ? "bg-primary text-white font-bold"
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
                 }`}
                 onClick={() => handleSelect(temp.id)}

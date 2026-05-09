@@ -6,7 +6,7 @@ const actions = [
     title: "Create Resume",
     desc: "Build a new targeted ATS-friendly resume from scratch.",
     icon: <FilePlus size={20} />,
-    color: "purple",
+    color: "primary",
     href: "/dashboard/resume-builder"
   },
   {
@@ -44,7 +44,7 @@ export function QuickActions() {
             className="text-left flex flex-col items-start p-6 rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-black/40 hover:border-primary/50 dark:hover:border-primary/50 transition-all group shadow-sm backdrop-blur-xl"
           >
             <div className={`p-3 rounded-xl transition-all group-hover:scale-110
-              ${action.color === 'purple' ? 'bg-primary/5 dark:bg-primary/20 text-primary dark:text-primary' : ''}
+              ${action.color === 'primary' ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary' : ''}
               ${action.color === 'blue' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' : ''}
               ${action.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : ''}
               ${action.color === 'orange' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400' : ''}

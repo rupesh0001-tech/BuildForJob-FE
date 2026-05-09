@@ -47,7 +47,7 @@ const CoverLetterForm = () => {
         
         {/* Personal Info */}
         <section className="space-y-4">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-purple-600">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
             <User size={20} /> Personal Information
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -69,7 +69,7 @@ const CoverLetterForm = () => {
 
         {/* Employer Info */}
         <section className="space-y-4 pt-6 border-t border-gray-100 dark:border-white/5">
-          <h3 className="text-lg font-bold flex items-center gap-2 text-purple-600">
+          <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
             <Briefcase size={20} /> Employer Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -89,7 +89,7 @@ const CoverLetterForm = () => {
         {/* Letter Body */}
         <section className="space-y-4 pt-6 border-t border-gray-100 dark:border-white/5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h3 className="text-lg font-bold flex items-center gap-2 text-purple-600">
+            <h3 className="text-lg font-bold flex items-center gap-2 text-primary">
               <Layout size={20} /> Letter Content
             </h3>
             
@@ -98,7 +98,7 @@ const CoverLetterForm = () => {
                 onClick={() => dispatch(updateMode("structured"))}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
                   state.mode === "structured" 
-                    ? "bg-white dark:bg-purple-600 text-purple-600 dark:text-white shadow-sm"
+                    ? "bg-white dark:bg-primary text-primary dark:text-white shadow-sm"
                     : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >
@@ -108,7 +108,7 @@ const CoverLetterForm = () => {
                 onClick={() => dispatch(updateMode("manual"))}
                 className={`flex items-center gap-2 px-4 py-1.5 rounded-lg text-xs font-bold uppercase transition-all ${
                   state.mode === "manual" 
-                    ? "bg-white dark:bg-purple-600 text-purple-600 dark:text-white shadow-sm"
+                    ? "bg-white dark:bg-primary text-primary dark:text-white shadow-sm"
                     : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
                 }`}
               >

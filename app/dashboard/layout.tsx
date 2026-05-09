@@ -23,10 +23,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-purple-500/30 transition-colors duration-300">
+      <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-primary/30 transition-colors duration-300">
         {/* Background Decor */}
         <div className="fixed inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
-             style={{ backgroundImage: `radial-gradient(#8b5cf6 0.5px, transparent 0.5px)`, backgroundSize: '24px 24px' }} />
+             style={{ backgroundImage: `radial-gradient(#001BB7 0.5px, transparent 0.5px)`, backgroundSize: '24px 24px' }} />
         
         <Sidebar 
           isOpen={isSidebarOpen} 

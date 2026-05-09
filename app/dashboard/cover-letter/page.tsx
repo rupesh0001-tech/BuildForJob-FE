@@ -66,19 +66,19 @@ const CoverLetterPage = () => {
       {/* Top Header */}
       <div className="flex justify-between items-center gap-4">
         <Link 
-          href="/dashboard"
+          href="/dashboard/cover-letter/all"
           className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors group"
         >
           <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-white/5 group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
             <ChevronLeft size={16} />
           </div>
-          Back to Dashboard
+          Back to Library
         </Link>
 
         <div className="flex items-center gap-3">
           <button
             onClick={handlePrint}
-            className="flex items-center gap-2 px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm hover:scale-[1.05] transition-transform shadow-xl"
+            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:scale-[1.05] transition-transform shadow-xl shadow-primary/20"
           >
             <Download size={18} />
             <span className="hidden sm:inline">Download PDF</span>
@@ -93,7 +93,7 @@ const CoverLetterPage = () => {
         </div>
 
         {/* Preview Section */}
-        <div className="w-fit bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-0 overflow-hidden flex flex-col">
+        <div className="w-fit bg-white/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-0 overflow-hidden flex flex-col backdrop-blur-sm">
           <div className="h-full overflow-y-auto custom-scrollbar p-2 md:p-4 shadow-2xl">
             <CoverLetterPreview />
           </div>

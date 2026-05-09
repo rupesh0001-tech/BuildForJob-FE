@@ -8,6 +8,7 @@ import { useAppSelector } from "@/store/hooks";
 
 import { ProfileCompletionBanner } from "@/components/dashboard/overview/profile-completion-banner";
 import { MagicBuilder } from "@/components/dashboard/overview/magic-builder";
+import { VersionsPreview } from "@/components/dashboard/overview/versions-preview";
 
 export default function DashboardOverviewPage() {
   const { user } = useAppSelector((state) => state.auth);
@@ -34,6 +35,10 @@ export default function DashboardOverviewPage() {
       <ProfileCompletionBanner />
    
       <QuickActions />
+
+      <VersionsPreview />
+
+      {completionPercent >= 80 && <MagicBuilder />}
 
       <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Recent Activity & Stats</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

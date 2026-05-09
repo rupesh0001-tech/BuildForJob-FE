@@ -103,7 +103,7 @@ export default function ResumeBuilderPage() {
 
         <button
           onClick={handleDownload}
-          className="flex items-center gap-2 px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm hover:scale-[1.05] transition-transform shadow-xl"
+          className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
         >
           <Download size={18} />
           Download PDF

@@ -19,29 +19,61 @@ const colorPresets = [
 
 const AccentColorSelector = () => {
   const dispatch = useDispatch();
-  const { accentColor: activeColor } = useSelector((state: RootState) => state.resume);
+  const { accentColor: activeColor, template: activeTemplate } = useSelector((state: RootState) => state.resume);
+  const supportedTemplates = ["classic", "modern", "minimal"];
+  const isColorSupported = supportedTemplates.includes(activeTemplate);
+
+  // Sync color back to black if template doesn't support colors
+  React.useEffect(() => {
+    if (!isColorSupported && activeColor !== "#000000") {
+      dispatch(setAccentColor("#000000"));
+    }
+  }, [activeTemplate, isColorSupported, activeColor, dispatch]);
+
   const [isOpen, setIsOpen] = useState(false);
 
-  const selectedColor = colorPresets.find((c) => c.code === activeColor) || colorPresets[0];
+  // If color is not supported, we always show "Black"
+  const selectedColor = isColorSupported 
+    ? (colorPresets.find((c) => c.code === activeColor) || colorPresets[0])
+    : colorPresets.find((c) => c.name === "Black")!;
 
   const handleSelect = (colorCode: string) => {
+    if (!isColorSupported) return;
     dispatch(setAccentColor(colorCode));
     setIsOpen(false);
   };
 
   return (
-    <div className="relative">
+    <div className="relative group">
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
+        onClick={() => isColorSupported && setIsOpen(!isOpen)}
+        className={`flex items-center gap-2 px-3 py-2 border rounded-xl text-sm font-medium transition-all
+          ${isColorSupported 
+            ? "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10" 
+            : "bg-gray-100/50 dark:bg-white/5 border-dashed border-gray-300 dark:border-white/10 text-gray-400 cursor-not-allowed opacity-80"
+          }`}
       >
-        <div className="w-4 h-4 rounded-full border border-white/20 shadow-sm" style={{ backgroundColor: selectedColor.code }} />
-        <span className="hidden sm:inline">{selectedColor.name}</span>
-        <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        <div 
+          className={`w-4 h-4 rounded-full border shadow-sm transition-colors ${!isColorSupported ? "grayscale" : ""}`} 
+          style={{ backgroundColor: selectedColor.code }} 
+        />
+        <span className="hidden sm:inline">
+          {isColorSupported ? selectedColor.name : "Locked"}
+        </span>
+        {isColorSupported && (
+          <ChevronDown size={14} className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+        )}
       </button>
 
-      {isOpen && (
+      {/* "Not supported" tooltip */}
+      {!isColorSupported && (
+        <div className="absolute top-full right-0 mt-2 w-max max-w-[200px] bg-black text-white text-[10px] px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-xl font-bold uppercase tracking-wider">
+           This template doesn't support colors
+        </div>
+      )}
+
+      {isOpen && isColorSupported && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           <ul className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-20 p-2 grid grid-cols-2 gap-1 animate-in fade-in zoom-in duration-200">

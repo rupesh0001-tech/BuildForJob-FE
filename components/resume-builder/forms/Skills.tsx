@@ -48,7 +48,7 @@ const Skills = () => {
         </div>
         <button
           type="submit"
-          className="p-3 bg-black dark:bg-white text-white dark:text-black rounded-xl hover:scale-[1.05] transition-transform shadow-lg"
+          className="p-3 bg-primary text-white rounded-xl hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
         >
           <Plus size={20} />
         </button>

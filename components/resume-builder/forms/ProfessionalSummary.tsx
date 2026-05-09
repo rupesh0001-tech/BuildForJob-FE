@@ -52,7 +52,7 @@ const ProfessionalSummary = ({ setFormTab }: ProfessionalSummaryProps) => {
 
         <button
           type="submit"
-          className="w-full py-3 bg-black dark:bg-white text-white dark:text-black rounded-xl font-semibold hover:scale-[1.02] transition-transform shadow-xl"
+          className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:brightness-110 active:scale-[0.99] transition-all shadow-lg shadow-primary/25"
         >
           Proceed to Experience
         </button>

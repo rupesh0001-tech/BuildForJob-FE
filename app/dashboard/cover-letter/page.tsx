@@ -5,6 +5,8 @@ import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
 import CoverLetterThemeSelector from "@/components/cover-letter/CoverLetterThemeSelector";
 import { Download, ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { toPng } from "html-to-image";
+import jsPDF from "jspdf";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -57,8 +59,34 @@ const CoverLetterPage = () => {
     }
   }, [magic, user, dispatch]);
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownload = async () => {
+    const element = document.getElementById("cover-letter-preview");
+    if (!element) return;
+
+    const toastId = toast.loading("Generating high-quality PDF...");
+
+    try {
+      const dataUrl = await toPng(element, {
+        quality: 1,
+        pixelRatio: 2,
+      });
+      
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (pdf.internal.pageSize.getHeight());
+
+      pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+      pdf.save("cover-letter.pdf");
+      toast.success("Cover letter downloaded successfully!", { id: toastId });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF. Please try again.", { id: toastId });
+    }
   };
 
   return (
@@ -77,8 +105,8 @@ const CoverLetterPage = () => {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={handlePrint}
-            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:scale-[1.05] transition-transform shadow-xl shadow-primary/20"
+            onClick={handleDownload}
+            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
           >
             <Download size={18} />
             <span className="hidden sm:inline">Download PDF</span>

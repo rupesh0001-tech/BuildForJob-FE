@@ -116,6 +116,12 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  // Local states for "Add New" forms
+  const [newExperience, setNewExperience] = useState({ company: "", position: "", startDate: "", endDate: "", description: "", isCurrent: false });
+  const [newEducation, setNewEducation] = useState({ institution: "", degree: "", field: "", graduationDate: "", gpa: "" });
+  const [newProject, setNewProject] = useState({ name: "", techStack: "", description: "" });
+  const [newSkill, setNewSkill] = useState("");
+
   useEffect(() => {
     if (user && !isSaving) {
       setFormData({
@@ -213,10 +219,10 @@ export default function ProfileSettingsPage() {
     <button
       type="button"
       onClick={() => setActiveTab(id)}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
         activeTab === id 
-          ? "bg-purple-500 text-white shadow-lg shadow-purple-500/20" 
-          : "text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5"
+          ? "bg-[#001BB7] text-white shadow-lg shadow-[#001BB7]/20" 
+          : "text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent"
       }`}
     >
       <Icon size={16} />
@@ -225,58 +231,60 @@ export default function ProfileSettingsPage() {
   );
 
   return (
-    <div className="max-w-4xl mx-auto pb-20 space-y-8">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">Profile Builder</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Enhance your profile to generate professional resumes instantly.</p>
+    <div className="max-w-6xl mx-auto pb-20 space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-white tracking-tight">Edit your Profile </h1>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Edit your professional profile to generate high-impact resumes instantly. </p>
         </div>
-        <div className="flex items-center gap-4 bg-white dark:bg-[#111116] border border-gray-200 dark:border-white/10 px-5 py-3 rounded-2xl shadow-sm">
-          <div className="relative w-14 h-14 flex items-center justify-center">
+        <div className="flex items-center gap-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 px-6 py-4 rounded-2xl shadow-sm">
+          <div className="relative w-16 h-16 flex items-center justify-center">
              <svg className="w-full h-full -rotate-90" viewBox="0 0 44 44">
-                <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" className="text-gray-100 dark:text-white/5" />
+                <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-100 dark:text-white/5" />
                 <motion.circle 
-                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-purple-500/30 blur-[2px]"
+                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-[#001BB7]/20 blur-[2px]"
                   initial={{ strokeDasharray: "0 113.1" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 113.1} 113.1` }} transition={{ duration: 1.2, ease: "circOut" }}
                 />
                 <motion.circle 
-                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-purple-500"
+                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-[#001BB7]"
                   initial={{ strokeDasharray: "0 113.1" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 113.1} 113.1` }} transition={{ duration: 1, ease: "circOut" }}
                 />
              </svg>
              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-[10px] font-bold text-black dark:text-white">{completionPercent}%</span>
+                <span className="text-xs font-semibold text-gray-900 dark:text-white">{completionPercent}%</span>
              </div>
           </div>
+          
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2 overflow-x-auto pb-2 scrollbar-none">
-        <TabButton id="personal" label="Personal" icon={UserIcon} />
-        <TabButton id="experience" label="Experience" icon={Briefcase} />
+      <div className="flex flex-wrap gap-2 overflow-x-auto pb-4 scrollbar-none border-b border-gray-200 dark:border-white/10">
+        <TabButton id="personal" label="Personal Info" icon={UserIcon} />
+        <TabButton id="experience" label="Work Experience" icon={Briefcase} />
         <TabButton id="education" label="Education" icon={GraduationCap} />
         <TabButton id="projects" label="Projects" icon={Code} />
-        <TabButton id="skills" label="Skills" icon={Plus} />
+        <TabButton id="skills" label="Technical Skills" icon={Plus} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-8 text-center shadow-sm relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-purple-500 to-blue-600" />
+          <div className="bg-white dark:bg-white/5 rounded-2xl   p-8 text-center shadow-sm relative overflow-hidden group">
             <div className="relative w-32 h-32 mx-auto mb-6">
-              <div className="w-full h-full rounded-full bg-linear-to-br from-purple-500 via-purple-600 to-blue-600 flex items-center justify-center text-white text-4xl font-extrabold shadow-2xl ring-4 ring-white dark:ring-white/5 transition-transform duration-500 group-hover:scale-105">
-                {user?.firstName?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-[#001BB7] to-[#001BB7]/80 flex items-center justify-center text-white text-4xl font-semibold shadow-2xl transition-transform duration-500 group-hover:scale-105">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                ) : (
+                  <span className="tracking-tighter">{user?.firstName?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}</span>
+                )}
               </div>
-              <button type="button" className="absolute bottom-1 right-1 p-2.5 rounded-full bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-purple-500 shadow-xl hover:bg-purple-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95">
-                <Camera size={18} />
-              </button>
+              
             </div>
-            <h2 className="text-xl font-bold text-black dark:text-white tracking-tight">{formData.firstName} {formData.lastName}</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{formData.jobTitle || "Your Career Start"}</p>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight leading-none">{formData.firstName} {formData.lastName}</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2 tracking-wide uppercase">{formData.jobTitle || "Career Goal Unset"}</p>
           </div>
 
-          <div className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-6 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest px-2">Social Profiles</h3>
+          <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-6 shadow-sm space-y-5">
+            <h3 className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest px-1">Presence & Links</h3>
             <div className="space-y-3">
               {[
                 { name: 'socialLinks.linkedin', icon: Linkedin, label: 'LinkedIn', placeholder: 'linkedin.com/in/...' },
@@ -284,50 +292,53 @@ export default function ProfileSettingsPage() {
                 { name: 'socialLinks.twitter', icon: Twitter, label: 'Twitter', placeholder: 'twitter.com/...' },
                 { name: 'socialLinks.website', icon: Globe, label: 'Portfolio', placeholder: 'yourwebsite.com' },
               ].map(s => (
-                <div key={s.name} className="flex items-center gap-3 p-3 rounded-2xl bg-gray-50 dark:bg-white/5 border border-transparent hover:border-purple-500/30 transition-all group">
-                  <s.icon size={18} className="text-gray-400 group-hover:text-purple-500" />
+                <div key={s.name} className="flex items-center gap-3 p-3.5 rounded-xl bg-gray-50/50 dark:bg-black/20 border border-gray-200/50 dark:border-white/5 focus-within:border-[#001BB7]/40 transition-all group">
+                  <s.icon size={18} className="text-gray-400 group-hover:text-[#001BB7] transition-colors" />
                   <input 
                     type="text" 
                     name={s.name} 
                     value={(formData as any).socialLinks[s.name.split('.')[1]]} 
                     onChange={handleChange}
                     placeholder={s.placeholder}
-                    className="bg-transparent border-none outline-none text-xs w-full text-black dark:text-white"
+                    className="bg-transparent border-none outline-none text-xs w-full text-gray-900 dark:text-white font-medium placeholder:text-gray-400"
                   />
                 </div>
               ))}
-              <div className="pt-4 px-2">
-                <div className="flex items-center gap-2">
-                  {!isAlreadySynced && (
+              <div className="pt-4 px-1">
+                <div className="flex flex-col gap-3">
+                  {!isAlreadySynced ? (
                     <button 
                       type="button"
                       onClick={handleGithubSync}
                       disabled={isFetchingGithub || !formData.socialLinks.github}
-                      className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-black dark:bg-white/10 hover:bg-gray-800 dark:hover:bg-white/20 text-white text-xs font-bold transition-all disabled:opacity-50 group shadow-lg"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gray-900 dark:bg-white/10 hover:bg-black dark:hover:bg-white/20 text-white text-xs font-semibold transition-all disabled:opacity-50 group shadow-lg shadow-black/5 border border-white/10"
                     >
                       {isFetchingGithub ? (
                         <RefreshCw size={16} className="animate-spin" />
                       ) : (
                         <Github size={16} className="transition-transform group-hover:scale-110" />
                       )}
-                      {isFetchingGithub ? "Fetching..." : "Sync with GitHub"}
+                      {isFetchingGithub ? "Importing Data..." : "Connect with GitHub"}
                     </button>
-                  )}
-                  {formData.socialLinks.github && (
-                    <button
-                      type="button"
-                      onClick={handleDisconnect}
-                      disabled={isSaving}
-                      className={`p-3 rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg ${!isAlreadySynced ? "" : "w-full flex items-center justify-center gap-2"}`}
-                      title={isAlreadySynced ? "Connected (Click to Disconnect)" : "Disconnect & Remove Synced Data"}
-                    >
-                      <Trash2 size={16} />
-                      {isAlreadySynced && <span className="text-xs font-bold">Connected (Disconnect)</span>}
-                    </button>
+                  ) : (
+                    <div className="p-4 rounded-xl bg-green-50 dark:bg-green-500/5 border border-green-100 dark:border-green-500/10 flex flex-col gap-3">
+                      <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-xs font-semibold">
+                         <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                         GitHub Connected
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleDisconnect}
+                        disabled={isSaving}
+                        className="w-full py-2.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 text-[10px] font-semibold hover:bg-red-600 hover:text-white transition-all border border-red-100 dark:border-red-500/10 uppercase tracking-wider"
+                      >
+                        Disconnect Integration
+                      </button>
+                    </div>
                   )}
                 </div>
-                <p className="text-[9px] text-gray-400 text-center mt-2 group-hover:text-purple-500 transition-colors">
-                  {isAlreadySynced ? "GitHub data is currently linked to your profile." : "Import projects and skills from your profile"}
+                <p className="text-[10px] text-gray-500 dark:text-gray-500 text-center mt-3 font-medium">
+                  {isAlreadySynced ? "Your technical data is synchronized." : "Pull your projects and skills automatically."}
                 </p>
               </div>
             </div>
@@ -335,186 +346,383 @@ export default function ProfileSettingsPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-[#111116] rounded-3xl border border-gray-200 dark:border-white/10 p-8 shadow-sm space-y-8 relative overflow-hidden">
+          <div className="bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-8 shadow-sm space-y-8 relative overflow-hidden">
             <AnimatePresence mode="wait">
               {activeTab === "personal" && (
                 <motion.div 
                   key="personal" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-8"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                        <UserIcon size={12} className="text-purple-500" /> First Name
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <UserIcon size={14} className="text-[#001BB7]" /> First Name
                       </label>
                       <input 
                         type="text" name="firstName" value={formData.firstName} onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                        className="w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all font-medium text-sm"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                        <UserIcon size={12} className="text-purple-500" /> Last Name
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <UserIcon size={14} className="text-[#001BB7]" /> Last Name
                       </label>
                       <input 
                         type="text" name="lastName" value={formData.lastName} onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                        className="w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all font-medium text-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                      <Mail size={12} className="text-purple-500" /> Email Address
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                      <Mail size={14} className="text-[#001BB7]" /> Email Address
                     </label>
-                    <input type="email" value={formData.email} disabled className="w-full px-4 py-3 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-gray-500 cursor-not-allowed" />
+                    <input type="email" value={formData.email} disabled className="w-full px-5 py-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/5 text-gray-500 cursor-not-allowed text-sm font-medium" />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                        <Phone size={12} className="text-purple-500" /> Phone Number
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <Phone size={14} className="text-[#001BB7]" /> Phone Number
                       </label>
                       <input 
                         type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1 (555) 000-0000"
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                        className="w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all font-medium text-sm"
                       />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[11px] uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                        <MapPin size={12} className="text-purple-500" /> Location
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                        <MapPin size={14} className="text-[#001BB7]" /> Location
                       </label>
                       <input 
                         type="text" name="location" value={formData.location} onChange={handleChange} placeholder="City, Country"
-                        className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                        className="w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all font-medium text-sm"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[11px) uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                      <Briefcase size={12} className="text-purple-500" /> Job Title
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                      <Briefcase size={14} className="text-[#001BB7]" /> Professional Job Title
                     </label>
                     <input 
-                      type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium"
+                      type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="e.g. Senior Software Engineer"
+                      className="w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all font-medium text-sm"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-[11px uppercase tracking-wider font-bold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
-                      <FileText size={12} className="text-purple-500" /> Bio / Professional Summary
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                      <FileText size={14} className="text-[#001BB7]" /> Professional Summary
                     </label>
                     <textarea 
-                      name="bio" value={formData.bio} onChange={handleChange} rows={4} placeholder="Describe yourself..."
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all font-medium resize-none min-h-[120px]"
+                      name="bio" value={formData.bio} onChange={handleChange} rows={5} placeholder="Briefly describe your career journey and key achievements..."
+                      className="w-full px-5 py-4 rounded-xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all font-medium text-sm resize-none min-h-[140px]"
                     />
                   </div>
                 </motion.div>
               )}
 
               {activeTab === "experience" && (
-                <motion.div key="experience" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                  {formData.experience.map((exp, index) => (
-                    <div key={index} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 relative group">
-                      <button type="button" onClick={() => removeItem("experience", index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm"><Trash2 size={16} /></button>
-                      <div className="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Company" value={exp.company} onChange={e => updateListItem("experience", index, "company", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="text" placeholder="Position" value={exp.position} onChange={e => updateListItem("experience", index, "position", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="date" value={exp.startDate} onChange={e => updateListItem("experience", index, "startDate", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="date" value={exp.endDate} disabled={exp.isCurrent} onChange={e => updateListItem("experience", index, "endDate", e.target.value)} className={`px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl ${exp.isCurrent ? 'opacity-30' : ''}`} />
-                        <label className="col-span-2 flex items-center gap-2 text-xs font-bold text-gray-500 px-1 cursor-pointer">
-                          <input type="checkbox" checked={exp.isCurrent} onChange={e => updateListItem("experience", index, "isCurrent", e.target.checked)} className="rounded border-gray-300 dark:border-white/10 text-purple-600 focus:ring-purple-500" />
-                          Currently Working Here
-                        </label>
-                        <textarea placeholder="Description" value={exp.description} onChange={e => updateListItem("experience", index, "description", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl min-h-[100px]" />
+                <motion.div key="experience" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                  {/* Add New Experience Form */}
+                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
+                        <Briefcase size={18} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Experience</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Company</label>
+                        <input type="text" placeholder="e.g. Google" value={newExperience.company} onChange={e => setNewExperience({...newExperience, company: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#001BB7]/20 outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Position</label>
+                        <input type="text" placeholder="e.g. Software Engineer" value={newExperience.position} onChange={e => setNewExperience({...newExperience, position: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#001BB7]/20 outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Start Date</label>
+                        <input type="date" value={newExperience.startDate} onChange={e => setNewExperience({...newExperience, startDate: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">End Date</label>
+                        <input type="date" value={newExperience.endDate} disabled={newExperience.isCurrent} onChange={e => setNewExperience({...newExperience, endDate: e.target.value})} className={`w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none ${newExperience.isCurrent ? 'opacity-30' : ''}`} />
+                      </div>
+                      <label className="col-span-1 md:col-span-2 flex items-center gap-2.5 text-xs font-semibold text-gray-600 dark:text-gray-400 px-1 cursor-pointer">
+                        <input type="checkbox" checked={newExperience.isCurrent} onChange={e => setNewExperience({...newExperience, isCurrent: e.target.checked})} className="w-4 h-4 rounded border-gray-300 dark:border-white/10 text-[#001BB7] focus:ring-[#001BB7]" />
+                        I currently work here
+                      </label>
+                      <div className="col-span-1 md:col-span-2 space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Responsibilities</label>
+                        <textarea placeholder="Bullet points of your achievements..." value={newExperience.description} onChange={e => setNewExperience({...newExperience, description: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl min-h-[100px] text-sm font-medium outline-none resize-none" />
                       </div>
                     </div>
-                  ))}
-                  <button type="button" onClick={() => addItem("experience", { company: "", position: "", startDate: "", endDate: "", description: "", isCurrent: false })} className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 text-gray-500 hover:text-purple-500 hover:border-purple-500/50 transition-all font-bold flex items-center justify-center gap-2"><Plus size={18} /> Add Experience</button>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        if (!newExperience.company || !newExperience.position) return toast.error("Company and Position are required");
+                        addItem("experience", newExperience);
+                        setNewExperience({ company: "", position: "", startDate: "", endDate: "", description: "", isCurrent: false });
+                      }}
+                      className="w-full py-4 bg-[#001BB7] text-white rounded-xl font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#001BB7]/10"
+                    >
+                      <Plus size={18} /> Add to Experience List
+                    </button>
+                  </div>
+
+                  {/* Experience List */}
+                  <div className="space-y-4 pt-4">
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400 px-1">Experience List</h3>
+                    {formData.experience.length === 0 ? (
+                      <div className="text-center py-10 bg-gray-50/50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">No experience added yet.</p>
+                      </div>
+                    ) : (
+                      formData.experience.map((exp, index) => (
+                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-[#001BB7]/5 flex items-center justify-center text-[#001BB7]">
+                              <Briefcase size={20} />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white">{exp.position}</p>
+                              <p className="text-sm text-[#001BB7] font-medium">{exp.company}</p>
+                              <p className="text-[11px] text-gray-500 mt-1 uppercase tracking-tight">
+                                {exp.startDate} — {exp.isCurrent ? "Present" : exp.endDate || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                          <button type="button" onClick={() => removeItem("experience", index)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </motion.div>
               )}
 
               {activeTab === "education" && (
-                <motion.div key="education" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                  {formData.education.map((edu, index) => (
-                    <div key={index} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 relative group">
-                      <button type="button" onClick={() => removeItem("education", index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm"><Trash2 size={16} /></button>
-                      <div className="grid grid-cols-2 gap-4">
-                        <input type="text" placeholder="Institution" value={edu.institution} onChange={e => updateListItem("education", index, "institution", e.target.value)} className="col-span-2 px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="text" placeholder="Degree" value={edu.degree} onChange={e => updateListItem("education", index, "degree", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="text" placeholder="Field of Study" value={edu.field} onChange={e => updateListItem("education", index, "field", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="date" value={edu.graduationDate} onChange={e => updateListItem("education", index, "graduationDate", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="text" placeholder="GPA / Percentage" value={edu.gpa} onChange={e => updateListItem("education", index, "gpa", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
+                <motion.div key="education" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                  {/* Add New Education Form */}
+                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
+                        <GraduationCap size={18} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Education</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="col-span-2 space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Institution</label>
+                        <input type="text" placeholder="e.g. Stanford University" value={newEducation.institution} onChange={e => setNewEducation({...newEducation, institution: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#001BB7]/20 outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Degree</label>
+                        <input type="text" placeholder="e.g. Bachelor of Science" value={newEducation.degree} onChange={e => setNewEducation({...newEducation, degree: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Field of Study</label>
+                        <input type="text" placeholder="e.g. Computer Science" value={newEducation.field} onChange={e => setNewEducation({...newEducation, field: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Graduation Year</label>
+                        <input type="date" value={newEducation.graduationDate} onChange={e => setNewEducation({...newEducation, graduationDate: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">GPA / Result</label>
+                        <input type="text" placeholder="e.g. 3.9/4.0" value={newEducation.gpa} onChange={e => setNewEducation({...newEducation, gpa: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none" />
                       </div>
                     </div>
-                  ))}
-                  <button type="button" onClick={() => addItem("education", { institution: "", degree: "", field: "", graduationDate: "", gpa: "", graduationType: "cgpa" })} className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 text-gray-500 hover:text-purple-500 hover:border-purple-500/50 transition-all font-bold flex items-center justify-center gap-2"><Plus size={18} /> Add Education</button>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        if (!newEducation.institution || !newEducation.degree) return toast.error("Institution and Degree are required");
+                        addItem("education", newEducation);
+                        setNewEducation({ institution: "", degree: "", field: "", graduationDate: "", gpa: "" });
+                      }}
+                      className="w-full py-4 bg-[#001BB7] text-white rounded-xl font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#001BB7]/10"
+                    >
+                      <Plus size={18} /> Add to Education List
+                    </button>
+                  </div>
+
+                  {/* Education List */}
+                  <div className="space-y-4 pt-4">
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400 px-1">Education List</h3>
+                    {formData.education.length === 0 ? (
+                      <div className="text-center py-10 bg-gray-50/50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">No education added yet.</p>
+                      </div>
+                    ) : (
+                      formData.education.map((edu, index) => (
+                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-[#001BB7]/5 flex items-center justify-center text-[#001BB7]">
+                              <GraduationCap size={20} />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white">{edu.degree} in {edu.field}</p>
+                              <p className="text-sm text-[#001BB7] font-medium">{edu.institution}</p>
+                              <p className="text-[11px] text-gray-500 mt-1 uppercase tracking-tight">
+                                Graduated: {edu.graduationDate || "N/A"} • GPA: {edu.gpa || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                          <button type="button" onClick={() => removeItem("education", index)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </motion.div>
               )}
 
               {activeTab === "projects" && (
-                <motion.div key="projects" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                  {formData.projects.map((proj, index) => (
-                    <div key={index} className="p-6 rounded-3xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 relative group">
-                      <button type="button" onClick={() => removeItem("projects", index)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white dark:bg-white/5 rounded-xl shadow-sm"><Trash2 size={16} /></button>
-                      <div className="grid grid-cols-1 gap-4">
-                        <input type="text" placeholder="Project Name" value={proj.name} onChange={e => updateListItem("projects", index, "name", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <input type="text" placeholder="Tech Stack (e.g. Next.js, Prisma, Tailwind)" value={proj.techStack} onChange={e => updateListItem("projects", index, "techStack", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl" />
-                        <textarea placeholder="Description" value={proj.description} onChange={e => updateListItem("projects", index, "description", e.target.value)} className="px-4 py-2 bg-white dark:bg-[#1a1a22] border dark:border-white/10 rounded-xl min-h-[100px]" />
+                <motion.div key="projects" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                  {/* Add New Project Form */}
+                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
+                        <Code size={18} />
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Project</h3>
+                    </div>
+                    <div className="grid grid-cols-1 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Project Name</label>
+                        <input type="text" placeholder="e.g. AI Content Generator" value={newProject.name} onChange={e => setNewProject({...newProject, name: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#001BB7]/20 outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Technologies</label>
+                        <input type="text" placeholder="e.g. Next.js, OpenAI, Prisma" value={newProject.techStack} onChange={e => setNewProject({...newProject, techStack: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium outline-none" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500">Description</label>
+                        <textarea placeholder="Highlight key features and technical challenges..." value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} className="w-full px-5 py-3.5 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl min-h-[120px] text-sm font-medium outline-none resize-none" />
                       </div>
                     </div>
-                  ))}
-                  <button type="button" onClick={() => addItem("projects", { name: "", techStack: "", description: "" })} className="w-full p-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 text-gray-500 hover:text-purple-500 hover:border-purple-500/50 transition-all font-bold flex items-center justify-center gap-2"><Plus size={18} /> Add Project</button>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        if (!newProject.name) return toast.error("Project name is required");
+                        addItem("projects", newProject);
+                        setNewProject({ name: "", techStack: "", description: "" });
+                      }}
+                      className="w-full py-4 bg-[#001BB7] text-white rounded-xl font-semibold hover:brightness-110 transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#001BB7]/10"
+                    >
+                      <Plus size={18} /> Add to Projects List
+                    </button>
+                  </div>
+
+                  {/* Projects List */}
+                  <div className="space-y-4 pt-4">
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400 px-1">Projects List</h3>
+                    {formData.projects.length === 0 ? (
+                      <div className="text-center py-10 bg-gray-50/50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">No projects added yet.</p>
+                      </div>
+                    ) : (
+                      formData.projects.map((proj, index) => (
+                        <div key={index} className="p-6 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 flex justify-between items-center group hover:border-[#001BB7]/30 transition-all">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-[#001BB7]/5 flex items-center justify-center text-[#001BB7]">
+                              <Code size={20} />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-gray-900 dark:text-white">{proj.name}</p>
+                              <p className="text-xs text-[#001BB7] font-semibold mt-0.5">{proj.techStack}</p>
+                              <p className="text-[11px] text-gray-500 mt-1 line-clamp-1 max-w-sm">
+                                {proj.description || "No description provided."}
+                              </p>
+                            </div>
+                          </div>
+                          <button type="button" onClick={() => removeItem("projects", index)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </motion.div>
               )}
 
               {activeTab === "skills" && (
-                <motion.div key="skills" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                  <div className="flex flex-wrap gap-2">
-                    {formData.skills.map((skill, index) => (
-                      <div key={index} className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-500 rounded-full border border-purple-500/30 group">
-                        <span className="text-sm font-bold">{skill.name}</span>
-                        <button type="button" onClick={() => removeItem("skills", index)} className="hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                <motion.div key="skills" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
+                  {/* Add New Skill Form */}
+                  <div className="p-8 rounded-2xl bg-gray-50/50 dark:bg-black/20 border border-gray-200 dark:border-white/10 space-y-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-2 bg-[#001BB7]/10 rounded-lg text-[#001BB7]">
+                        <Plus size={18} />
                       </div>
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <input 
-                      type="text" 
-                      placeholder="Add a skill (e.g. React.js)" 
-                      onKeyDown={e => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          const val = (e.target as HTMLInputElement).value.trim();
-                          if (val) {
-                            addItem("skills", { name: val });
-                            (e.target as HTMLInputElement).value = "";
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add Skills</h3>
+                    </div>
+                    <div className="flex gap-3">
+                      <input 
+                        type="text" 
+                        placeholder="Enter a technical skill (e.g. React.js)" 
+                        value={newSkill}
+                        onChange={e => setNewSkill(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && newSkill.trim()) {
+                            e.preventDefault();
+                            addItem("skills", { name: newSkill.trim() });
+                            setNewSkill("");
                           }
-                        }
-                      }}
-                      className="flex-1 px-4 py-3 rounded-xl bg-gray-50 dark:bg-[#1a1a22] border dark:border-white/10 focus:ring-2 focus:ring-purple-500/30 outline-none" 
-                    />
-                    <button type="button" onClick={(e) => {
-                      const input = (e.currentTarget.previousSibling as HTMLInputElement);
-                      if (input.value.trim()) {
-                        addItem("skills", { name: input.value.trim() });
-                        input.value = "";
-                      }
-                    }} className="px-6 rounded-xl bg-purple-500 text-white font-bold hover:bg-purple-600 transition-all">Add</button>
+                        }}
+                        className="flex-1 px-5 py-4 rounded-xl bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] outline-none text-sm font-medium transition-all" 
+                      />
+                      <button 
+                        type="button" 
+                        onClick={() => {
+                          if (newSkill.trim()) {
+                            addItem("skills", { name: newSkill.trim() });
+                            setNewSkill("");
+                          }
+                        }} 
+                        className="px-8 rounded-xl bg-[#001BB7] text-white font-semibold hover:bg-[#001BB7]/90 active:scale-95 transition-all shadow-lg shadow-[#001BB7]/20"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-gray-400 text-center uppercase tracking-widest font-semibold">Tip: Press Enter to quickly add multiple skills</p>
                   </div>
-                  <p className="text-[10px] text-gray-400 text-center uppercase tracking-widest">Press Enter to add multiple skills</p>
+
+                  {/* Skills List */}
+                  <div className="space-y-4 pt-4">
+                    <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400 px-1">Skills Inventory</h3>
+                    {formData.skills.length === 0 ? (
+                      <div className="text-center py-10 bg-gray-50/50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 italic">No skills added yet.</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-3">
+                        {formData.skills.map((skill, index) => (
+                          <div key={index} className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-white/5 text-[#001BB7] rounded-xl border border-gray-200 dark:border-white/10 group hover:border-[#001BB7]/30 transition-all shadow-sm">
+                            <span className="text-xs font-semibold">{skill.name}</span>
+                            <button type="button" onClick={() => removeItem("skills", index)} className="hover:text-red-500 transition-colors opacity-60 group-hover:opacity-100">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <div className="pt-8 border-t dark:border-white/5 flex justify-between items-center">
-              <div className="text-gray-400 text-xs italic">
-                {activeTab !== 'personal' && "Don't forget to save your changes!"}
+            <div className="pt-10 border-t border-gray-100 dark:border-white/5 flex justify-between items-center gap-6">
+              <div className="text-gray-400 text-xs font-medium italic">
+                {activeTab !== 'personal' && "Ensure you save before switching tabs."}
               </div>
-              <Button1 type="button" onClick={handleSubmit} className="px-10 py-4 flex items-center gap-2 shadow-2xl shadow-purple-500/20" disabled={isSaving}>
+              <Button1 type="button" onClick={handleSubmit} className="px-12 py-4 flex items-center gap-3 shadow-xl shadow-[#001BB7]/20 rounded-xl font-semibold bg-[#001BB7] hover:bg-[#001BB7]/90 transition-all text-white" disabled={isSaving}>
                 {isSaving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
-                {isSaving ? "Saving..." : "Save Profile"}
+                {isSaving ? "Updating Profile..." : "Save Changes"}
               </Button1>
             </div>
           </div>

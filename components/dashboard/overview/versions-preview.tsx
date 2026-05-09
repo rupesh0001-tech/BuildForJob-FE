@@ -33,10 +33,10 @@ export function VersionsPreview() {
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider">Recent Versions</h2>
+        <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-500 uppercase tracking-wider">Recent Versions</h2>
         <Link 
           href="/dashboard/resumes/versions" 
-          className="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline flex items-center gap-1"
+          className="text-sm font-semibold text-primary dark:text-primary hover:underline flex items-center gap-1"
         >
           View all <ArrowRight size={14} />
         </Link>
@@ -49,10 +49,10 @@ export function VersionsPreview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
-            className="p-5 rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:border-purple-500/30 transition-all group"
+            className="p-5 rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-black/40 hover:border-primary/30 transition-all group backdrop-blur-xl"
           >
             <div className="flex items-start justify-between mb-3">
-              <div className="p-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400">
+              <div className="p-2 bg-primary/5 dark:bg-primary/20 rounded-lg text-primary">
                 <History size={18} />
               </div>
             </div>
@@ -69,7 +69,7 @@ export function VersionsPreview() {
             <div className="flex items-center gap-2">
               <Link 
                 href={`/dashboard/resumes/edit/${version.id}`}
-                className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                className="text-[11px] font-semibold text-primary dark:text-primary hover:brightness-125 transition-colors"
               >
                 Edit Version
               </Link>

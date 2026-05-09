@@ -35,16 +35,16 @@ const actions = [
 export function QuickActions() {
   return (
     <div className="mb-10">
-      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Quick Actions</h2>
+      <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-500 uppercase tracking-wider mb-4">Quick Actions</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {actions.map((action) => (
           <Link 
             key={action.title}
             href={action.href}
-            className="text-left flex flex-col items-start p-6 rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:border-purple-500/50 dark:hover:border-purple-500/50 transition-all group shadow-sm"
+            className="text-left flex flex-col items-start p-6 rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-black/40 hover:border-primary/50 dark:hover:border-primary/50 transition-all group shadow-sm backdrop-blur-xl"
           >
             <div className={`p-3 rounded-xl transition-all group-hover:scale-110
-              ${action.color === 'purple' ? 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400' : ''}
+              ${action.color === 'purple' ? 'bg-primary/5 dark:bg-primary/20 text-primary dark:text-primary' : ''}
               ${action.color === 'blue' ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400' : ''}
               ${action.color === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : ''}
               ${action.color === 'orange' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400' : ''}

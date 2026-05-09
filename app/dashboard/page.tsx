@@ -40,7 +40,7 @@ export default function DashboardOverviewPage() {
 
       {completionPercent >= 80 && <MagicBuilder />}
 
-      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Recent Activity & Stats</h2>
+      <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-500 uppercase tracking-wider mb-4">Recent Activity & Stats</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
          <ActivityFeed />
          <StatsTracker />

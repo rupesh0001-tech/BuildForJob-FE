@@ -37,18 +37,24 @@ export const extractPDFText = async (
   return response.data.data;
 };
 
+export interface ATSSuggestions {
+  improvements: Array<{ title: string; description: string; impact: number }>;
+  missingKeywords: string[];
+  missingSkills: string[];
+}
+
 /**
- * Gets AI-powered improvement suggestions.
+ * Gets AI-powered improvement suggestions in structured format.
  */
 export const getATSSuggestions = async (
   resumeFile: File,
   jobDescription: string
-): Promise<string> => {
+): Promise<ATSSuggestions> => {
   const formData = new FormData();
   formData.append('resume', resumeFile);
   formData.append('jobDescription', jobDescription);
 
   const response = await api.post('/ats/suggestions', formData);
 
-  return response.data.data.suggestions;
+  return response.data.data;
 };

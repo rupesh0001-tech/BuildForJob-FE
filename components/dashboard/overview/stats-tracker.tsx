@@ -3,16 +3,16 @@ import { Sparkles } from 'lucide-react';
 import { Button1 } from "@/components/general/buttons/button1";
 
 const stats = [
-  { name: "AI Rewrites", current: 12, total: 50, color: "bg-purple-500" },
+  { name: "AI Rewrites", current: 12, total: 50, color: "bg-primary" },
   { name: "ATS Scans", current: 4, total: 10, color: "bg-blue-500" },
   { name: "Portfolios Rendered", current: 1, total: 3, color: "bg-emerald-500" },
 ];
 
 export function StatsTracker() {
   return (
-    <div className="lg:col-span-1 rounded-2xl border border-gray-300 dark:border-white/10 bg-linear-to-b from-purple-50/50 to-white dark:from-purple-900/10 dark:to-transparent p-6 shadow-sm flex flex-col justify-between h-full">
+    <div className="lg:col-span-1 rounded-2xl border border-gray-300 dark:border-white/10 bg-white dark:bg-black/40 p-6 shadow-sm flex flex-col justify-between h-full backdrop-blur-xl">
       <div>
-        <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-medium mb-6">
+        <div className="flex items-center gap-2 text-primary font-semibold mb-6">
           <span className="animate-pulse"><Sparkles size={18} /></span> Pro Limits Tracker
         </div>
         

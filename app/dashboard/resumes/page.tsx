@@ -102,7 +102,7 @@ export default function ResumesPage() {
           className="bg-white dark:bg-white/5 rounded-2xl p-6 border border-gray-200 dark:border-white/10 shadow-sm flex flex-col justify-between"
         >
           <div className="space-y-4">
-            <div className="w-12 h-12 bg-purple-50 dark:bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400">
+            <div className="w-12 h-12 bg-primary/5 dark:bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                <FilePlus size={24} />
             </div>
             <div>
@@ -122,7 +122,7 @@ export default function ResumesPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-purple-500/20 relative overflow-hidden flex flex-col justify-between"
+          className="bg-primary rounded-2xl p-6 text-white shadow-lg shadow-primary/20 relative overflow-hidden flex flex-col justify-between"
         >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-16 -mt-16" />
           <div className="relative space-y-4">
@@ -131,11 +131,11 @@ export default function ResumesPage() {
             </div>
             <div>
               <h3 className="text-lg font-semibold tracking-tight">Profile-to-Resume</h3>
-              <p className="text-sm text-purple-100/80 mt-1 font-medium italic leading-relaxed">Instantly create a professional resume based on your profile data.</p>
+              <p className="text-sm text-white/80 mt-1 font-medium italic leading-relaxed">Instantly create a professional resume based on your profile data.</p>
             </div>
           </div>
           <button onClick={() => handleStart(true)} className="mt-8 relative z-10">
-            <button className="w-full py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-gray-50 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2">
+            <button className="w-full py-3 bg-white text-primary rounded-xl font-semibold hover:bg-gray-50 active:scale-95 transition-all shadow-sm flex items-center justify-center gap-2">
                Create via Profile <Plus size={16} />
             </button>
           </button>
@@ -153,10 +153,10 @@ export default function ResumesPage() {
                initial={{ opacity: 0, y: 10 }}
                animate={{ opacity: 1, y: 0 }}
                transition={{ delay: idx * 0.1 }}
-               className="group bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-5 shadow-xs hover:border-purple-500/50 transition-all"
+               className="group bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-5 shadow-xs hover:border-primary/50 transition-all"
              >
                <div className="flex items-start justify-between mb-4">
-                 <div className="p-3 bg-gray-50 dark:bg-white/10 rounded-xl group-hover:text-purple-500 transition-colors">
+                 <div className="p-3 bg-gray-50 dark:bg-white/10 rounded-xl group-hover:text-primary transition-colors">
                    <FileText size={20} />
                  </div>
                  <ResumeCardMenu resumeId={resume.id} />
@@ -174,7 +174,7 @@ export default function ResumesPage() {
                  <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-gray-50 dark:bg-white/10 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/20 transition-all">
                    <Eye size={14} /> View
                  </button>
-                 <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg text-xs font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all">
+                 <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-primary/5 dark:bg-primary/10 rounded-lg text-xs font-medium text-primary hover:bg-primary hover:text-white transition-all">
                    <Download size={14} /> PDF
                  </button>
                </div>
@@ -183,7 +183,7 @@ export default function ResumesPage() {
 
            {/* Add New Mock Card */}
            <button onClick={() => handleStart(false)} className="group text-left">
-             <div className="h-full min-h-[220px] rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:text-purple-500 group-hover:border-purple-500/50 transition-all bg-gray-50/50 dark:bg-white/5">
+             <div className="h-full min-h-[220px] rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:text-primary group-hover:border-primary/50 transition-all bg-gray-50/50 dark:bg-white/5">
                 <Plus size={24} />
                 <span className="font-semibold uppercase tracking-wider text-xs">New Resume</span>
              </div>
@@ -214,7 +214,7 @@ export default function ResumesPage() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g. Senior Backend Engineer" 
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-purple-500 outline-none rounded-xl text-sm font-medium transition-all" 
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-primary outline-none rounded-xl text-sm font-medium transition-all" 
                   />
                 </div>
                 <div className="space-y-1">
@@ -224,7 +224,7 @@ export default function ResumesPage() {
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
                     placeholder="e.g. Google" 
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-purple-500 outline-none rounded-xl text-sm font-medium transition-all" 
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 focus:border-primary outline-none rounded-xl text-sm font-medium transition-all" 
                   />
                 </div>
               </div>
@@ -241,7 +241,7 @@ export default function ResumesPage() {
                   className={`flex-1 overflow-hidden rounded-xl ${!title ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <button 
-                    className="w-full py-3 bg-purple-600 text-white font-semibold text-sm shadow-lg shadow-purple-500/20 hover:bg-purple-700 transition-all"
+                    className="w-full py-3 bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/20 hover:brightness-110 transition-all"
                   >
                     Continue
                   </button>

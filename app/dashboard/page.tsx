@@ -32,11 +32,10 @@ export default function DashboardOverviewPage() {
   return (
     <div className="max-w-6xl mx-auto animation-fade-in pb-12">
       <ProfileCompletionBanner />
-      {/* {completionPercent >= 100 && <MagicBuilder />} */}
-      <OverviewHeader name={user?.firstName || "there"} />
+   
       <QuickActions />
 
-      <h2 className="text-sm font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-4">Recent Activity & Stats</h2>
+      <h2 className="text-sm font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider mb-4">Recent Activity & Stats</h2>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
          <ActivityFeed />
          <StatsTracker />

@@ -52,6 +52,7 @@ api.interceptors.response.use(
       // Handle unauthorized error (e.g., redirect to login or clear store)
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         // Optional: window.location.href = '/login';
       }
     }

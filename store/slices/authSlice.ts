@@ -11,11 +11,11 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: null,
+  user: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null,
   token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
   isLoading: false,
   error: null,
-  isAuthenticated: false,
+  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
 };
 
 export const login = createAsyncThunk(
@@ -25,6 +25,7 @@ export const login = createAsyncThunk(
       const response = await authApi.login(credentials);
       if (response.success && response.data) {
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -56,6 +57,7 @@ export const verifyOtp = createAsyncThunk(
       const response = await authApi.verifyOtp(data);
       if (response.success && response.data) {
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -86,6 +88,7 @@ export const fetchProfile = createAsyncThunk(
     try {
       const response = await authApi.getProfile();
       if (response.success && response.data) {
+        localStorage.setItem('user', JSON.stringify(response.data));
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -101,6 +104,7 @@ export const updateProfile = createAsyncThunk(
     try {
       const response = await authApi.updateProfile(data);
       if (response.success && response.data) {
+        localStorage.setItem('user', JSON.stringify(response.data));
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -119,6 +123,7 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
     },
     clearError: (state) => {
       state.error = null;
@@ -171,10 +176,8 @@ const authSlice = createSlice({
       })
       .addCase(fetchProfile.rejected, (state) => {
         state.isLoading = false;
-        state.isAuthenticated = false;
-        state.token = null;
-        state.user = null;
-        localStorage.removeItem('token');
+        // Don't clear token or user on network error
+        // Let the axios interceptor handle 401s
       })
       // Update Profile
       .addCase(updateProfile.pending, (state) => {

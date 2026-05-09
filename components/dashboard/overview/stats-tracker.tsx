@@ -10,7 +10,7 @@ const stats = [
 
 export function StatsTracker() {
   return (
-    <div className="lg:col-span-1 rounded-2xl border border-gray-200 dark:border-white/10 bg-linear-to-b from-purple-50/50 to-white dark:from-purple-900/10 dark:to-transparent p-6 shadow-xs flex flex-col justify-between h-full">
+    <div className="lg:col-span-1 rounded-2xl border border-gray-300 dark:border-white/10 bg-linear-to-b from-purple-50/50 to-white dark:from-purple-900/10 dark:to-transparent p-6 shadow-sm flex flex-col justify-between h-full">
       <div>
         <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400 font-medium mb-6">
           <span className="animate-pulse"><Sparkles size={18} /></span> Pro Limits Tracker
@@ -20,7 +20,7 @@ export function StatsTracker() {
           {stats.map((stat) => (
             <div key={stat.name}>
               <div className="flex justify-between text-sm mb-2">
-                <span className="text-gray-600 dark:text-gray-300">{stat.name}</span>
+                <span className="text-gray-700 dark:text-gray-300">{stat.name}</span>
                 <span className="font-medium text-black dark:text-white">{stat.current} / {stat.total}</span>
               </div>
               <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">

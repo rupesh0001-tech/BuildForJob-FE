@@ -39,6 +39,11 @@ export const authApi = {
     return response.data;
   },
 
+  uploadAvatar: async (formData: FormData): Promise<ProfileResponse> => {
+    const response = await api.post<ProfileResponse>('/user/avatar', formData);
+    return response.data;
+  },
+
   logout: async () => {
     // Usually frontend only, but can be API call
     return { success: true };

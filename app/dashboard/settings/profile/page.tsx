@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchProfile, updateProfile } from "@/store/slices/authSlice";
+import { fetchProfile, updateProfile, uploadAvatar } from "@/store/slices/authSlice";
 import { 
   Mail, User as UserIcon, Phone, MapPin, Briefcase, FileText, 
   Camera, Save, Loader2, Plus, Trash2, GraduationCap, 
@@ -35,6 +35,8 @@ export default function ProfileSettingsPage() {
   const [githubSyncData, setGithubSyncData] = useState<any>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     firstName: "",
@@ -140,6 +142,35 @@ export default function ProfileSettingsPage() {
       });
     }
   }, [user, isSaving]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast.error("File size should be less than 5MB");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    setIsUploading(true);
+    try {
+      await dispatch(uploadAvatar(formData)).unwrap();
+      toast.success("Profile photo updated!");
+    } catch (error: any) {
+      toast.error(error || "Failed to upload photo");
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -270,17 +301,31 @@ export default function ProfileSettingsPage() {
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-8 text-center shadow-sm relative overflow-hidden group backdrop-blur-xl">
             <div className="relative w-32 h-32 mx-auto mb-6">
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-[#001BB7] to-[#001BB7]/80 flex items-center justify-center text-white text-4xl font-semibold shadow-2xl transition-transform duration-500 group-hover:scale-105">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-[#001BB7] to-[#001BB7]/80 flex items-center justify-center text-white text-4xl font-semibold shadow-2xl transition-transform duration-500 group-hover:scale-105 overflow-hidden">
                 {user?.avatarUrl ? (
                   <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
                 ) : (
                   <span className="tracking-tighter">{user?.firstName?.[0]?.toUpperCase()}{user?.lastName?.[0]?.toUpperCase()}</span>
                 )}
               </div>
-              
+              <button 
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                className="absolute bottom-0 right-0 p-2.5 bg-[#001BB7] text-white rounded-xl shadow-xl hover:scale-110 active:scale-95 transition-all border-4 border-white dark:border-[#0a0a0a]"
+              >
+                {isUploading ? <Loader2 size={16} className="animate-spin" /> : <Camera size={16} />}
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                accept="image/*" 
+                className="hidden" 
+              />
             </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white tracking-tight leading-none">{formData.firstName} {formData.lastName}</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2 tracking-wide uppercase">{formData.jobTitle || "Career Goal Unset"}</p>
+            {formData.jobTitle && <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mt-2 tracking-wide uppercase">{formData.jobTitle}</p>}
           </div>
 
           <div className="bg-white dark:bg-black/40 rounded-2xl border border-gray-300 dark:border-white/10 p-6 shadow-sm space-y-5 backdrop-blur-xl">

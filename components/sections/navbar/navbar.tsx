@@ -104,8 +104,12 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
             {isAuthenticated ? (
               <>
                 <div className="flex items-center gap-3 px-1 py-2">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-bold">
-                    {user?.firstName?.[0]}{user?.lastName?.[0]}
+                  <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center text-sm font-bold overflow-hidden">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{user?.firstName?.[0]}{user?.lastName?.[0]}</span>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm font-bold text-black dark:text-white">{user?.firstName} {user?.lastName}</p>

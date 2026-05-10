@@ -35,9 +35,13 @@ export function UserDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-blue-500 border-2 border-white dark:border-black shadow-lg shadow-purple-500/20 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-xs uppercase"
+        className="w-10 h-10 rounded-full bg-linear-to-br from-purple-500 to-blue-500 border-2 border-white dark:border-black shadow-lg shadow-purple-500/20 cursor-pointer hover:scale-105 transition-transform flex items-center justify-center text-white font-bold text-xs uppercase overflow-hidden"
       >
-        {user?.firstName?.[0]}{user?.lastName?.[0] || user?.email?.[0] || 'U'}
+        {user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+        ) : (
+          <span>{user?.firstName?.[0]}{user?.lastName?.[0] || user?.email?.[0] || 'U'}</span>
+        )}
       </button>
 
       <AnimatePresence>

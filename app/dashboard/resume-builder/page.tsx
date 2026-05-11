@@ -1,22 +1,60 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import ResumeForm from "@/components/resume-builder/ResumeForm";
 import ResumePreview from "@/components/resume-builder/ResumePreview";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Save, Clock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
-import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { updateResume } from "@/lib/store/features/resume-slice";
+import { 
+  updateResumeState, 
+  saveResume, 
+  createResumeVersion, 
+  fetchResumeById, 
+  resetResumeEditor,
+  setResumeTitle,
+  setCurrentResumeId
+} from "@/lib/store/features/resume-slice";
 import { toast } from "sonner";
 
 export default function ResumeBuilderPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const resumeState = useAppSelector((state) => state.resume);
+  
+  const id = searchParams.get("id");
+  const titleParam = searchParams.get("title");
+  const companyParam = searchParams.get("company");
   const magic = searchParams.get("magic");
+
+  const [isSaving, setIsSaving] = useState(false);
+  const [localTitle, setLocalTitle] = useState(titleParam || resumeState.resumeTitle || "Untitled Resume");
+
+  // Load existing resume or handle new one
+  useEffect(() => {
+    if (id) {
+      if (id !== resumeState.currentResumeId) {
+        dispatch(fetchResumeById(id));
+      }
+    } else {
+      dispatch(resetResumeEditor());
+      if (titleParam) {
+        dispatch(setResumeTitle(titleParam));
+        setLocalTitle(titleParam);
+      }
+    }
+  }, [id, titleParam, dispatch, resumeState.currentResumeId]);
+
+  // Sync local title with store title when loaded
+  useEffect(() => {
+    if (resumeState.resumeTitle && !titleParam) {
+      setLocalTitle(resumeState.resumeTitle);
+    }
+  }, [resumeState.resumeTitle, titleParam]);
 
   useEffect(() => {
     if (magic === "true" && user) {
@@ -56,10 +94,60 @@ export default function ResumeBuilderPage() {
         skillData: (user.skills || []).map((s: any) => s.name),
       };
 
-      dispatch(updateResume(resumeData as any));
+      dispatch(updateResumeState(resumeData as any));
       toast.success("Resume magically generated from your profile!");
     }
   }, [magic, user, dispatch]);
+
+  const handleSave = async (isDraft: boolean, isVersion: boolean = false) => {
+    setIsSaving(true);
+    
+    const content = {
+      personalInfoData: resumeState.personalInfoData,
+      professionalSummaryData: resumeState.professionalSummaryData,
+      experienceData: resumeState.experienceData,
+      educationData: resumeState.educationData,
+      projectData: resumeState.projectData,
+      skillData: resumeState.skillData,
+      template: resumeState.template,
+      accentColor: resumeState.accentColor,
+      sectionVisibility: resumeState.sectionVisibility
+    };
+
+    try {
+      if (isVersion && resumeState.currentResumeId) {
+        await dispatch(createResumeVersion({
+          id: resumeState.currentResumeId,
+          data: {
+            company: companyParam || "General",
+            role: resumeState.personalInfoData.profession || "Resume Version",
+            content
+          }
+        })).unwrap();
+        toast.success("Resume version saved!");
+      } else {
+        const result = await dispatch(saveResume({
+          id: resumeState.currentResumeId || undefined,
+          data: {
+            title: localTitle,
+            content,
+            isDraft,
+            template: resumeState.template,
+            company: companyParam || undefined
+          }
+        })).unwrap();
+        
+        if (!resumeState.currentResumeId) {
+          router.replace(`/dashboard/resume-builder?id=${result.id}`);
+        }
+        toast.success("Resume saved successfully!");
+      }
+    } catch (error: any) {
+      toast.error(error || "Failed to save resume");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleDownload = async () => {
     const element = document.getElementById("resume-preview");
@@ -81,7 +169,7 @@ export default function ResumeBuilderPage() {
       const pdfHeight = (pdf.internal.pageSize.getHeight());
 
       pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("resume.pdf");
+      pdf.save(`${localTitle.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
@@ -90,24 +178,46 @@ export default function ResumeBuilderPage() {
   return (
     <div className="max-w-8xl mx-auto space-y-6 pb-20">
       {/* Top Header */}
-      <div className="flex justify-between items-center gap-4">
-        <Link 
-          href="/dashboard"
-          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors group"
-        >
-          <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-white/5 group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
-            <ArrowLeft size={16} />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-black/40 p-4 rounded-2xl backdrop-blur-xl">
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <Link 
+            href="/dashboard/resumes"
+            className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <div className="flex-1">
+            <input 
+              type="text" 
+              value={localTitle}
+              onChange={(e) => setLocalTitle(e.target.value)}
+              className="bg-transparent border-none outline-none font-semibold text-lg font-sans dark:text-white w-full focus:ring-0 p-0"
+              placeholder="Resume Title"
+            />
+            <p className="text-[10px] text-gray-500 font-semibold font-sans uppercase tracking-widest">
+              {resumeState.currentResumeId ? "Syncing to Cloud" : "New Resume Project"}
+            </p>
           </div>
-          Back to Dashboard
-        </Link>
+        </div>
 
-        <button
-          onClick={handleDownload}
-          className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
-        >
-          <Download size={18} />
-          Download PDF
-        </button>
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button
+            onClick={() => handleSave(false)}
+            disabled={isSaving}
+            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl font-semibold font-sans text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm"
+          >
+            {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            Save
+          </button>
+
+          <button
+            onClick={handleDownload}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-semibold font-sans text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
+          >
+            <Download size={18} />
+            Download PDF
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8 items-start justify-center h-full w-full">

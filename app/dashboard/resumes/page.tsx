@@ -1,19 +1,24 @@
 "use client";
-
-import React from "react";
-import { Plus, Sparkles, FileText, Download, Eye, MoreVertical, Trash2, Calendar, FilePlus } from "lucide-react";
+import React, { useEffect } from "react";
+import { Plus, Sparkles, FileText, Download, Eye, MoreVertical, Trash2, Calendar, FilePlus, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button1 } from "@/components/general/buttons/button1";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchAllResumes, deleteResumeById } from "@/lib/store/features/resume-slice";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { ConfirmModal } from "@/components/general/ConfirmModal";
 
-const sampleResumes = [
-  { id: "1", name: "Full Stack Developer", updatedAt: "2 hours ago", template: "Classic Professional" },
-  { id: "2", name: "Software Engineer - Google", updatedAt: "Yesterday", template: "Modern Sleek" },
-  { id: "3", name: "React Developer Resume", updatedAt: "3 days ago", template: "Creative Grid" },
-];
-
-function ResumeCardMenu({ resumeId }: { resumeId: string }) {
+function ResumeCardMenu({ resumeId, onDeleteRequest }: { resumeId: string; onDeleteRequest: () => void }) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const dispatch = useAppDispatch();
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onDeleteRequest();
+    setIsOpen(false);
+  };
 
   return (
     <div className="relative">
@@ -50,11 +55,7 @@ function ResumeCardMenu({ resumeId }: { resumeId: string }) {
                 <Sparkles size={14} className="text-purple-500" /> Edit Project
               </Link>
               <button 
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log("Delete", resumeId);
-                  setIsOpen(false);
-                }}
+                onClick={handleDeleteClick}
                 className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors text-left"
               >
                 <Trash2 size={14} /> Delete
@@ -73,6 +74,15 @@ export default function ResumesPage() {
   const [title, setTitle] = React.useState("");
   const [company, setCompany] = React.useState("");
 
+  const dispatch = useAppDispatch();
+  const { resumesList, isLoading } = useAppSelector((state) => state.resume);
+  
+  const [deleteId, setDeleteId] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchAllResumes());
+  }, [dispatch]);
+
   const handleStart = (magic: boolean) => {
     setIsMagic(magic);
     setShowModal(true);
@@ -83,6 +93,7 @@ export default function ResumesPage() {
       
       {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* ... (keep existing action cards) ... */}
         <motion.div 
           whileHover={{ y: -2 }}
           initial={{ opacity: 0, y: 10 }}
@@ -134,39 +145,57 @@ export default function ResumesPage() {
          <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-500 uppercase tracking-wider">Recent Creations</h2>
 
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-           {sampleResumes.map((resume, idx) => (
-             <motion.div 
-               key={resume.id}
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: idx * 0.1 }}
-               className="group bg-white dark:bg-black/40 rounded-2xl border border-gray-300 dark:border-white/10 p-5 shadow-xs hover:border-primary/50 transition-all backdrop-blur-xl"
-             >
-               <div className="flex items-start justify-between mb-4">
-                 <div className="p-3 bg-gray-50 dark:bg-white/10 rounded-xl group-hover:text-primary transition-colors">
-                   <FileText size={20} />
+           {isLoading ? (
+             <div className="col-span-full flex flex-col items-center justify-center py-20 text-gray-500">
+                <Loader2 className="animate-spin mb-2" size={32} />
+                <p className="text-sm font-medium">Loading your resumes...</p>
+             </div>
+           ) : resumesList.length === 0 ? (
+              <div className="col-span-full text-center py-10 bg-gray-50/50 dark:bg-white/5 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">No resumes created yet.</p>
+              </div>
+           ) : (
+             resumesList.map((resume, idx) => (
+               <motion.div 
+                 key={resume.id}
+                 initial={{ opacity: 0, y: 10 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: idx * 0.05 }}
+                 className="group bg-white dark:bg-black/40 rounded-2xl border border-gray-300 dark:border-white/10 p-5 shadow-xs hover:border-primary/50 transition-all backdrop-blur-xl"
+               >
+                 <div className="flex items-start justify-between mb-4">
+                   <div className="p-3 bg-gray-50 dark:bg-white/10 rounded-xl group-hover:text-primary transition-colors">
+                     <FileText size={20} />
+                   </div>
+                   <ResumeCardMenu 
+                     resumeId={resume.id} 
+                     onDeleteRequest={() => setDeleteId(resume.id)} 
+                   />
                  </div>
-                 <ResumeCardMenu resumeId={resume.id} />
-               </div>
-               
-               <div className="space-y-1">
-                 <h4 className="font-semibold text-black dark:text-white line-clamp-1">{resume.name}</h4>
-                 <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Calendar size={12} />
-                    <span>Edited {resume.updatedAt}</span>
+                 
+                 <div className="space-y-1">
+                   <div className="flex items-center gap-2">
+                    <h4 className="font-semibold text-black dark:text-white line-clamp-1">{resume.title}</h4>
+                   </div>
+                   <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <Calendar size={12} />
+                      <span>Edited {formatDistanceToNow(new Date(resume.updatedAt))} ago</span>
+                   </div>
                  </div>
-               </div>
 
-               <div className="mt-6 flex gap-2 pt-4 border-t border-gray-100 dark:border-white/5">
-                 <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-gray-50 dark:bg-white/10 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/20 transition-all">
-                   <Eye size={14} /> View
-                 </button>
-                 <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-primary/5 dark:bg-primary/10 rounded-lg text-xs font-medium text-primary hover:bg-primary hover:text-white transition-all">
-                   <Download size={14} /> PDF
-                 </button>
-               </div>
-             </motion.div>
-           ))}
+                 <div className="mt-6 flex gap-2 pt-4 border-t border-gray-100 dark:border-white/5">
+                   <Link href={`/dashboard/resume-builder?id=${resume.id}`} className="flex-1">
+                    <button className="w-full flex items-center justify-center gap-2 p-2 bg-gray-50 dark:bg-white/10 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/20 transition-all">
+                      <Eye size={14} /> Edit
+                    </button>
+                   </Link>
+                   <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-primary/5 dark:bg-primary/10 rounded-lg text-xs font-medium text-primary hover:bg-primary hover:text-white transition-all">
+                     <Download size={14} /> PDF
+                   </button>
+                 </div>
+               </motion.div>
+             ))
+           )}
 
            {/* Add New Mock Card */}
            <button onClick={() => handleStart(false)} className="group text-left">
@@ -238,6 +267,25 @@ export default function ResumesPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmModal 
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={async () => {
+          if (!deleteId) return;
+          try {
+            await dispatch(deleteResumeById(deleteId)).unwrap();
+            toast.success("Resume deleted successfully");
+          } catch (error: any) {
+            toast.error(error || "Failed to delete resume");
+          }
+          setDeleteId(null);
+        }}
+        title="Delete Resume"
+        description="Are you sure you want to delete this resume? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

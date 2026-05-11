@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { resumeApi } from '@/apis/resume.api';
 
 export interface PersonalInfo {
   full_name: string;
@@ -17,7 +18,7 @@ export interface Experience {
   startDate: string;
   endDate: string;
   description: string;
-  is_current: boolean;  // "Present" checkbox
+  is_current: boolean;
   _id?: string;
 }
 
@@ -27,13 +28,13 @@ export interface Education {
   field: string;
   graduation_date: string;
   gpa: string;
-  graduationType: "cgpa" | "percentage"; // New toggle
+  graduationType: "cgpa" | "percentage";
   _id?: string;
 }
 
 export interface Project {
   name: string;
-  techStack: string; // Renamed from type
+  techStack: string;
   description: string;
   _id?: string;
 }
@@ -54,6 +55,12 @@ export interface ResumeState {
     projects: boolean;
     skills: boolean;
   };
+  // Backend integration state
+  resumesList: any[];
+  currentResumeId: string | null;
+  resumeTitle: string;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: ResumeState = {
@@ -81,7 +88,77 @@ const initialState: ResumeState = {
     projects: true,
     skills: true,
   },
+  resumesList: [],
+  currentResumeId: null,
+  resumeTitle: "Untitled Resume",
+  isLoading: false,
+  error: null,
 };
+
+export const fetchAllResumes = createAsyncThunk(
+  'resume/fetchAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await resumeApi.getAll();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch resumes');
+    }
+  }
+);
+
+export const fetchResumeById = createAsyncThunk(
+  'resume/fetchById',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const response = await resumeApi.getById(id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch resume');
+    }
+  }
+);
+
+export const saveResume = createAsyncThunk(
+  'resume/save',
+  async ({ id, data }: { id?: string; data: any }, { rejectWithValue }) => {
+    try {
+      if (id) {
+        const response = await resumeApi.update(id, data);
+        return response.data;
+      } else {
+        const response = await resumeApi.create(data);
+        return response.data;
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to save resume');
+    }
+  }
+);
+
+export const createResumeVersion = createAsyncThunk(
+  'resume/createVersion',
+  async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+    try {
+      const response = await resumeApi.createVersion(id, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to save version');
+    }
+  }
+);
+
+export const deleteResumeById = createAsyncThunk(
+  'resume/delete',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await resumeApi.delete(id);
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete resume');
+    }
+  }
+);
 
 export const resumeSlice = createSlice({
   name: 'resume',
@@ -114,10 +191,76 @@ export const resumeSlice = createSlice({
     setSectionVisibility: (state, action: PayloadAction<Partial<ResumeState["sectionVisibility"]>>) => {
       state.sectionVisibility = { ...state.sectionVisibility, ...action.payload };
     },
-    updateResume: (state, action: PayloadAction<Partial<ResumeState>>) => {
+    updateResumeState: (state, action: PayloadAction<Partial<ResumeState>>) => {
       return { ...state, ...action.payload };
     },
+    resetResumeEditor: (state) => {
+      const { resumesList, ...rest } = initialState;
+      return { ...rest, resumesList: state.resumesList };
+    },
+    setCurrentResumeId: (state, action: PayloadAction<string | null>) => {
+      state.currentResumeId = action.payload;
+    },
+    setResumeTitle: (state, action: PayloadAction<string>) => {
+      state.resumeTitle = action.payload;
+    }
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAllResumes.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchAllResumes.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.resumesList = action.payload;
+      })
+      .addCase(fetchAllResumes.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchResumeById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchResumeById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentResumeId = action.payload.id;
+        state.resumeTitle = action.payload.title;
+        // Merge the content into the editor state
+        if (action.payload.content) {
+          const content = action.payload.content;
+          state.personalInfoData = content.personalInfoData || state.personalInfoData;
+          state.professionalSummaryData = content.professionalSummaryData || state.professionalSummaryData;
+          state.experienceData = content.experienceData || state.experienceData;
+          state.educationData = content.educationData || state.educationData;
+          state.projectData = content.projectData || state.projectData;
+          state.skillData = content.skillData || state.skillData;
+          state.template = content.template || state.template;
+          state.accentColor = content.accentColor || state.accentColor;
+          state.sectionVisibility = content.sectionVisibility || state.sectionVisibility;
+        }
+      })
+      .addCase(fetchResumeById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(saveResume.fulfilled, (state, action) => {
+        state.currentResumeId = action.payload.id;
+        state.resumeTitle = action.payload.title;
+        // Update the list as well
+        const index = state.resumesList.findIndex(r => r.id === action.payload.id);
+        if (index !== -1) {
+          state.resumesList[index] = action.payload;
+        } else {
+          state.resumesList.unshift(action.payload);
+        }
+      })
+      .addCase(deleteResumeById.fulfilled, (state, action) => {
+        state.resumesList = state.resumesList.filter(r => r.id !== action.payload);
+        if (state.currentResumeId === action.payload) {
+          state.currentResumeId = null;
+        }
+      });
+  }
 });
 
 export const {
@@ -130,7 +273,11 @@ export const {
   setTemplate,
   setAccentColor,
   setSectionVisibility,
-  updateResume,
+  updateResumeState,
+  resetResumeEditor,
+  setCurrentResumeId,
+  setResumeTitle
 } = resumeSlice.actions;
 
 export default resumeSlice.reducer;
+

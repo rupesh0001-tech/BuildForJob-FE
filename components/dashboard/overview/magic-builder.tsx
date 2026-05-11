@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { updateResume } from "@/lib/store/features/resume-slice";
+import { updateResumeState } from "@/lib/store/features/resume-slice";
 import { 
   updatePersonalInfo, 
   updateBody, 
@@ -89,7 +89,7 @@ export function MagicBuilder() {
       skillData: (user.skills || []).map((s: any) => s.name),
     };
 
-    dispatch(updateResume(resumeData as any));
+    dispatch(updateResumeState(resumeData as any));
 
     // 2. Map Profile to Cover Letter
     dispatch(updateMode("structured"));

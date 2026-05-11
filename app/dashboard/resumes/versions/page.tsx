@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getVersions, createVersion, deleteVersion } from "@/apis/versions.api";
+import { ConfirmModal } from "@/components/general/ConfirmModal";
 
 // Helper function for date formatting
 const formatDate = (dateString: string) => {
@@ -32,6 +33,7 @@ export default function VersionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -81,13 +83,7 @@ export default function VersionsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this version?")) return;
-    try {
-      await deleteVersion(id);
-      fetchVersions();
-    } catch (error) {
-      console.error("Failed to delete version:", error);
-    }
+    setDeleteId(id);
   };
 
   const resetForm = () => {
@@ -369,6 +365,25 @@ export default function VersionsPage() {
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmModal 
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={async () => {
+          if (!deleteId) return;
+          try {
+            await deleteVersion(deleteId);
+            fetchVersions();
+          } catch (error) {
+            console.error("Failed to delete version:", error);
+          }
+          setDeleteId(null);
+        }}
+        title="Delete Version"
+        description="Are you sure you want to delete this version? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { fetchGitHubData, extractUsername } from "@/lib/github/github-api";
 import { GithubSyncModal } from "@/components/profile/GithubSyncModal";
+import { ConfirmModal } from "@/components/general/ConfirmModal";
 
 export default function GitHubConnectPage() {
   const dispatch = useAppDispatch();
@@ -28,6 +29,7 @@ export default function GitHubConnectPage() {
   const [githubData, setGithubData] = useState<any>(null);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
 
   // Helper to safely parse social links if they come as string
   const getSocialLinks = () => {
@@ -67,8 +69,11 @@ export default function GitHubConnectPage() {
     }
   };
 
+  const handleDisconnectClick = () => {
+    setShowDisconnectModal(true);
+  };
+
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure? This will disconnect GitHub and REMOVE all projects and skills synced from it.")) return;
     
     try {
       setLoading(true);
@@ -173,7 +178,7 @@ export default function GitHubConnectPage() {
                   {loading ? "Refreshing..." : "Sync Profile"}
                 </button>
                 <button
-                  onClick={handleDisconnect}
+                  onClick={handleDisconnectClick}
                   disabled={loading}
                   className="p-3 bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-500 rounded-xl hover:bg-red-600 hover:text-white dark:hover:bg-red-500 transition-all border border-red-100 dark:border-red-500/20"
                   title="Disconnect GitHub"
@@ -421,6 +426,16 @@ export default function GitHubConnectPage() {
           key={githubData.profile.html_url}
         />
       )}
+
+      <ConfirmModal 
+        isOpen={showDisconnectModal}
+        onClose={() => setShowDisconnectModal(false)}
+        onConfirm={handleDisconnect}
+        title="Disconnect GitHub"
+        description="Are you sure? This will disconnect GitHub and remove all projects and skills synced from it. This action cannot be undone."
+        confirmText="Disconnect"
+        variant="danger"
+      />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { fetchGitHubData, extractUsername } from "@/lib/github/github-api";
 import { GithubSyncModal } from "@/components/profile/GithubSyncModal";
+import { ConfirmModal } from "@/components/general/ConfirmModal";
 
 type TabType = "personal" | "experience" | "education" | "projects" | "skills";
 
@@ -36,6 +37,7 @@ export default function ProfileSettingsPage() {
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [hasSynced, setHasSynced] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
@@ -81,8 +83,11 @@ export default function ProfileSettingsPage() {
     }
   };
 
+  const handleDisconnectClick = () => {
+    setShowDisconnectModal(true);
+  };
+
   const handleDisconnect = async () => {
-    if (!confirm("Are you sure? This will disconnect GitHub and REMOVE all projects and skills synced from it.")) return;
     
     try {
       setIsSaving(true);
@@ -373,7 +378,7 @@ export default function ProfileSettingsPage() {
                       </div>
                       <button
                         type="button"
-                        onClick={handleDisconnect}
+                        onClick={handleDisconnectClick}
                         disabled={isSaving}
                         className="w-full py-2.5 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 text-[10px] font-semibold hover:bg-red-600 hover:text-white transition-all border border-red-100 dark:border-red-500/10 uppercase tracking-wider"
                       >
@@ -784,6 +789,16 @@ export default function ProfileSettingsPage() {
           onSync={onGithubDataMerged}
         />
       )}
+
+      <ConfirmModal 
+        isOpen={showDisconnectModal}
+        onClose={() => setShowDisconnectModal(false)}
+        onConfirm={handleDisconnect}
+        title="Disconnect GitHub"
+        description="Are you sure? This will disconnect GitHub and remove all projects and skills synced from it. This action cannot be undone."
+        confirmText="Disconnect"
+        variant="danger"
+      />
     </div>
   );
 }

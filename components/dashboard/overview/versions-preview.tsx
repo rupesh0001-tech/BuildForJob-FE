@@ -17,7 +17,7 @@ const versions = [
     id: "v2",
     name: "Fullstack Engineer - Meta",
     date: "Yesterday",
-    status: "Draft",
+    status: "Final",
     score: 85
   },
   {

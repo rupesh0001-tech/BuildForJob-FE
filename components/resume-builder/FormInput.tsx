@@ -39,7 +39,7 @@ const FormInput = ({
         <label
           htmlFor={name}
           className={cn(
-            "text-sm font-medium cursor-pointer transition-colors",
+            "text-sm font-medium font-sans cursor-pointer transition-colors",
             disabled ? "text-gray-400" : "text-gray-700 dark:text-gray-300 group-hover:text-primary dark:group-hover:text-primary/80"
           )}
         >
@@ -53,7 +53,7 @@ const FormInput = ({
     <div className="flex flex-col gap-2">
       <label
         htmlFor={name}
-        className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
+        className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300 flex items-center gap-2"
       >
         {icon}
         {label}
@@ -67,7 +67,7 @@ const FormInput = ({
         placeholder={placeholder}
         disabled={disabled}
         className={cn(
-            "w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white",
+            "w-full px-4 py-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans",
             disabled && "opacity-50 cursor-not-allowed bg-gray-100 dark:bg-zinc-800"
         )}
       />

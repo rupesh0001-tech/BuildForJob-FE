@@ -109,11 +109,12 @@ export default function ResumesPage() {
               <p className="text-sm text-gray-500 mt-1">Start with a blank canvas and build your resume from scratch.</p>
             </div>
           </div>
-          <button onClick={() => handleStart(false)} className="mt-8">
-            <Button1 className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
-               Create New Resume <Plus size={16} />
-            </Button1>
-          </button>
+          <Button1 
+            onClick={() => handleStart(false)} 
+            className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold mt-8"
+          >
+             Create New Resume <Plus size={16} />
+          </Button1>
         </motion.div>
 
         <motion.div 
@@ -132,11 +133,12 @@ export default function ResumesPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Instantly create a professional resume based on your profile data.</p>
             </div>
           </div>
-          <button onClick={() => handleStart(true)} className="mt-8">
-            <Button1 className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
-               Create via Profile <Plus size={16} />
-            </Button1>
-          </button>
+          <Button1 
+            onClick={() => handleStart(true)} 
+            className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold mt-8"
+          >
+             Create via Profile <Plus size={16} />
+          </Button1>
         </motion.div>
       </div>
 
@@ -184,10 +186,11 @@ export default function ResumesPage() {
                  </div>
 
                  <div className="mt-6 flex gap-2 pt-4 border-t border-gray-100 dark:border-white/5">
-                   <Link href={`/dashboard/resume-builder?id=${resume.id}`} className="flex-1">
-                    <button className="w-full flex items-center justify-center gap-2 p-2 bg-gray-50 dark:bg-white/10 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/20 transition-all">
+                   <Link 
+                    href={`/dashboard/resume-builder?id=${resume.id}`} 
+                    className="flex-1 flex items-center justify-center gap-2 p-2 bg-gray-50 dark:bg-white/10 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/20 transition-all"
+                   >
                       <Eye size={14} /> Edit
-                    </button>
                    </Link>
                    <button className="flex-1 flex items-center justify-center gap-2 p-2 bg-primary/5 dark:bg-primary/10 rounded-lg text-xs font-medium text-primary hover:bg-primary hover:text-white transition-all">
                      <Download size={14} /> PDF
@@ -198,12 +201,13 @@ export default function ResumesPage() {
            )}
 
            {/* Add New Mock Card */}
-           <button onClick={() => handleStart(false)} className="group text-left">
-             <div className="h-full min-h-[220px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-gray-400 group-hover:text-primary group-hover:border-primary/50 transition-all bg-gray-50/50 dark:bg-black/40 backdrop-blur-xl">
+            <div 
+              onClick={() => handleStart(false)}
+              className="h-full min-h-[220px] rounded-2xl border-2 border-dashed border-gray-300 dark:border-white/10 flex flex-col items-center justify-center gap-3 text-gray-400 hover:text-primary hover:border-primary/50 transition-all bg-gray-50/50 dark:bg-black/40 backdrop-blur-xl cursor-pointer"
+            >
                 <Plus size={24} />
                 <span className="font-semibold uppercase tracking-wider text-xs">New Resume</span>
-             </div>
-           </button>
+            </div>
          </div>
       </div>
 
@@ -254,13 +258,9 @@ export default function ResumesPage() {
                 </button>
                 <Link 
                   href={`/dashboard/resume-builder?title=${encodeURIComponent(title)}${company ? `&company=${encodeURIComponent(company)}` : ""}${isMagic ? "&magic=true" : ""}`}
-                  className={`flex-1 overflow-hidden rounded-xl ${!title ? 'opacity-50 pointer-events-none' : ''}`}
+                  className={`flex-1 overflow-hidden rounded-xl py-3 bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/20 hover:brightness-110 transition-all text-center ${!title ? 'opacity-50 pointer-events-none' : ''}`}
                 >
-                  <button 
-                    className="w-full py-3 bg-primary text-white font-semibold text-sm shadow-lg shadow-primary/20 hover:brightness-110 transition-all"
-                  >
                     Continue
-                  </button>
                 </Link>
               </div>
             </motion.div>

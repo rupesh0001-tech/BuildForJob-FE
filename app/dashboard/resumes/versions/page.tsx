@@ -11,11 +11,16 @@ import {
   X,
   Building2,
   Calendar,
-  Loader2
+  Loader2,
+  ChevronDown
 } from "lucide-react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { getVersions, createVersion, deleteVersion } from "@/apis/versions.api";
 import { ConfirmModal } from "@/components/general/ConfirmModal";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchAllResumes } from "@/lib/store/features/resume-slice";
+import { toast } from "sonner";
 
 // Helper function for date formatting
 const formatDate = (dateString: string) => {
@@ -28,6 +33,8 @@ const formatDate = (dateString: string) => {
 };
 
 export default function VersionsPage() {
+  const dispatch = useAppDispatch();
+  const { resumesList } = useAppSelector((state) => state.resume);
   const [showModal, setShowModal] = useState(false);
   const [versions, setVersions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,13 +46,21 @@ export default function VersionsPage() {
   const [formData, setFormData] = useState({
     versionName: "",
     companyName: "",
+    resumeId: "",
+    resumeUrl: "",
+    coverLetterUrl: "",
   });
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [clFile, setClFile] = useState<File | null>(null);
+  const [useLibraryResume, setUseLibraryResume] = useState(true);
+  const [useLibraryCL, setUseLibraryCL] = useState(true);
+  const [dropdownOpenResume, setDropdownOpenResume] = useState(false);
+  const [dropdownOpenCL, setDropdownOpenCL] = useState(false);
 
   useEffect(() => {
     fetchVersions();
-  }, []);
+    dispatch(fetchAllResumes());
+  }, [dispatch]);
 
   const fetchVersions = async () => {
     try {
@@ -54,6 +69,7 @@ export default function VersionsPage() {
       setVersions(data);
     } catch (error) {
       console.error("Failed to fetch versions:", error);
+      toast.error("Failed to fetch versions");
     } finally {
       setLoading(false);
     }
@@ -61,35 +77,61 @@ export default function VersionsPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resumeFile || !formData.versionName || !formData.companyName) return;
+    const hasResume = resumeFile || formData.resumeId || formData.resumeUrl;
+    if (!hasResume || !formData.versionName || !formData.companyName) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
 
     try {
       setSubmitting(true);
       const data = new FormData();
       data.append("versionName", formData.versionName);
       data.append("companyName", formData.companyName);
-      data.append("resume", resumeFile);
-      if (clFile) data.append("coverLetter", clFile);
+      
+      if (resumeFile) {
+        data.append("resume", resumeFile);
+      } else if (formData.resumeId) {
+        data.append("resumeId", formData.resumeId);
+      } else if (formData.resumeUrl) {
+        data.append("resumeUrl", formData.resumeUrl);
+      }
+
+      if (clFile) {
+        data.append("coverLetter", clFile);
+      } else if (formData.coverLetterUrl) {
+        data.append("coverLetterUrl", formData.coverLetterUrl);
+      }
 
       await createVersion(data);
+      toast.success("Version created successfully");
       setShowModal(false);
       resetForm();
       fetchVersions();
     } catch (error) {
       console.error("Failed to create version:", error);
+      toast.error("Failed to create version");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    setDeleteId(id);
-  };
-
   const resetForm = () => {
-    setFormData({ versionName: "", companyName: "" });
+    setFormData({ 
+      versionName: "", 
+      companyName: "",
+      resumeId: "",
+      resumeUrl: "",
+      coverLetterUrl: ""
+    });
     setResumeFile(null);
     setClFile(null);
+    setUseLibraryResume(false);
+    setUseLibraryCL(false);
+  };
+
+  const handleDelete = async (id: string) => {
+    setDeleteId(id);
   };
 
   const filteredVersions = versions.filter(v =>
@@ -114,18 +156,16 @@ export default function VersionsPage() {
       </div>
 
       {/* Filters & Search */}
-      {/* <div className="flex items-center justify-between gap-4 bg-white dark:bg-white/5 p-4 rounded-2xl border border-gray-300 dark:border-white/10 shadow-sm">
-        <div className="relative flex-1 max-w-md"> */}
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-          <input
-            type="text"
-            placeholder="Search versions or companies..."
-            className="w-full pl-11 pr-4 py-4 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        {/* </div>
-      </div> */}
+      <div className="relative w-full">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <input
+          type="text"
+          placeholder="Search versions or companies..."
+          className="w-full pl-11 pr-4 py-4 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/50 transition-all font-sans text-black dark:text-white shadow-sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
 
       {/* Table Section */}
       <div className="bg-white dark:bg-[#08080a] rounded-2xl border border-gray-300 dark:border-white/10 overflow-hidden shadow-sm">
@@ -176,15 +216,27 @@ export default function VersionsPage() {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
-                        <a
-                          href={v.resumeUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-semibold flex items-center gap-2 border border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 transition-colors"
-                        >
-                          <Download size={14} />
-                          Resume
-                        </a>
+                        {v.resumeId && v.resume ? (
+                          <Link
+                            href={`/dashboard/resume-builder?id=${v.resumeId}`}
+                            className="px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-semibold flex items-center gap-2 border border-primary/20 hover:bg-primary/20 transition-colors"
+                          >
+                            <FileText size={14} />
+                            Resume
+                          </Link>
+                        ) : v.resumeUrl ? (
+                          <a
+                            href={v.resumeUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg text-xs font-semibold flex items-center gap-2 border border-blue-200 dark:border-blue-500/20 hover:bg-blue-100 transition-colors"
+                          >
+                            <Download size={14} />
+                            Resume
+                          </a>
+                        ) : (
+                          <span className="text-gray-500 text-xs italic">No resume linked</span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-5">
@@ -292,49 +344,212 @@ export default function VersionsPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                  {/* Resume Selection */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider px-1">Resume Upload</label>
-                    <div className="relative group cursor-pointer">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        required
-                        className="hidden"
-                        id="resume-upload"
-                        onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-                      />
-                      <label
-                        htmlFor="resume-upload"
-                        className={`flex flex-col items-center justify-center gap-2 w-full p-6 bg-gray-50 dark:bg-white/5 border-2 border-dashed ${resumeFile ? 'border-green-600 bg-green-50/10' : 'border-gray-300 dark:border-white/10'} hover:border-primary rounded-xl transition-all group-hover:bg-primary/5 cursor-pointer`}
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-sans">Resume Source</label>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setUseLibraryResume(!useLibraryResume);
+                          setResumeFile(null);
+                          setFormData({...formData, resumeId: "", resumeUrl: ""});
+                        }}
+                        className="text-[11px] font-semibold text-primary hover:underline transition-all font-sans"
                       >
-                        <Upload size={24} className={resumeFile ? "text-green-600" : "text-primary"} />
-                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 group-hover:text-primary transition-colors">
-                          {resumeFile ? resumeFile.name : "Choose Resume PDF"}
-                        </span>
-                      </label>
+                        {useLibraryResume ? "Upload Instead" : "Select from Library"}
+                      </button>
                     </div>
+
+                    {!useLibraryResume ? (
+                      <div className="relative group">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          id="resume-upload"
+                          onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
+                        />
+                        <label
+                          htmlFor="resume-upload"
+                          className={`flex flex-col items-center justify-center gap-3 w-full p-8 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 hover:border-primary/50 rounded-xl transition-all cursor-pointer shadow-sm`}
+                        >
+                          <Upload size={20} className={resumeFile ? "text-green-500" : "text-primary"} />
+                          <div className="text-center">
+                            <span className="text-sm font-semibold text-black dark:text-white block font-sans">
+                              {resumeFile ? resumeFile.name : "Upload Resume PDF"}
+                            </span>
+                            <span className="text-[11px] text-gray-500 mt-1 font-sans">PDF files only (Max 5MB)</span>
+                          </div>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setDropdownOpenResume(!dropdownOpenResume)}
+                            className="w-full pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/50 transition-all text-left flex items-center justify-between font-sans text-black dark:text-white"
+                          >
+                            <span className="truncate">
+                              {formData.resumeId ? resumesList.find(r => r.id === formData.resumeId)?.title : 
+                               formData.resumeUrl ? formData.resumeUrl.split('/').pop()?.split('_').slice(2).join('_') : 
+                               "Select a Resume..."}
+                            </span>
+                            <ChevronDown size={16} className={`transition-transform duration-200 ${dropdownOpenResume ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          <AnimatePresence>
+                            {dropdownOpenResume && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-[#0c0c0e] border border-gray-300 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl"
+                              >
+                                <div className="max-h-60 overflow-y-auto py-2">
+                                  {resumesList.length > 0 && (
+                                    <>
+                                      <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-sans">Resume Projects</div>
+                                      {resumesList.map(r => (
+                                        <button
+                                          key={r.id}
+                                          type="button"
+                                          onClick={() => {
+                                            setFormData({...formData, resumeId: r.id, resumeUrl: ""});
+                                            setDropdownOpenResume(false);
+                                          }}
+                                          className="w-full px-4 py-2.5 text-left text-sm font-semibold hover:bg-primary/10 hover:text-primary transition-colors font-sans text-black dark:text-gray-300"
+                                        >
+                                          {r.title}
+                                        </button>
+                                      ))}
+                                    </>
+                                  )}
+                                  
+                                  {Array.from(new Set(versions.map(v => v.resumeUrl).filter(Boolean))).length > 0 && (
+                                    <>
+                                      <div className="px-4 py-2 mt-2 border-t border-gray-100 dark:border-white/5 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-sans">Previous Uploads</div>
+                                      {Array.from(new Set(versions.map(v => v.resumeUrl).filter(Boolean))).map((url: any) => (
+                                        <button
+                                          key={url}
+                                          type="button"
+                                          onClick={() => {
+                                            setFormData({...formData, resumeUrl: url, resumeId: ""});
+                                            setDropdownOpenResume(false);
+                                          }}
+                                          className="w-full px-4 py-2.5 text-left text-sm font-semibold hover:bg-primary/10 hover:text-primary transition-colors font-sans text-black dark:text-gray-300"
+                                        >
+                                          {url.split('/').pop()?.split('_').slice(2).join('_') || "Previous Resume"}
+                                        </button>
+                                      ))}
+                                    </>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        <p className="text-[11px] text-gray-500 px-1 font-sans">
+                          Linking to a project will keep this version synced with builder content.
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Cover Letter Selection */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wider px-1">Cover Letter Upload</label>
-                    <div className="relative group cursor-pointer">
-                      <input
-                        type="file"
-                        accept=".pdf"
-                        className="hidden"
-                        id="cl-upload"
-                        onChange={(e) => setClFile(e.target.files?.[0] || null)}
-                      />
-                      <label
-                        htmlFor="cl-upload"
-                        className={`flex flex-col items-center justify-center gap-2 w-full p-6 bg-gray-50 dark:bg-white/5 border-2 border-dashed ${clFile ? 'border-green-600 bg-green-50/10' : 'border-gray-300 dark:border-white/10'} hover:border-purple-500 rounded-xl transition-all group-hover:bg-purple-500/5 cursor-pointer`}
+                    <div className="flex items-center justify-between px-1">
+                      <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider font-sans">Cover Letter Source</label>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setUseLibraryCL(!useLibraryCL);
+                          setClFile(null);
+                          setFormData({...formData, coverLetterUrl: ""});
+                        }}
+                        className="text-[11px] font-semibold text-primary hover:underline transition-all font-sans"
                       >
-                        <Upload size={24} className={clFile ? "text-green-600" : "text-purple-500"} />
-                        <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 group-hover:text-purple-600 transition-colors">
-                          {clFile ? clFile.name : "Choose Cover Letter PDF"}
-                        </span>
-                      </label>
+                        {useLibraryCL ? "Upload Instead" : "Select from Library"}
+                      </button>
                     </div>
+
+                    {!useLibraryCL ? (
+                      <div className="relative group">
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          id="cl-upload"
+                          onChange={(e) => setClFile(e.target.files?.[0] || null)}
+                        />
+                        <label
+                          htmlFor="cl-upload"
+                          className={`flex flex-col items-center justify-center gap-3 w-full p-8 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 hover:border-primary/50 rounded-xl transition-all cursor-pointer shadow-sm`}
+                        >
+                          <Upload size={20} className={clFile ? "text-green-500" : "text-primary"} />
+                          <div className="text-center">
+                            <span className="text-sm font-semibold text-black dark:text-white block font-sans">
+                              {clFile ? clFile.name : "Upload Cover Letter PDF"}
+                            </span>
+                            <span className="text-[11px] text-gray-500 mt-1 font-sans">PDF files only (Optional)</span>
+                          </div>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="relative">
+                          <button
+                            type="button"
+                            onClick={() => setDropdownOpenCL(!dropdownOpenCL)}
+                            className="w-full pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/50 transition-all text-left flex items-center justify-between font-sans text-black dark:text-white"
+                          >
+                            <span className="truncate">
+                              {formData.coverLetterUrl ? formData.coverLetterUrl.split('/').pop()?.split('_').slice(2).join('_') : "Select a Cover Letter..."}
+                            </span>
+                            <ChevronDown size={16} className={`transition-transform duration-200 ${dropdownOpenCL ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          <AnimatePresence>
+                            {dropdownOpenCL && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-[#0c0c0e] border border-gray-300 dark:border-white/10 rounded-xl shadow-2xl overflow-hidden backdrop-blur-xl"
+                              >
+                                <div className="max-h-60 overflow-y-auto py-2">
+                                  {Array.from(new Set(versions.map(v => v.coverLetterUrl).filter(Boolean))).length > 0 ? (
+                                    <>
+                                      <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest font-sans">Previous Uploads</div>
+                                      {Array.from(new Set(versions.map(v => v.coverLetterUrl).filter(Boolean))).map((url: any) => (
+                                        <button
+                                          key={url}
+                                          type="button"
+                                          onClick={() => {
+                                            setFormData({...formData, coverLetterUrl: url});
+                                            setDropdownOpenCL(false);
+                                          }}
+                                          className="w-full px-4 py-2.5 text-left text-sm font-semibold hover:bg-primary/10 hover:text-primary transition-colors font-sans text-black dark:text-gray-300"
+                                        >
+                                          {url.split('/').pop()?.split('_').slice(2).join('_') || "Previous Cover Letter"}
+                                        </button>
+                                      ))}
+                                    </>
+                                  ) : (
+                                    <div className="px-4 py-4 text-center text-xs text-gray-500 font-sans">No previous cover letters found</div>
+                                  )}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                        <p className="text-[11px] text-gray-500 px-1 font-sans">
+                          Choose from cover letters you've previously uploaded.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 

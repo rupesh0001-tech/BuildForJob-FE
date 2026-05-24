@@ -31,6 +31,7 @@ export const authApi = {
 
   getProfile: async (): Promise<ProfileResponse> => {
     const response = await api.get<ProfileResponse>('/user/profile');
+    console.log(' for testing ', response);
     return response.data;
   },
 

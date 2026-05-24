@@ -15,7 +15,11 @@ import {
   updateBody, 
   updateMode,
   updateSignOff,
-  updateSalutation
+  updateSalutation,
+  fetchCoverLetterById,
+  saveCoverLetter,
+  updateTitle,
+  resetCoverLetterEditor
 } from "@/lib/store/features/cover-letter-slice";
 import { toast } from "sonner";
 
@@ -23,10 +27,40 @@ const CoverLetterPage = () => {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { 
+    currentId, 
+    title, 
+    isLoading,
+    personalInfo,
+    employerInfo,
+    date,
+    salutation,
+    mode,
+    body,
+    manualContent,
+    signOff,
+    template
+  } = useAppSelector((state) => state.coverLetter);
+  
   const magic = searchParams.get("magic");
+  const editId = searchParams.get("id");
 
   useEffect(() => {
-    if (magic === "true" && user) {
+    if (editId) {
+      dispatch(fetchCoverLetterById(editId));
+    } else {
+      dispatch(resetCoverLetterEditor());
+      
+      const newTitle = searchParams.get("title");
+      const companyName = searchParams.get("company");
+      
+      if (newTitle) dispatch(updateTitle(newTitle));
+      if (companyName) dispatch(updateEmployerInfo({ companyName }));
+    }
+  }, [editId, dispatch, searchParams]);
+
+  useEffect(() => {
+    if (magic === "true" && user && !editId) {
       dispatch(updateMode("structured"));
       dispatch(updatePersonalInfo({
         fullName: `${user.firstName} ${user.lastName}`,
@@ -57,7 +91,33 @@ const CoverLetterPage = () => {
       
       toast.success("Cover letter magically generated from your profile!");
     }
-  }, [magic, user, dispatch]);
+  }, [magic, user, dispatch, editId]);
+
+  const handleSave = async () => {
+    const toastId = toast.loading("Saving cover letter...");
+    try {
+      const data = {
+        title,
+        company: employerInfo.companyName,
+        template,
+        content: {
+          personalInfo,
+          employerInfo,
+          date,
+          salutation,
+          mode,
+          body,
+          manualContent,
+          signOff
+        }
+      };
+      
+      await dispatch(saveCoverLetter({ id: currentId || undefined, data })).unwrap();
+      toast.success("Cover letter saved successfully!", { id: toastId });
+    } catch (error: any) {
+      toast.error(error || "Failed to save cover letter", { id: toastId });
+    }
+  };
 
   const handleDownload = async () => {
     const element = document.getElementById("cover-letter-preview");
@@ -81,7 +141,7 @@ const CoverLetterPage = () => {
       const pdfHeight = (pdf.internal.pageSize.getHeight());
 
       pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("cover-letter.pdf");
+      pdf.save(`${title.replace(/\s+/g, '_')}.pdf`);
       toast.success("Cover letter downloaded successfully!", { id: toastId });
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -92,24 +152,43 @@ const CoverLetterPage = () => {
   return (
     <div className="max-w-8xl mx-auto space-y-6 pb-20 p-4 md:p-6">
       {/* Top Header */}
-      <div className="flex justify-between items-center gap-4">
-        <Link 
-          href="/dashboard/cover-letter/all"
-          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors group"
-        >
-          <div className="p-1.5 rounded-lg bg-gray-100 dark:bg-white/5 group-hover:bg-gray-200 dark:group-hover:bg-white/10 transition-colors">
-            <ChevronLeft size={16} />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/dashboard/cover-letter/all"
+            className="p-2 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-primary transition-all hover:shadow-lg"
+          >
+            <ChevronLeft size={20} />
+          </Link>
+          <div className="space-y-1">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => dispatch(updateTitle(e.target.value))}
+              className="bg-transparent border-none outline-none text-xl font-bold text-gray-900 dark:text-white focus:ring-0 p-0 w-full max-w-[300px]"
+              placeholder="Enter title..."
+            />
+            <p className="text-xs text-gray-500 flex items-center gap-1.5 uppercase tracking-wider font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+              Live Builder
+            </p>
           </div>
-          Back to Library
-        </Link>
+        </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-white/10 active:scale-[0.98] transition-all shadow-sm"
+          >
+            {isLoading ? "Saving..." : "Save Changes"}
+          </button>
           <button
             onClick={handleDownload}
-            className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
           >
             <Download size={18} />
-            <span className="hidden sm:inline">Download PDF</span>
+            Download PDF
           </button>
         </div>
       </div>

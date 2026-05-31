@@ -9,6 +9,7 @@ export interface User {
   avatarUrl?: string;
   jobTitle?: string;
   isVerified?: boolean;
+  profileSynced?: boolean;
   createdAt?: string;
 
   // Profile Builder Fields

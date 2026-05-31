@@ -34,6 +34,8 @@ export function ProfileCompletionBanner() {
   const completionPercent = calculateCompletion();
   const isComplete = completionPercent >= 100;
 
+  if (isComplete) return null;
+
   return (
     <AnimatePresence>
       {isVisible && user && (

@@ -24,7 +24,7 @@ export interface ResumeVersion {
 }
 
 export const resumeApi = {
-  create: async (data: { title?: string; template?: string; content?: any; isDraft?: boolean }) => {
+  create: async (data: { title?: string; template?: string; content?: any; isDraft?: boolean; isMagic?: boolean }) => {
     const response = await api.post('/resumes', data);
     return response.data;
   },
@@ -39,7 +39,7 @@ export const resumeApi = {
     return response.data;
   },
 
-  update: async (id: string, data: { title?: string; template?: string; content?: any; isDraft?: boolean }) => {
+  update: async (id: string, data: { title?: string; template?: string; content?: any; isDraft?: boolean; isMagic?: boolean }) => {
     const response = await api.patch(`/resumes/${id}`, data);
     return response.data;
   },

@@ -31,7 +31,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return null;
   }
 
-  if (isLoading || (!isAuthenticated && token)) {
+  if ((isLoading && !isAuthenticated) || (!isAuthenticated && token)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white dark:bg-[#08080a]">
         <Loader2 className="animate-spin text-purple-500" size={32} />

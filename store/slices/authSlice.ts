@@ -197,8 +197,9 @@ const authSlice = createSlice({
       })
       .addCase(fetchProfile.rejected, (state) => {
         state.isLoading = false;
-        // Don't clear token or user on network error
-        // Let the axios interceptor handle 401s
+        state.token = null;
+        state.isAuthenticated = false;
+        state.user = null;
       })
       // Update Profile
       .addCase(updateProfile.pending, (state) => {

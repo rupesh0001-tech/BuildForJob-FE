@@ -54,7 +54,7 @@ export const navigation = [
   {
     title: "Coming Soon",
     items: [
-      { name: "Portfolio Builder", href: "#", icon: Globe, isComingSoon: true },
+      { name: "Portfolio Builder", href: "/dashboard/portfolio", icon: Globe },
       { name: "LinkedIn Enhancer", href: "#", icon: TrendingUp, isComingSoon: true },
       { name: "LinkedIn Connector", href: "#", icon: Briefcase, isComingSoon: true },
     ]

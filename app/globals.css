@@ -25,16 +25,20 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-/* Globally zoom out the application on larger screens */
+html {
+  font-size: 110%; /* Base font-size scaled by 1.1x (17.6px) */
+}
+
+/* Globally zoom out the application on larger screens (proportional to 110% scaling) */
 @media (min-width: 768px) {
   html {
-    font-size: 14px;
+    font-size: 15.4px; /* 14px * 1.1 */
   }
 }
 
 @media (min-width: 1280px) {
   html {
-    font-size: 13px;
+    font-size: 14.3px; /* 13px * 1.1 */
   }
 }
 

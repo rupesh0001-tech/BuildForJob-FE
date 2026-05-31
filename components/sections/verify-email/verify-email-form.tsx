@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 export function VerifyEmailForm() {
   const [otp, setOtp] = useState("");
+  const [countdown, setCountdown] = useState(30);
   const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,6 +24,14 @@ export function VerifyEmailForm() {
     }
   }, [email, router]);
 
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setInterval(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [countdown]);
+
   const handleResend = async () => {
     if (!email) return;
 
@@ -30,10 +39,11 @@ export function VerifyEmailForm() {
       const resultAction = await dispatch(resendOtp({ email, type: 'REGISTRATION' }));
       if (resendOtp.fulfilled.match(resultAction)) {
         toast.success("A new code has been sent to your email!");
+        setCountdown(30);
       } else {
         toast.error(resultAction.payload as string || "Failed to resend code");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     }
   };
@@ -58,7 +68,7 @@ export function VerifyEmailForm() {
       } else {
         toast.error(resultAction.payload as string || "Verification failed");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred");
     }
   };
@@ -93,15 +103,21 @@ export function VerifyEmailForm() {
       </Button1>
       
       <p className="text-center text-xs text-gray-500 mt-4">
-        Didn't receive the code? {" "}
-        <button 
-          type="button" 
-          onClick={handleResend}
-          disabled={isLoading}
-          className="text-purple-600 dark:text-purple-400 font-medium hover:underline disabled:opacity-50"
-        >
-          Resend Code
-        </button>
+        Didn&apos;t receive the code?{" "}
+        {countdown > 0 ? (
+          <span className="text-gray-400 dark:text-gray-500 font-medium">
+            Resend Code in {countdown}s
+          </span>
+        ) : (
+          <button 
+            type="button" 
+            onClick={handleResend}
+            disabled={isLoading}
+            className="text-purple-600 dark:text-purple-400 font-medium hover:underline disabled:opacity-50 cursor-pointer"
+          >
+            Resend Code
+          </button>
+        )}
       </p>
     </form>
   );

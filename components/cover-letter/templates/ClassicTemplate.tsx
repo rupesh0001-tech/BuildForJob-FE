@@ -13,26 +13,34 @@ const ClassicTemplate = ({ data }: TemplateProps) => {
   return (
     <div className="w-full min-h-[1123px] p-[20mm] bg-white text-gray-900 font-serif leading-relaxed">
       {/* Header / Personal Info */}
-      <div className="text-center mb-10 border-b border-gray-200 pb-8">
-        <h1 className="text-3xl font-bold uppercase tracking-[0.2em] mb-3">
+      <div className="text-center mb-8 border-b border-gray-200 pb-6">
+        <h1 className="text-2xl font-bold uppercase tracking-[0.2em] mb-2">
           {personalInfo.fullName}
         </h1>
-        <div className="text-[13px] text-gray-600 flex flex-wrap justify-center gap-x-3 gap-y-1 font-sans uppercase font-medium">
-          <span>{personalInfo.address}</span>
-          <span>•</span>
-          <span>{personalInfo.phone}</span>
-          <span>•</span>
-          <span>{personalInfo.email}</span>
+        <div className="text-[11px] text-gray-500 flex flex-wrap justify-center items-center gap-x-2.5 gap-y-1 uppercase font-medium tracking-wider">
+          {personalInfo.address && <span>{personalInfo.address}</span>}
+          {personalInfo.phone && (
+            <>
+              {personalInfo.address && <span className="text-gray-300">•</span>}
+              <span>{personalInfo.phone}</span>
+            </>
+          )}
+          {personalInfo.email && (
+            <>
+              {(personalInfo.address || personalInfo.phone) && <span className="text-gray-300">•</span>}
+              <span className="normal-case">{personalInfo.email}</span>
+            </>
+          )}
           {personalInfo.linkedin && (
             <>
-              <span>•</span>
-              <span>{personalInfo.linkedin}</span>
+              {(personalInfo.address || personalInfo.phone || personalInfo.email) && <span className="text-gray-300">•</span>}
+              <span className="normal-case">{personalInfo.linkedin.replace(/^(https?:\/\/)?(www\.)?/, "").replace(/\/$/, "")}</span>
             </>
           )}
           {personalInfo.github && (
             <>
-              <span>•</span>
-              <span>{personalInfo.github}</span>
+              {(personalInfo.address || personalInfo.phone || personalInfo.email || personalInfo.linkedin) && <span className="text-gray-300">•</span>}
+              <span className="normal-case">{personalInfo.github.replace(/^(https?:\/\/)?(www\.)?/, "").replace(/\/$/, "")}</span>
             </>
           )}
         </div>
@@ -75,7 +83,7 @@ const ClassicTemplate = ({ data }: TemplateProps) => {
       {/* Closing */}
       <div className="mt-12 text-[15px]">
         <p className="mb-10 font-bold">{signOff}</p>
-        <p className="font-black text-lg uppercase tracking-wider">{personalInfo.fullName}</p>
+        
       </div>
     </div>
   );

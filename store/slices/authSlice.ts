@@ -84,9 +84,14 @@ export const resendOtp = createAsyncThunk(
 
 export const fetchProfile = createAsyncThunk(
   'auth/fetchProfile',
-  async (_, { rejectWithValue }) => {
+  async (argToken: string | undefined | void, { getState, rejectWithValue }) => {
     try {
-      const response = await authApi.getProfile();
+      const state = getState() as { auth: { token: string | null } };
+      const token = argToken || state.auth.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
+      if (!token) {
+        return rejectWithValue('No authentication token found');
+      }
+      const response = await authApi.getProfile(token);
       if (response.success && response.data) {
         localStorage.setItem('user', JSON.stringify(response.data));
         return response.data;

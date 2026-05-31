@@ -57,7 +57,7 @@ export function DiffPreviewModal({
     return (
       <Dialog
         open={isOpen}
-        onOpenChange={(open) => {
+        onOpenChange={(open: boolean) => {
           if (!open && !isConfirming) {
             onClose();
           }
@@ -82,7 +82,7 @@ export function DiffPreviewModal({
             <Button variant="outline" onClick={onClose} disabled={isConfirming} className="gap-2">
               {t('common.cancel')}
             </Button>
-            <Button variant="warning" onClick={onConfirm} disabled={isConfirming} className="gap-2">
+            <Button variant="primary" onClick={onConfirm} disabled={isConfirming} className="gap-2 bg-amber-500 hover:bg-amber-600 border-none text-white hover:brightness-100 shadow-none">
               {isConfirming ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -120,7 +120,7 @@ export function DiffPreviewModal({
   return (
     <Dialog
       open={isOpen}
-      onOpenChange={(open) => {
+      onOpenChange={(open: boolean) => {
         if (!open && !isConfirming) {
           onClose();
         }

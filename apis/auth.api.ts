@@ -29,9 +29,12 @@ export const authApi = {
     return response.data;
   },
 
-  getProfile: async (): Promise<ProfileResponse> => {
-    const response = await api.get<ProfileResponse>('/user/profile');
-    console.log(' for testing ', response);
+  getProfile: async (token: string): Promise<ProfileResponse> => {
+    const response = await api.get<ProfileResponse>('/user/profile', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     return response.data;
   },
 

@@ -10,7 +10,7 @@ import ClassicTemplate from "./templates/ClassicTemplate";
 import ProfessionalTemplate from "./templates/ProfessionalTemplate";
 import ImpactTemplate from "./templates/ImpactTemplate";
 import Resume, { ResumeData } from "@/components/resume-templates/resume-component";
-import { AccentColor } from "@/lib/resume-matcher/template-settings";
+import { AccentColor, DEFAULT_TEMPLATE_SETTINGS } from "@/lib/resume-matcher/template-settings";
 
 const ResumePreview = () => {
   const {
@@ -98,9 +98,9 @@ const ResumePreview = () => {
       case "swiss-two-column":
         return <Resume resumeData={premiumResumeData} template="swiss-two-column" />;
       case "modern-premium":
-        return <Resume resumeData={premiumResumeData} template="modern" settings={{ accentColor: mapAccentColor(accentColor) }} />;
+        return <Resume resumeData={premiumResumeData} template="modern" settings={{ ...DEFAULT_TEMPLATE_SETTINGS, accentColor: mapAccentColor(accentColor) }} />;
       case "modern-two-column-premium":
-        return <Resume resumeData={premiumResumeData} template="modern-two-column" settings={{ accentColor: mapAccentColor(accentColor) }} />;
+        return <Resume resumeData={premiumResumeData} template="modern-two-column" settings={{ ...DEFAULT_TEMPLATE_SETTINGS, accentColor: mapAccentColor(accentColor) }} />;
       case "modern":
         return <ModernTemplate data={data as any} accentColor={accentColor} />;
       case "minimal":

@@ -36,11 +36,49 @@ export interface CoverLetterState {
   template: string;
   
   // Backend integration state
-  coverLettersList: any[];
+  coverLettersList: CoverLetter[];
   currentId: string | null;
   title: string;
   isLoading: boolean;
   error: string | null;
+}
+
+export interface CoverLetter {
+  id: string;
+  title: string;
+  company?: string | null;
+  recipient?: string | null;
+  template: string;
+  content?: {
+    personalInfo?: PersonalInfo;
+    employerInfo?: EmployerInfo;
+    date?: string;
+    salutation?: string;
+    mode?: "structured" | "manual";
+    body?: BodyContent;
+    manualContent?: string;
+    signOff?: string;
+  } | null;
+  isDraft: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveCoverLetterData {
+  title: string;
+  company?: string;
+  template: string;
+  content: {
+    personalInfo: PersonalInfo;
+    employerInfo: EmployerInfo;
+    date: string;
+    salutation: string;
+    mode: "structured" | "manual";
+    body: BodyContent;
+    manualContent: string;
+    signOff: string;
+  };
 }
 
 const initialState: CoverLetterState = {
@@ -83,8 +121,9 @@ export const fetchAllCoverLetters = createAsyncThunk(
     try {
       const data = await coverLetterApi.getAllCoverLetters();
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch cover letters');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch cover letters');
     }
   }
 );
@@ -95,15 +134,16 @@ export const fetchCoverLetterById = createAsyncThunk(
     try {
       const data = await coverLetterApi.getCoverLetterById(id);
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch cover letter');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch cover letter');
     }
   }
 );
 
 export const saveCoverLetter = createAsyncThunk(
   'coverLetter/save',
-  async ({ id, data }: { id?: string; data: any }, { rejectWithValue }) => {
+  async ({ id, data }: { id?: string; data: SaveCoverLetterData }, { rejectWithValue }) => {
     try {
       if (id) {
         const response = await coverLetterApi.updateCoverLetter(id, data);
@@ -112,8 +152,9 @@ export const saveCoverLetter = createAsyncThunk(
         const response = await coverLetterApi.createCoverLetter(data);
         return response;
       }
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to save cover letter');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to save cover letter');
     }
   }
 );
@@ -124,8 +165,9 @@ export const deleteCoverLetterById = createAsyncThunk(
     try {
       await coverLetterApi.deleteCoverLetter(id);
       return id;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete cover letter');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to delete cover letter');
     }
   }
 );

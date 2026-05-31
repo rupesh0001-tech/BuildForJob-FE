@@ -347,7 +347,7 @@ export default function ProfileSettingsPage() {
                   <input 
                     type="text" 
                     name={s.name} 
-                    value={(formData as any).socialLinks[s.name.split('.')[1]]} 
+                    value={(formData as any).socialLinks[s.name.split('.')[1]] || ""} 
                     onChange={handleChange}
                     placeholder={s.placeholder}
                     className="bg-transparent border-none outline-none text-xs w-full text-gray-900 dark:text-white font-medium placeholder:text-gray-400"

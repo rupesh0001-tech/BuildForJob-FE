@@ -1,10 +1,16 @@
 import api from './axiosInstance';
 
 export interface ATSResult {
+  id?: string;
   score: number;
   details: string;
   resumeWordCount: number;
   jdWordCount: number;
+  jobDescription: string;
+  resumeUrl?: string;
+  resumeName?: string;
+  createdAt?: string;
+  suggestions?: ATSSuggestions | null;
 }
 
 /**
@@ -48,13 +54,41 @@ export interface ATSSuggestions {
  */
 export const getATSSuggestions = async (
   resumeFile: File,
-  jobDescription: string
+  jobDescription: string,
+  reportId?: string
 ): Promise<ATSSuggestions> => {
   const formData = new FormData();
   formData.append('resume', resumeFile);
   formData.append('jobDescription', jobDescription);
+  if (reportId) {
+    formData.append('reportId', reportId);
+  }
 
   const response = await api.post('/ats/suggestions', formData);
 
+  return response.data.data;
+};
+
+/**
+ * Gets list of all saved ATS reports (history).
+ */
+export const getATSReports = async (): Promise<ATSResult[]> => {
+  const response = await api.get('/ats/reports');
+  return response.data.data;
+};
+
+/**
+ * Gets details for a single saved ATS report.
+ */
+export const getATSReportById = async (id: string): Promise<ATSResult> => {
+  const response = await api.get(`/ats/reports/${id}`);
+  return response.data.data;
+};
+
+/**
+ * Unlocks and generates suggestions for a saved ATS report.
+ */
+export const unlockReportSuggestions = async (id: string): Promise<ATSSuggestions> => {
+  const response = await api.post(`/ats/reports/${id}/unlock`);
   return response.data.data;
 };

@@ -487,7 +487,7 @@ export const FormattingControls: React.FC<FormattingControlsProps> = ({ settings
                 </div>
               )}
             </div>
-            <Button variant="outline" size="sm" onClick={handleReset} className="w-full">
+            <Button variant="outline" onClick={handleReset} className="w-full py-2 text-sm">
               <RotateCcw className="w-3 h-3" />
               {t('builder.formatting.resetDefaults')}
             </Button>

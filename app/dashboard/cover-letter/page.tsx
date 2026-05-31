@@ -19,7 +19,8 @@ import {
   fetchCoverLetterById,
   saveCoverLetter,
   updateTitle,
-  resetCoverLetterEditor
+  resetCoverLetterEditor,
+  updateEmployerInfo
 } from "@/lib/store/features/cover-letter-slice";
 import { toast } from "sonner";
 

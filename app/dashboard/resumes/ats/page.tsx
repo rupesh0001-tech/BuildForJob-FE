@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileCheck,
@@ -12,8 +12,14 @@ import {
   RotateCcw,
   Info,
   X,
+  History,
+  Download,
+  Calendar,
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
 } from "lucide-react";
-import { checkATSScore, getATSSuggestions } from "@/apis/ats.api";
+import { checkATSScore, getATSSuggestions, getATSReports, unlockReportSuggestions } from "@/apis/ats.api";
 import type { ATSResult, ATSSuggestions } from "@/apis/ats.api";
 
 // ─── Score colour helpers ──────────────────────────────────────────────────
@@ -99,8 +105,6 @@ function ScoreGauge({ score }: { score: number }) {
           <span className="text-xl font-semibold text-gray-400 dark:text-gray-500 ml-1">%</span>
         </motion.div>
       </div>
-
-     
     </div>
   );
 }
@@ -176,15 +180,17 @@ function DropZone({
               {(file.size / 1024).toFixed(0)} KB · PDF
             </p>
           </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-            className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-          >
-            <X size={16} />
-          </button>
+          {onClear && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClear();
+              }}
+              className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          )}
         </motion.div>
       ) : (
         <>
@@ -222,6 +228,29 @@ export default function ATSCheckerPage() {
   const [error, setError] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(false);
 
+  // History & Tab Navigation State
+  const [activeTab, setActiveTab] = useState<"scan" | "history">("scan");
+  const [history, setHistory] = useState<ATSResult[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const fetchHistory = async () => {
+    setHistoryLoading(true);
+    try {
+      const data = await getATSReports();
+      setHistory(data);
+    } catch (err: unknown) {
+      console.error("Failed to fetch history:", err);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "history") {
+      fetchHistory();
+    }
+  }, [activeTab]);
+
   const handleCheck = async () => {
     if (!file || jd.trim().length < 20) return;
     setLoading(true);
@@ -233,10 +262,11 @@ export default function ATSCheckerPage() {
     try {
       const data = await checkATSScore(file, jd);
       setResult(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
+        errorObj.response?.data?.message ||
+        errorObj.message ||
         "Something went wrong. Please try again.";
       setError(msg);
     } finally {
@@ -248,12 +278,26 @@ export default function ATSCheckerPage() {
     setIsUnlocked(true);
     setSuggestionsLoading(true);
     try {
-      const text = await getATSSuggestions(file, jd);
-      setSuggestions(text);
-    } catch (err: any) {
+      let suggestionsData;
+      if (result?.id) {
+        suggestionsData = await unlockReportSuggestions(result.id);
+      } else {
+        suggestionsData = await getATSSuggestions(file!, jd);
+      }
+      setSuggestions(suggestionsData);
+      
+      // Update result state suggestions to preserve cache when switching tabs
+      if (result) {
+        setResult({
+          ...result,
+          suggestions: suggestionsData,
+        });
+      }
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
+        errorObj.response?.data?.message ||
+        errorObj.message ||
         "Failed to get AI suggestions.";
       setError(msg);
     } finally {
@@ -268,132 +312,419 @@ export default function ATSCheckerPage() {
     setSuggestions(null);
     setError(null);
     setIsUnlocked(false);
+    
+    // Refresh history if they returned from history view
+    if (activeTab === "history") {
+      fetchHistory();
+    }
   };
 
-  const scoreInfo = result ? getScoreLabel(result.score) : null;
+  const handleDownloadPDF = async () => {
+    if (!result || !suggestions) return;
+    
+    try {
+      // Dynamic import of jsPDF to prevent SSR issues during build time
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF();
+      
+      const margin = 20;
+      let y = 20;
+      const pageWidth = doc.internal.pageSize.width;
+      
+      // Header Banner
+      doc.setFillColor(124, 58, 237); // Primary Purple color (purple-600)
+      doc.rect(0, 0, pageWidth, 40, "F");
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("ATS Score Match Report", margin, 26);
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(`Generated on ${new Date(result.createdAt || Date.now()).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, margin, 34);
+      
+      y = 55;
+      
+      // Resume & Job Description Details
+      doc.setTextColor(31, 41, 55); // gray-800
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("Scan Summary", margin, y);
+      y += 8;
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(75, 85, 99); // gray-600
+      
+      doc.text(`Resume File: ${result.resumeName || "Scanned PDF"}`, margin, y);
+      y += 6;
+      doc.text(`Match Score: ${result.score}%`, margin, y);
+      y += 6;
+      doc.text(`Resume Word Count: ${result.resumeWordCount} words`, margin, y);
+      y += 6;
+      doc.text(`Job Description Word Count: ${result.jdWordCount} words`, margin, y);
+      y += 12;
+      
+      // Line separator
+      doc.setDrawColor(229, 231, 235); // gray-200
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+      
+      // Match Analysis Details
+      doc.setTextColor(31, 41, 55);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Match Analysis Justification", margin, y);
+      y += 8;
+      
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(75, 85, 99);
+      const justificationLines = doc.splitTextToSize(result.details || "", pageWidth - (margin * 2));
+      doc.text(justificationLines, margin, y);
+      y += (justificationLines.length * 5) + 12;
+      
+      // Line separator
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+      
+      // Impactful Improvements
+      doc.setTextColor(31, 41, 55);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("AI Recommended Improvements", margin, y);
+      y += 8;
+      
+      suggestions.improvements?.forEach((imp, i) => {
+        if (y > 260) {
+          doc.addPage();
+          y = 20;
+        }
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.setTextColor(124, 58, 237); // purple-600
+        doc.text(`${i + 1}. ${imp.title} (Impact: +${imp.impact}%)`, margin, y);
+        y += 5;
+        
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(75, 85, 99);
+        const descLines = doc.splitTextToSize(imp.description, pageWidth - (margin * 2) - 5);
+        doc.text(descLines, margin + 4, y);
+        y += (descLines.length * 5) + 8;
+      });
+      
+      y += 4;
+      
+      // Missing Keywords & Skills
+      if (y > 220) {
+        doc.addPage();
+        y = 20;
+      }
+      
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 10;
+      
+      doc.setTextColor(31, 41, 55);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Missing Keywords & Skills", margin, y);
+      y += 8;
+      
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(10);
+      doc.setTextColor(79, 70, 229); // indigo-600
+      doc.text("Missing Keywords for ATS Optimization:", margin, y);
+      y += 5;
+      
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(75, 85, 99);
+      const keywordList = suggestions.missingKeywords?.join(", ") || "None identified";
+      const keywordLines = doc.splitTextToSize(keywordList, pageWidth - (margin * 2));
+      doc.text(keywordLines, margin, y);
+      y += (keywordLines.length * 5) + 8;
+      
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(219, 39, 119); // pink-600
+      doc.text("Missing Professional Skills / Experiences:", margin, y);
+      y += 5;
+      
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(75, 85, 99);
+      const skillList = suggestions.missingSkills?.join(", ") || "None identified";
+      const skillLines = doc.splitTextToSize(skillList, pageWidth - (margin * 2));
+      doc.text(skillLines, margin, y);
+      y += (skillLines.length * 5) + 12;
+      
+      doc.save(`ATS_Report_${result.resumeName?.replace(".pdf", "") || "Report"}.pdf`);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+    }
+  };
+
   const improvementCount = result ? Math.max(3, Math.floor((105 - result.score) / 6)) : 0;
 
-  const dummySuggestions = [
-    "Your professional summary is missing key industry keywords...",
-    "The experience section lacks quantifiable achievements and metrics...",
-    "Formatting issues detected in the education section header...",
-    "Skill alignment with the job description is currently below average...",
-    "Project descriptions should focus more on technology impact..."
-  ];
-
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-20">
+    <div className="max-w-6xl mx-auto space-y-8 pb-20 px-4">
+      
+      {/* ── Tabs Header ── */}
+      {!result && (
+        <div className="flex border-b border-gray-200 dark:border-white/10 mb-4">
+          <button
+            onClick={() => setActiveTab("scan")}
+            className={`flex items-center gap-2 px-6 py-3.5 border-b-2 font-bold text-sm transition-all cursor-pointer ${
+              activeTab === "scan"
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            <FileCheck size={16} /> Scan Resume
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`flex items-center gap-2 px-6 py-3.5 border-b-2 font-bold text-sm transition-all cursor-pointer ${
+              activeTab === "history"
+                ? "border-primary text-primary"
+                : "border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            <History size={16} /> Scan History
+          </button>
+        </div>
+      )}
 
-
-      {/* ── Form or Results ── */}
+      {/* ── Form, History, or Results ── */}
       <AnimatePresence mode="wait">
         {!result ? (
-          <motion.div
-            key="form"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            className="space-y-6"
-          >
-            {/* PDF Upload */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                 Resume PDF
-              </label>
-              <DropZone
-                file={file}
-                onFile={setFile}
-                onClear={() => setFile(null)}
-              />
-            </div>
-
-            {/* Job Description */}
-            <div className="space-y-2">
-              <label
-                htmlFor="ats-jd-input"
-                className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
-              >
-                 Job Description
-              </label>
-              <textarea
-                id="ats-jd-input"
-                value={jd}
-                onChange={(e) => setJd(e.target.value)}
-                placeholder="Paste the full job description here — requirements, responsibilities, skills…"
-                rows={10}
-                className="w-full px-6 py-5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/5 outline-none rounded-2xl text-base font-semibold text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all resize-none
-                [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none"
-              />
-              <p className="text-xs text-gray-400 text-right">
-                {jd.trim().split(/\s+/).filter(Boolean).length} words
-              </p>
-            </div>
-
-            {/* Error */}
-            <AnimatePresence>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl"
-                >
-                  <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{error}</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Submit */}
-            <button
-              id="ats-check-btn"
-              onClick={handleCheck}
-              disabled={!file || jd.trim().length < 20 || loading}
-              className={`w-full py-4 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg
-                ${
-                  !file || jd.trim().length < 20 || loading
-                    ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none"
-                    : "bg-primary text-white hover:brightness-110 active:scale-[0.99] shadow-primary/25"
-                }`}
+          activeTab === "scan" ? (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="space-y-6"
             >
-              {loading ? (
-                <>
-                  <svg
-                    className="w-4 h-4 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8z"
-                    />
-                  </svg>
-                  Analysing with AI…
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} /> Analyse Match Score
-                </>
-              )}
-            </button>
+              {/* PDF Upload */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                   Resume PDF
+                </label>
+                <DropZone
+                  file={file}
+                  onFile={setFile}
+                  onClear={() => setFile(null)}
+                />
+              </div>
 
-            {/* Tip */}
-            <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1.5 justify-center">
-              <Info size={12} />
-              Uses the{" "}
-              <span className="font-medium">sentence-transformers/all-MiniLM-L6-v2</span>{" "}
-              model via HuggingFace.
-            </p>
-          </motion.div>
+              {/* Job Description */}
+              <div className="space-y-2">
+                <label
+                  htmlFor="ats-jd-input"
+                  className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
+                >
+                   Job Description
+                </label>
+                <textarea
+                  id="ats-jd-input"
+                  value={jd}
+                  onChange={(e) => setJd(e.target.value)}
+                  placeholder="Paste the full job description here — requirements, responsibilities, skills…"
+                  rows={10}
+                  className="w-full px-6 py-5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/5 outline-none rounded-2xl text-base font-semibold text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all resize-none
+                  [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none"
+                />
+                <p className="text-xs text-gray-400 text-right">
+                  {jd.trim().split(/\s+/).filter(Boolean).length} words
+                </p>
+              </div>
+
+              {/* Error */}
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl"
+                  >
+                    <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{error}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Submit */}
+              <button
+                id="ats-check-btn"
+                onClick={handleCheck}
+                disabled={!file || jd.trim().length < 20 || loading}
+                className={`w-full py-4 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg
+                  ${
+                    !file || jd.trim().length < 20 || loading
+                      ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none"
+                      : "bg-primary text-white hover:brightness-110 active:scale-[0.99] shadow-primary/25"
+                  }`}
+              >
+                {loading ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 animate-spin"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
+                    </svg>
+                    Analysing with AI…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} /> Analyse Match Score
+                  </>
+                )}
+              </button>
+
+              {/* Tip */}
+              <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1.5 justify-center">
+                <Info size={12} />
+                Uses the{" "}
+                <span className="font-medium">sentence-transformers/all-MiniLM-L6-v2</span>{" "}
+                model via HuggingFace.
+              </p>
+            </motion.div>
+          ) : (
+            /* ── History Panel ── */
+            <motion.div
+              key="history"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              className="space-y-6"
+            >
+              {historyLoading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                  <p className="text-sm text-gray-500 font-semibold">Loading your scan history...</p>
+                </div>
+              ) : history.length === 0 ? (
+                <div className="text-center py-20 bg-white dark:bg-black/40 border border-dashed border-gray-300 dark:border-white/10 rounded-2xl p-8 backdrop-blur-xl">
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-gray-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <History size={24} />
+                  </div>
+                  <h3 className="font-semibold text-black dark:text-white mb-2">No Scan History Yet</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto mb-6">
+                    Once you scan your first resume against a job description, your reports will be saved here.
+                  </p>
+                  <button
+                    onClick={() => setActiveTab("scan")}
+                    className="px-5 py-2.5 bg-primary text-white rounded-xl font-semibold text-sm shadow-lg shadow-primary/20 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                  >
+                    Scan Resume Now
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-white dark:bg-[#08080a] rounded-2xl border border-gray-300 dark:border-white/10 overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-300 dark:border-white/10">
+                          <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Resume File</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Job Description</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Score</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                          <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                        {history.map((report, idx) => (
+                          <motion.tr
+                            key={report.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-all border-b border-gray-100 dark:border-white/5 last:border-0"
+                          >
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-primary/5 dark:bg-primary/10 rounded-xl flex items-center justify-center text-primary shrink-0">
+                                  <FileText size={20} />
+                                </div>
+                                <div className="min-w-0 max-w-[200px]">
+                                  <span className="font-semibold text-black dark:text-white truncate block text-sm" title={report.resumeName || "Resume PDF"}>
+                                    {report.resumeName || "Resume PDF"}
+                                  </span>
+                                  {report.resumeUrl && (
+                                    <a
+                                      href={report.resumeUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mt-1"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Download size={12} /> Download PDF
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5">
+                              <p className="text-sm text-gray-800 dark:text-gray-400 line-clamp-2 max-w-xs font-normal leading-relaxed">
+                                {report.jobDescription}
+                              </p>
+                            </td>
+                            <td className="px-6 py-5">
+                              <div className={`inline-flex px-3 py-1.5 rounded-lg font-semibold text-sm border ${
+                                report.score >= 75 ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
+                                report.score >= 50 ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                                "bg-red-500/10 text-red-500 border-red-500/20"
+                              }`}>
+                                {report.score}%
+                              </div>
+                            </td>
+                            <td className="px-6 py-5">
+                              <div className="flex items-center gap-2 text-gray-600 dark:text-gray-500 text-sm">
+                                <Calendar size={14} />
+                                {report.createdAt ? new Date(report.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : ""}
+                              </div>
+                            </td>
+                            <td className="px-6 py-5 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => {
+                                    setResult(report);
+                                    setIsUnlocked(!!report.suggestions);
+                                    setSuggestions(report.suggestions || null);
+                                    setFile(new File([], report.resumeName || "Resume.pdf", { type: "application/pdf" }));
+                                    setJd(report.jobDescription);
+                                  }}
+                                  className="px-3 py-2 bg-gray-50 hover:bg-primary hover:text-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-lg text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer  dark:text-white"
+                                >
+                                  View Report <ArrowRight size={14} />
+                                </button>
+                              </div>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          )
         ) : (
           /* ── Results Panel ── */
           <motion.div
@@ -403,6 +734,14 @@ export default function ATSCheckerPage() {
             exit={{ opacity: 0, y: -12 }}
             className="space-y-6"
           >
+            {/* Back to list button */}
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-gray-800 dark:hover:text-white transition-colors cursor-pointer"
+            >
+              <ArrowLeft size={16} /> Back to {activeTab === "history" ? "History" : "Scan"}
+            </button>
+
             {/* Score card */}
             <div className="bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
               {/* Card Header */}
@@ -422,7 +761,7 @@ export default function ATSCheckerPage() {
                   <ScoreGauge score={result.score} />
                 </div>
                 
-                {/* Qualitative Footer (Reference: Left-aligned bold title + description) */}
+                {/* Qualitative Footer */}
                 <div className="space-y-2 border-t border-gray-100 dark:border-white/10 pt-8">
                   <h4 className="text-xl font-semibold text-black dark:text-white">
                     {result.score >= 80 ? "Excellent profile match" : result.score >= 60 ? "Strong candidate match" : "Profile requires tailoring"}
@@ -431,6 +770,20 @@ export default function ATSCheckerPage() {
                     Your resume has achieved a {result.score}% match with the job requirements. 
                     {result.score < 90 ? " To stand out to recruiters, we recommend addressing the critical improvements listed below." : " Your profile is highly competitive and ready for submission."}
                   </p>
+                  
+                  {/* Download link for uploaded resume in Results view too */}
+                  {result.resumeUrl && (
+                    <div className="pt-2">
+                      <a
+                        href={result.resumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                      >
+                        <Download size={14} /> Download scanned resume ({result.resumeName})
+                      </a>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -449,11 +802,23 @@ export default function ATSCheckerPage() {
 
             {/* Improvement Suggestions */}
             <div className="bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm relative min-h-[400px] flex flex-col">
-              <div className="px-8 py-6 flex items-center gap-3 shrink-0">
-                 <div className="w-8 h-8 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center">
-                    <Sparkles size={16} className="text-purple-600 dark:text-purple-400" />
-                 </div>
-                 <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">AI Analysis & Suggestions</h3>
+              <div className="px-8 py-6 flex items-center justify-between shrink-0 border-b border-gray-100 dark:border-white/5">
+                <div className="flex items-center gap-3">
+                   <div className="w-8 h-8 bg-purple-100 dark:bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <Sparkles size={16} className="text-purple-600 dark:text-purple-400" />
+                   </div>
+                   <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider">AI Analysis & Suggestions</h3>
+                </div>
+                
+                {/* Download PDF Report button */}
+                {isUnlocked && suggestions && (
+                  <button
+                    onClick={handleDownloadPDF}
+                    className="flex items-center gap-1.5 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-purple-500/20 transition-all active:scale-95 cursor-pointer"
+                  >
+                    <Download size={14} /> Download Report PDF
+                  </button>
+                )}
               </div>
 
               <div className="flex-1 relative px-8 py-12 overflow-hidden bg-gray-50/30 dark:bg-black/20">
@@ -570,9 +935,6 @@ export default function ATSCheckerPage() {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         className="bg-white dark:bg-[#161618] p-12 rounded-2xl border border-gray-200 dark:border-white/10 shadow-[0_64px_128px_-16px_rgba(0,0,0,0.4)] text-center max-w-md w-full relative overflow-hidden"
                      >
-                        {/* Decorative background element */}
-                        
-                        
                         <h4 className="text-2xl font-semibold text-black dark:text-white mb-4">Unlock Pro Analysis</h4>
                         <p className="text-base text-gray-600 dark:text-gray-400 mb-10 leading-relaxed px-4">
                            Get exact keywords, content gaps, and achievement-based improvements to beat the ATS.
@@ -607,7 +969,7 @@ export default function ATSCheckerPage() {
             <button
               id="ats-reset-btn"
               onClick={handleReset}
-              className="w-full py-3 rounded-2xl font-semibold text-sm border border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-2xl font-semibold text-sm border border-gray-300 dark:border-white/15 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <RotateCcw size={14} /> Check Another Resume
             </button>

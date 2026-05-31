@@ -5,17 +5,18 @@ import {
   AuthResponse, 
   VerifyOtpData, 
   ProfileResponse,
-  ApiResponse
+  ApiResponse,
+  User
 } from '@/types/auth';
 
 export const authApi = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/user/login', credentials);
+    const response = await api.post<AuthResponse>('/auth/login', credentials);
     return response.data;
   },
 
   register: async (data: RegisterData): Promise<ApiResponse> => {
-    const response = await api.post<ApiResponse>('/user/register', data);
+    const response = await api.post<ApiResponse>('/auth/register', data);
     return response.data;
   },
 
@@ -24,8 +25,8 @@ export const authApi = {
     return response.data;
   },
 
-  resendOtp: async (data: { email: string; type: string }): Promise<any> => {
-    const response = await api.post('/verify/resend-otp', data);
+  resendOtp: async (data: { email: string; type: string }): Promise<ApiResponse> => {
+    const response = await api.post<ApiResponse>('/verify/resend-otp', data);
     return response.data;
   },
 
@@ -38,7 +39,7 @@ export const authApi = {
     return response.data;
   },
 
-  updateProfile: async (data: any): Promise<ProfileResponse> => {
+  updateProfile: async (data: Partial<User>): Promise<ProfileResponse> => {
     const response = await api.patch<ProfileResponse>('/user/profile', data);
     return response.data;
   },
@@ -48,8 +49,7 @@ export const authApi = {
     return response.data;
   },
 
-  logout: async () => {
-    // Usually frontend only, but can be API call
-    return { success: true };
+  logout: async (): Promise<ApiResponse> => {
+    return { success: true, message: 'Logged out successfully' };
   }
 };

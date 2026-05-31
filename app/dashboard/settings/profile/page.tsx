@@ -143,7 +143,12 @@ export default function ProfileSettingsPage() {
         experience: user.experience || [],
         education: user.education || [],
         projects: user.projects || [],
-        socialLinks: user.socialLinks || { github: "", linkedin: "", twitter: "", website: "" },
+        socialLinks: {
+          github: user.socialLinks?.github || "",
+          linkedin: user.socialLinks?.linkedin || "",
+          twitter: user.socialLinks?.twitter || "",
+          website: user.socialLinks?.website || ""
+        },
       });
     }
   }, [user, isSaving]);

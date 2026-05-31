@@ -1,5 +1,40 @@
 import axios from "axios";
 
+export interface GitHubRepo {
+  name: string;
+  fork: boolean;
+  language?: string | null;
+  description?: string | null;
+  stargazers_count: number;
+  html_url: string;
+  updated_at: string;
+}
+
+export interface GitHubSyncData {
+  profile: {
+    name: string | null;
+    bio: string | null;
+    avatar: string;
+    followers: number;
+    following: number;
+    location: string | null;
+    public_repos: number;
+    html_url: string;
+    company: string | null;
+    blog: string | null;
+  };
+  skills: string[];
+  projects: {
+    name: string;
+    description: string | null | undefined;
+    tech: string | null | undefined;
+    stars: number;
+    url: string;
+    updated_at: string;
+  }[];
+  readme: string | null;
+}
+
 /**
  * Extracts the GitHub username from a profile URL.
  * @param url GitHub profile URL
@@ -19,7 +54,7 @@ export function extractUsername(url: string): string {
 /**
  * GitHub Fetching Pipeline
  */
-export async function fetchGitHubData(username: string, token?: string) {
+export async function fetchGitHubData(username: string, token?: string): Promise<GitHubSyncData> {
   const headers: Record<string, string> = {
     Accept: "application/vnd.github.v3+json",
   };
@@ -34,12 +69,12 @@ export async function fetchGitHubData(username: string, token?: string) {
     const user = userRes.data;
 
     // 2. Fetch Repositories
-    const repoRes = await axios.get(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, { headers });
+    const repoRes = await axios.get<GitHubRepo[]>(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, { headers });
     const repos = repoRes.data;
 
     // 3. Extract Languages (Method 1: Basic from repos)
     const languages: Record<string, number> = {};
-    repos.forEach((repo: any) => {
+    repos.forEach((repo) => {
       if (repo.language) {
         languages[repo.language] = (languages[repo.language] || 0) + 1;
       }
@@ -54,7 +89,7 @@ export async function fetchGitHubData(username: string, token?: string) {
     for (const branch of branches) {
       try {
         const readmeUrl = `https://raw.githubusercontent.com/${username}/${username}/${branch}/README.md`;
-        const readmeRes = await axios.get(readmeUrl);
+        const readmeRes = await axios.get<string>(readmeUrl);
         readme = readmeRes.data;
         break;
       } catch (err) {
@@ -63,18 +98,17 @@ export async function fetchGitHubData(username: string, token?: string) {
     }
 
     // 5. Format Projects (Deduplicated and filtered)
-    const uniqueRepos = new Map();
-    repos.forEach((repo: any) => {
-      // Prioritize non-forks and unique names
+    const uniqueRepos = new Map<string, GitHubRepo>();
+    repos.forEach((repo) => {
       if (!uniqueRepos.has(repo.name) || !repo.fork) {
         uniqueRepos.set(repo.name, repo);
       }
     });
 
     const projects = Array.from(uniqueRepos.values())
-      .filter((repo: any) => !repo.fork) // Usually users only want their own projects
-      .slice(0, 50) // Reasonable limit
-      .map((repo: any) => ({
+      .filter((repo) => !repo.fork)
+      .slice(0, 50)
+      .map((repo) => ({
         name: repo.name,
         description: repo.description,
         tech: repo.language,
@@ -100,8 +134,9 @@ export async function fetchGitHubData(username: string, token?: string) {
       projects,
       readme,
     };
-  } catch (error: any) {
-    console.error("Error fetching GitHub data:", error);
-    throw new Error(error.response?.data?.message || "Failed to fetch GitHub data");
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { message?: string } } };
+    console.error("Error fetching GitHub data:", err);
+    throw new Error(err.response?.data?.message || "Failed to fetch GitHub data");
   }
 }

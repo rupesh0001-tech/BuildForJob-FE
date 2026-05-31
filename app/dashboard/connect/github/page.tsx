@@ -416,7 +416,7 @@ export default function GitHubConnectPage() {
         </div>
       )}
 
-      {githubData && (
+      {githubData && user && (
         <GithubSyncModal 
           isOpen={showSyncModal}
           onClose={() => setShowSyncModal(false)}

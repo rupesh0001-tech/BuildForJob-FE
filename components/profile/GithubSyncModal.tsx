@@ -6,26 +6,38 @@ import {
   AlertTriangle, User as UserIcon, Code 
 } from 'lucide-react';
 
+import type { User } from '@/types/auth';
+
+interface GithubProject {
+  name: string;
+  description?: string | null;
+  tech?: string | null;
+  stars?: number;
+  url?: string;
+  github_url?: string;
+  updated_at?: string;
+}
+
 interface GithubData {
   profile: {
-    name: string;
-    bio: string;
+    name: string | null;
+    bio: string | null;
     avatar: string;
-    location: string;
+    location: string | null;
     html_url: string;
-    company: string;
-    blog: string;
+    company: string | null;
+    blog: string | null;
   };
   skills: string[];
-  projects: any[];
+  projects: GithubProject[];
 }
 
 interface GithubSyncModalProps {
   isOpen: boolean;
   onClose: () => void;
   githubData: GithubData;
-  currentData: any;
-  onSync: (mergedData: any) => void;
+  currentData: Partial<User>;
+  onSync: (mergedData: Partial<User>) => void;
 }
 
 export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSync }: GithubSyncModalProps) {
@@ -37,7 +49,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
   });
 
   const [selectedProjects, setSelectedProjects] = useState<string[]>(
-    githubData?.projects ? githubData.projects.map((p: any) => p.name) : []
+    githubData?.projects ? githubData.projects.map((p) => p.name) : []
   );
 
   const [selectedSkills, setSelectedSkills] = useState<string[]>(
@@ -66,9 +78,11 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
       mergedData.firstName = githubFirstName;
       mergedData.lastName = githubLastName;
     }
-    if (selectedFields.bio === 'github') mergedData.bio = githubData.profile.bio;
-    if (selectedFields.location === 'github') mergedData.location = githubData.profile.location;
-    if (selectedFields.website === 'github') mergedData.socialLinks.website = githubData.profile.blog;
+    if (selectedFields.bio === 'github') mergedData.bio = githubData.profile.bio || undefined;
+    if (selectedFields.location === 'github') mergedData.location = githubData.profile.location || undefined;
+    if (selectedFields.website === 'github' && mergedData.socialLinks) {
+      mergedData.socialLinks.website = githubData.profile.blog || undefined;
+    }
 
     // 2. Projects Merge (Replace Synced ones)
     const newProjects = githubData.projects
@@ -82,12 +96,12 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
       }));
     
     // Remove existing synced projects first to avoid duplicates/stale data
-    const nonSyncedProjects = (mergedData.projects || []).filter((p: any) => !p.isGithubSynced);
+    const nonSyncedProjects = (mergedData.projects || []).filter((p) => !p.isGithubSynced);
     mergedData.projects = [...nonSyncedProjects, ...newProjects];
 
     // 3. Skills Merge (Replace Synced ones - uniqueness already handled in selection)
     // Filter out existing synced skills
-    const nonSyncedSkills = (mergedData.skills || []).filter((s: any) => !s.isGithubSynced);
+    const nonSyncedSkills = (mergedData.skills || []).filter((s) => !s.isGithubSynced);
     
     const newSkills = selectedSkills.map(s => ({ 
       name: s,
@@ -141,9 +155,9 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
               <div className="grid grid-cols-1 gap-6">
                 {[
                   { id: 'name', label: 'Display Name', current: `${currentData.firstName} ${currentData.lastName}`, github: `${githubFirstName} ${githubLastName}` },
-                  { id: 'bio', label: 'Bio / Summary', current: currentData.bio, github: githubData.profile.bio },
-                  { id: 'location', label: 'Location', current: currentData.location, github: githubData.profile.location },
-                  { id: 'website', label: 'Website / Portfolio', current: currentData.socialLinks.website, github: githubData.profile.blog }
+                  { id: 'bio', label: 'Bio / Summary', current: currentData.bio, github: githubData.profile.bio || undefined },
+                  { id: 'location', label: 'Location', current: currentData.location, github: githubData.profile.location || undefined },
+                  { id: 'website', label: 'Website / Portfolio', current: currentData.socialLinks?.website, github: githubData.profile.blog || undefined }
                 ].map(field => (
                   <div key={field.id} className="space-y-3">
                     <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 ml-1">{field.label}</span>
@@ -200,7 +214,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-500">Repositories to Import ({githubData.projects.length})</h4>
                 <button 
-                  onClick={() => setSelectedProjects(selectedProjects.length === githubData.projects.length ? [] : githubData.projects.map((p: any) => p.name))}
+                  onClick={() => setSelectedProjects(selectedProjects.length === githubData.projects.length ? [] : githubData.projects.map((p) => p.name))}
                   className="text-xs font-semibold text-[#001BB7] hover:underline"
                 >
                   {selectedProjects.length === githubData.projects.length ? 'Deselect All' : 'Select All'}

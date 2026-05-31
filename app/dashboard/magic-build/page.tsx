@@ -133,7 +133,7 @@ export default function MagicBuildPage() {
           },
           date: new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
           salutation: "Dear Hiring Manager,",
-          mode: "structured",
+          mode: "structured" as const,
           body: { intro, body1, body2, body3, conclusion },
           manualContent: "",
           signOff: "Sincerely,"

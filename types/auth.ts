@@ -1,3 +1,11 @@
+export interface SocialLinks {
+  github?: string;
+  linkedin?: string;
+  twitter?: string;
+  portfolio?: string;
+  website?: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -39,7 +47,7 @@ export interface User {
     description?: string | null;
     isGithubSynced?: boolean;
   }[];
-  socialLinks?: any;
+  socialLinks?: SocialLinks | null;
 }
 
 export interface ApiResponse {

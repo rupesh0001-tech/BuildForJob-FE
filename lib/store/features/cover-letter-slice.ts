@@ -1,28 +1,14 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import * as coverLetterApi from '@/apis/cover-letter.api';
+import type { 
+  CoverLetter, 
+  SaveCoverLetterData, 
+  CoverLetterPersonalInfo as PersonalInfo, 
+  CoverLetterEmployerInfo as EmployerInfo, 
+  CoverLetterBodyContent as BodyContent 
+} from '@/types/cover-letter';
 
-export interface PersonalInfo {
-  fullName: string;
-  address: string;
-  phone: string;
-  email: string;
-  linkedin: string;
-  github: string;
-}
-
-export interface EmployerInfo {
-  managerName: string;
-  teamName: string;
-  companyName: string;
-}
-
-export interface BodyContent {
-  intro: string;
-  body1: string;
-  body2: string;
-  body3: string;
-  conclusion: string;
-}
+export type { PersonalInfo, EmployerInfo, BodyContent };
 
 export interface CoverLetterState {
   personalInfo: PersonalInfo;
@@ -41,44 +27,6 @@ export interface CoverLetterState {
   title: string;
   isLoading: boolean;
   error: string | null;
-}
-
-export interface CoverLetter {
-  id: string;
-  title: string;
-  company?: string | null;
-  recipient?: string | null;
-  template: string;
-  content?: {
-    personalInfo?: PersonalInfo;
-    employerInfo?: EmployerInfo;
-    date?: string;
-    salutation?: string;
-    mode?: "structured" | "manual";
-    body?: BodyContent;
-    manualContent?: string;
-    signOff?: string;
-  } | null;
-  isDraft: boolean;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface SaveCoverLetterData {
-  title: string;
-  company?: string;
-  template: string;
-  content: {
-    personalInfo: PersonalInfo;
-    employerInfo: EmployerInfo;
-    date: string;
-    salutation: string;
-    mode: "structured" | "manual";
-    body: BodyContent;
-    manualContent: string;
-    signOff: string;
-  };
 }
 
 const initialState: CoverLetterState = {

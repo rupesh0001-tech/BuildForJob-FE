@@ -61,12 +61,12 @@ const CoverLetterForm = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput name="fullName" label="Full Name" value={state.personalInfo.fullName} onChange={handlePersonalInfo} icon={<User size={16}/>} />
-            <FormInput name="address" label="Address" value={state.personalInfo.address} onChange={handlePersonalInfo} icon={<MapPin size={16}/>} />
-            <FormInput name="phone" label="Phone" value={state.personalInfo.phone} onChange={handlePersonalInfo} icon={<Phone size={16}/>} />
-            <FormInput name="email" label="Email" value={state.personalInfo.email} onChange={handlePersonalInfo} icon={<Mail size={16}/>} />
-            <FormInput name="linkedin" label="LinkedIn URL" value={state.personalInfo.linkedin} onChange={handlePersonalInfo} icon={<Link size={16}/>} />
-            <FormInput name="github" label="GitHub URL" value={state.personalInfo.github} onChange={handlePersonalInfo} icon={<Github size={16}/>} />
+            <FormInput name="fullName" label="Full Name" value={state.personalInfo.fullName || ""} onChange={handlePersonalInfo} icon={<User size={16}/>} />
+            <FormInput name="address" label="Address" value={state.personalInfo.address || ""} onChange={handlePersonalInfo} icon={<MapPin size={16}/>} />
+            <FormInput name="phone" label="Phone" value={state.personalInfo.phone || ""} onChange={handlePersonalInfo} icon={<Phone size={16}/>} />
+            <FormInput name="email" label="Email" value={state.personalInfo.email || ""} onChange={handlePersonalInfo} icon={<Mail size={16}/>} />
+            <FormInput name="linkedin" label="LinkedIn URL" value={state.personalInfo.linkedin || ""} onChange={handlePersonalInfo} icon={<Link size={16}/>} />
+            <FormInput name="github" label="GitHub URL" value={state.personalInfo.github || ""} onChange={handlePersonalInfo} icon={<Github size={16}/>} />
             <FormInput 
               name="date" 
               label="Date" 
@@ -88,9 +88,9 @@ const CoverLetterForm = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput name="managerName" label="Hiring Manager Name" value={state.employerInfo.managerName} onChange={handleEmployerInfo} icon={<User size={16}/>} />
-            <FormInput name="teamName" label="Team/Department Name" value={state.employerInfo.teamName} onChange={handleEmployerInfo} icon={<Briefcase size={16}/>} />
-            <FormInput name="companyName" label="Company Name" value={state.employerInfo.companyName} onChange={handleEmployerInfo} icon={<Building size={16}/>} />
+            <FormInput name="managerName" label="Hiring Manager Name" value={state.employerInfo.managerName || ""} onChange={handleEmployerInfo} icon={<User size={16}/>} />
+            <FormInput name="teamName" label="Team/Department Name" value={state.employerInfo.teamName || ""} onChange={handleEmployerInfo} icon={<Briefcase size={16}/>} />
+            <FormInput name="companyName" label="Company Name" value={state.employerInfo.companyName || ""} onChange={handleEmployerInfo} icon={<Building size={16}/>} />
             <FormInput 
               name="salutation" 
               label="Salutation" 
@@ -142,35 +142,35 @@ const CoverLetterForm = () => {
               <FormTextArea 
                 name="intro" 
                 label="P1: The Hook" 
-                value={state.body.intro} 
+                value={state.body.intro || ""} 
                 onChange={handleBody} 
                 placeholder="State position and why you want it..."
               />
               <FormTextArea 
                 name="body1" 
                 label="P2: Technical Impact" 
-                value={state.body.body1} 
+                value={state.body.body1 || ""} 
                 onChange={handleBody} 
                 placeholder="Quantifiable achievements..."
               />
               <FormTextArea 
                 name="body2" 
                 label="P3: Tech Stack & Teamwork" 
-                value={state.body.body2} 
+                value={state.body.body2 || ""} 
                 onChange={handleBody} 
                 placeholder="Languages and collaboration..."
               />
               <FormTextArea 
                 name="body3" 
                 label="P4: Why This Company?" 
-                value={state.body.body3} 
+                value={state.body.body3 || ""} 
                 onChange={handleBody} 
                 placeholder="Specific research..."
               />
               <FormTextArea 
                 name="conclusion" 
                 label="P5: Closing Statement" 
-                value={state.body.conclusion} 
+                value={state.body.conclusion || ""} 
                 onChange={handleBody} 
                 placeholder="Final enthusiasm..."
               />

@@ -29,8 +29,9 @@ export const login = createAsyncThunk(
         return response.data;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Login failed');
     }
   }
 );
@@ -44,8 +45,9 @@ export const register = createAsyncThunk(
         return response.message;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Registration failed');
     }
   }
 );
@@ -61,8 +63,9 @@ export const verifyOtp = createAsyncThunk(
         return response.data;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Verification failed');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Verification failed');
     }
   }
 );
@@ -76,8 +79,9 @@ export const resendOtp = createAsyncThunk(
         return response.message;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to resend OTP');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to resend OTP');
     }
   }
 );
@@ -97,15 +101,16 @@ export const fetchProfile = createAsyncThunk(
         return response.data;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch profile');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch profile');
     }
   }
 );
 
 export const updateProfile = createAsyncThunk(
   'auth/updateProfile',
-  async (data: any, { rejectWithValue }) => {
+  async (data: Partial<User>, { rejectWithValue }) => {
     try {
       const response = await authApi.updateProfile(data);
       if (response.success && response.data) {
@@ -113,8 +118,9 @@ export const updateProfile = createAsyncThunk(
         return response.data;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to update profile');
     }
   }
 );
@@ -129,8 +135,9 @@ export const uploadAvatar = createAsyncThunk(
         return response.data;
       }
       return rejectWithValue(response.message);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to upload avatar');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      return rejectWithValue(err.response?.data?.message || 'Failed to upload avatar');
     }
   }
 );

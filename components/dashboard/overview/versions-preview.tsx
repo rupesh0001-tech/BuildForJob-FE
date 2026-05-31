@@ -81,12 +81,12 @@ export function VersionsPreview() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold text-gray-800 dark:text-gray-500 uppercase tracking-wider">Recent Versions</h2>
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
+          // initial={{ opacity: 0, y: 10 }}
+          // animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center justify-center p-8 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 bg-white/50 dark:bg-black/20 text-center backdrop-blur-xl"
         >
-          <div className="p-3 bg-primary/10 rounded-2xl text-primary mb-4 animate-bounce">
+          <div className="p-3 bg-primary/10 rounded-2xl text-primary mb-4 ">
             <History size={28} />
           </div>
           <h3 className="font-semibold text-black dark:text-white mb-2">No Versions Created Yet</h3>
@@ -99,7 +99,7 @@ export function VersionsPreview() {
           >
             Create First Version
           </Link>
-        </motion.div>
+        </div>
       </div>
     );
   }

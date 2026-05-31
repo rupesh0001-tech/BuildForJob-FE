@@ -11,7 +11,7 @@ export interface PortfolioData {
   twitterUrl: string;
   instagramUrl: string;
   skills: { name: string }[];
-  projects: { name: string; techStack?: string; description?: string; githubUrl?: string; liveUrl?: string }[];
+  projects: { name: string; techStack?: string; description?: string; githubUrl?: string; liveUrl?: string; bannerImage?: string }[];
   brandColor: string;
   themeMode: "light" | "dark";
   resumeUrl: string;
@@ -22,7 +22,7 @@ export function generatePortfolioHtml(data: PortfolioData): string {
   const jobTitleParts = data.jobTitle.split(" ");
   const firstJobWord = jobTitleParts[0] || "";
   const restJobWords = jobTitleParts.slice(1).join(" ") || "";
-  const displayAvatar = data.avatarUrl || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300";
+  const displayAvatar = data.avatarUrl || "";
 
   // Helper to map skill names to FontAwesome icons and colors
   const getSkillIconAndColors = (skillName: string) => {
@@ -55,21 +55,7 @@ export function generatePortfolioHtml(data: PortfolioData): string {
   }).join("\n");
 
   const projectsHtml = data.projects.map((proj) => {
-    const isLofo = proj.name.toLowerCase().includes("lofo");
-    const isWanderlust = proj.name.toLowerCase().includes("wanderlust");
-    let bgImage = "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=600";
-    
-    if (isLofo) bgImage = "public/images/lofo.png";
-    else if (isWanderlust) bgImage = "public/images/wanderlust.png";
-    else {
-      const index = Math.abs(proj.name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)) % 3;
-      const placeholders = [
-        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=600",
-        "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=600",
-        "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&q=80&w=600"
-      ];
-      bgImage = placeholders[index];
-    }
+    const bgImage = proj.bannerImage || "";
 
     const github = proj.githubUrl && proj.githubUrl !== "#";
     const live = proj.liveUrl && proj.liveUrl !== "#";
@@ -77,7 +63,7 @@ export function generatePortfolioHtml(data: PortfolioData): string {
     return `
         <!-- ${proj.name} Card -->
         <article class="project-card group bg-white dark:bg-[#161B22] shadow-md rounded-2xl overflow-hidden border border-gray-200 dark:border-white/5">
-          <div class="h-48 bg-cover bg-center" style="background-image: url('${bgImage}')"></div>
+          ${bgImage ? `<div class="h-48 bg-cover bg-center" style="background-image: url('${bgImage}')"></div>` : `<div class="h-48 bg-gray-100 dark:bg-[#202731] flex items-center justify-center"><i class="fa-solid fa-image text-4xl text-gray-300 dark:text-gray-600"></i></div>`}
           <div class="p-5 flex flex-col justify-between">
             <h3 class="text-xl font-semibold text-gray-800 dark:text-white">${proj.name || "Untitled Project"}</h3>
             <p class="text-gray-600 dark:text-gray-400 text-sm mt-2 min-h-[40px]">${proj.description || (proj.techStack ? `Built with ${proj.techStack}` : "A software application built using modern tech stack.")}</p>
@@ -413,11 +399,11 @@ export function generatePortfolioHtml(data: PortfolioData): string {
 
       <!-- Hero Image -->
       <div class="hero-img-section md:w-1/2 flex justify-center mt-6 md:mt-0 items-center">
-        <img
+        ${displayAvatar ? `<img
           class="w-64 h-64 md:w-80 md:h-80 object-cover aspect-square rounded-2xl border-4 border-white/10 dark:border-white/5 shadow-xl transition-all duration-300 hover:scale-[1.02]"
           src="${displayAvatar}"
           alt="${nameCombined} Profile"
-        />
+        />` : `<div class="w-64 h-64 md:w-80 md:h-80 rounded-2xl border-4 border-white/10 dark:border-white/5 shadow-xl bg-gray-100 dark:bg-[#202731] flex items-center justify-center"><i class="fa-solid fa-user text-6xl text-gray-300 dark:text-gray-600"></i></div>`}
       </div>
     </section>
 
@@ -466,11 +452,11 @@ export function generatePortfolioHtml(data: PortfolioData): string {
       <div class="about-container bg-white dark:bg-[#161B22] shadow-lg rounded-2xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-10 transition-all duration-300">
         <!-- Profile Image -->
         <div class="about-img flex-shrink-0">
-          <img
+          ${displayAvatar ? `<img
             class="h-56 w-56 md:h-64 md:w-64 rounded-full object-cover border-4 border-indigo-500 shadow-md"
             src="${displayAvatar}"
             alt="${nameCombined} Portrait"
-          />
+          />` : `<div class="h-56 w-56 md:h-64 md:w-64 rounded-full border-4 border-indigo-500 shadow-md bg-gray-100 dark:bg-[#202731] flex items-center justify-center"><i class="fa-solid fa-user text-5xl text-gray-300 dark:text-gray-600"></i></div>`}
         </div>
 
         <!-- Info & Details -->

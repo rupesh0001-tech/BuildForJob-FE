@@ -19,14 +19,36 @@ const MinimalTemplate = ({ data, accentColor }: TemplateProps) => {
                 </h1>
 
                 <div className="flex flex-wrap gap-6 text-sm text-gray-600">
-                    {data.personal_info?.email && <span>{data.personal_info.email}</span>}
-                    {data.personal_info?.phone && <span>{data.personal_info.phone}</span>}
+                    {data.personal_info?.email && (
+                        <a href={`mailto:${data.personal_info.email}`} className="hover:underline hover:text-black">
+                            {data.personal_info.email}
+                        </a>
+                    )}
+                    {data.personal_info?.phone && (
+                        <a href={`tel:${data.personal_info.phone}`} className="hover:underline hover:text-black">
+                            {data.personal_info.phone}
+                        </a>
+                    )}
                     {data.personal_info?.location && <span>{data.personal_info.location}</span>}
                     {data.personal_info?.linkedin && (
-                        <span className="break-all">{data.personal_info.linkedin}</span>
+                        <a
+                            href={data.personal_info.linkedin.startsWith("http") ? data.personal_info.linkedin : `https://${data.personal_info.linkedin}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline hover:text-black break-all"
+                        >
+                            {data.personal_info.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, "")}
+                        </a>
                     )}
                     {data.personal_info?.website && (
-                        <span className="break-all">{data.personal_info.website}</span>
+                        <a
+                            href={data.personal_info.website.startsWith("http") ? data.personal_info.website : `https://${data.personal_info.website}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline hover:text-black break-all"
+                        >
+                            {data.personal_info.website}
+                        </a>
                     )}
                 </div>
             </header>

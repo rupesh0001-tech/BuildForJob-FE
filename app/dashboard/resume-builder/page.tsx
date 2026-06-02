@@ -169,6 +169,26 @@ export default function ResumeBuilderPage() {
       const pdfHeight = (pdf.internal.pageSize.getHeight());
 
       pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+
+      // Capture all anchor tags in the preview DOM and overlay PDF links
+      const containerRect = element.getBoundingClientRect();
+      const scaleX = pdfWidth / containerRect.width;
+      const scaleY = pdfHeight / containerRect.height;
+      
+      const links = element.getElementsByTagName("a");
+      for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        const href = link.getAttribute("href");
+        if (href) {
+          const rect = link.getBoundingClientRect();
+          const x = (rect.left - containerRect.left) * scaleX;
+          const y = (rect.top - containerRect.top) * scaleY;
+          const w = rect.width * scaleX;
+          const h = rect.height * scaleY;
+          pdf.link(x, y, w, h, { url: href });
+        }
+      }
+
       pdf.save(`${localTitle.replace(/\s+/g, '_')}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);

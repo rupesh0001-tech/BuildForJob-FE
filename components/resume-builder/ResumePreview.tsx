@@ -50,7 +50,7 @@ const ResumePreview = () => {
   const premiumResumeData: ResumeData = {
     personalInfo: {
       name: personalInfoData.full_name,
-      title: personalInfoData.profession,
+      title: (template === "modern-premium" || template === "modern-two-column-premium") ? undefined : personalInfoData.profession,
       email: personalInfoData.email,
       phone: personalInfoData.phone,
       location: personalInfoData.location,

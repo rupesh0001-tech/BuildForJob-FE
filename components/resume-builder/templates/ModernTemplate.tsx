@@ -24,13 +24,17 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 					{data.personal_info?.email && (
 						<div className="flex items-center gap-2">
 							<Mail className="size-4" />
-							<span>{data.personal_info.email}</span>
+							<a href={`mailto:${data.personal_info.email}`} className="hover:underline text-white">
+								{data.personal_info.email}
+							</a>
 						</div>
 					)}
 					{data.personal_info?.phone && (
 						<div className="flex items-center gap-2">
 							<Phone className="size-4" />
-							<span>{data.personal_info.phone}</span>
+							<a href={`tel:${data.personal_info.phone}`} className="hover:underline text-white">
+								{data.personal_info.phone}
+							</a>
 						</div>
 					)}
 					{data.personal_info?.location && (
@@ -40,15 +44,29 @@ const ModernTemplate = ({ data, accentColor }: TemplateProps) => {
 						</div>
 					)}
 					{data.personal_info?.linkedin && (
-						<a target="_blank" href={data.personal_info?.linkedin} className="flex items-center gap-2">
+						<a
+							target="_blank"
+							href={data.personal_info.linkedin.startsWith("http") ? data.personal_info.linkedin : `https://${data.personal_info.linkedin}`}
+							rel="noopener noreferrer"
+							className="flex items-center gap-2 hover:underline text-white"
+						>
 							<Linkedin className="size-4" />
-							<span className="break-all text-xs">{data.personal_info.linkedin.split("https://www.")[1] ? data.personal_info.linkedin.split("https://www.")[1] : data.personal_info.linkedin}</span>
+							<span className="break-all text-xs">
+								{data.personal_info.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, "")}
+							</span>
 						</a>
 					)}
 					{data.personal_info?.website && (
-						<a target="_blank" href={data.personal_info?.website} className="flex items-center gap-2">
+						<a
+							target="_blank"
+							href={data.personal_info.website.startsWith("http") ? data.personal_info.website : `https://${data.personal_info.website}`}
+							rel="noopener noreferrer"
+							className="flex items-center gap-2 hover:underline text-white"
+						>
 							<Globe className="size-4" />
-							<span className="break-all text-xs">{data.personal_info.website.split("https://")[1] ? data.personal_info.website.split("https://")[1] : data.personal_info.website}</span>
+							<span className="break-all text-xs">
+								{data.personal_info.website.replace(/^https?:\/\/(www\.)?/, "")}
+							</span>
 						</a>
 					)}
 				</div>

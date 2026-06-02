@@ -19,14 +19,49 @@ const ProfessionalTemplate = ({ data, accentColor }: TemplateProps) => {
           <h1 className="text-3xl font-bold uppercase tracking-tight text-black">
             {personal_info.full_name || "Your Name"}
           </h1>
-          <p className="text-blue-700 hover:underline cursor-pointer text-xs">
-            {personal_info.website}
-          </p>
+          {personal_info.website && (
+            <p className="text-blue-700 hover:underline text-xs mt-1">
+              <a
+                href={personal_info.website.startsWith("http") ? personal_info.website : `https://${personal_info.website}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {personal_info.website}
+              </a>
+            </p>
+          )}
         </div>
-        <div className="text-right text-xs">
-          <p>Email: {personal_info.email}</p>
-          <p>Mobile: {personal_info.phone}</p>
-          <p>{personal_info.location}</p>
+        <div className="text-right text-xs text-gray-700">
+          {personal_info.email && (
+            <p>
+              Email:{" "}
+              <a href={`mailto:${personal_info.email}`} className="text-blue-700 hover:underline">
+                {personal_info.email}
+              </a>
+            </p>
+          )}
+          {personal_info.phone && (
+            <p>
+              Mobile:{" "}
+              <a href={`tel:${personal_info.phone}`} className="text-blue-700 hover:underline">
+                {personal_info.phone}
+              </a>
+            </p>
+          )}
+          {personal_info.location && <p>{personal_info.location}</p>}
+          {personal_info.linkedin && (
+            <p>
+              LinkedIn:{" "}
+              <a
+                href={personal_info.linkedin.startsWith("http") ? personal_info.linkedin : `https://${personal_info.linkedin}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 hover:underline"
+              >
+                {personal_info.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, "")}
+              </a>
+            </p>
+          )}
         </div>
       </div>
 

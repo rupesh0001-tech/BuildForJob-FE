@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
 import { TemplateProps } from "@/types/resume";
 
 const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
@@ -53,19 +53,49 @@ const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
                             {data.personal_info?.phone && (
                                 <div className="flex items-center gap-2">
                                     <Phone size={14} style={{ color: accentColor }} />
-                                    <span>{data.personal_info.phone}</span>
+                                    <a href={`tel:${data.personal_info.phone}`} className="hover:underline">
+                                        {data.personal_info.phone}
+                                    </a>
                                 </div>
                             )}
                             {data.personal_info?.email && (
                                 <div className="flex items-center gap-2">
                                     <Mail size={14} style={{ color: accentColor }} />
-                                    <span>{data.personal_info.email}</span>
+                                    <a href={`mailto:${data.personal_info.email}`} className="hover:underline break-all">
+                                        {data.personal_info.email}
+                                    </a>
                                 </div>
                             )}
                             {data.personal_info?.location && (
                                 <div className="flex items-center gap-2">
                                     <MapPin size={14} style={{ color: accentColor }} />
                                     <span>{data.personal_info.location}</span>
+                                </div>
+                            )}
+                            {data.personal_info?.linkedin && (
+                                <div className="flex items-center gap-2">
+                                    <Linkedin size={14} style={{ color: accentColor }} />
+                                    <a
+                                        href={data.personal_info.linkedin.startsWith("http") ? data.personal_info.linkedin : `https://${data.personal_info.linkedin}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hover:underline break-all"
+                                    >
+                                        LinkedIn
+                                    </a>
+                                </div>
+                            )}
+                            {data.personal_info?.website && (
+                                <div className="flex items-center gap-2">
+                                    <Globe size={14} style={{ color: accentColor }} />
+                                    <a
+                                        href={data.personal_info.website.startsWith("http") ? data.personal_info.website : `https://${data.personal_info.website}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="hover:underline break-all"
+                                    >
+                                        Portfolio
+                                    </a>
                                 </div>
                             )}
                         </div>

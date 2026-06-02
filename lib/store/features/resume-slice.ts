@@ -80,7 +80,7 @@ const initialState: ResumeState = {
   educationData: [],
   projectData: [],
   skillData: [],
-  template: "classic",
+  template: "professional",
   accentColor: "#4E61D3",
   sectionVisibility: {
     summary: true,

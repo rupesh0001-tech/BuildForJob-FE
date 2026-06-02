@@ -22,9 +22,54 @@ const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {
         <div className="space-y-4">
           <h2 className="text-xl font-bold border-b border-white/20 pb-2 uppercase tracking-widest text-purple-400">Contact</h2>
           <div className="space-y-3 text-sm text-gray-300">
-            {personal_info.email && <div className="flex items-center gap-3"><Mail size={16} />{personal_info.email}</div>}
-            {personal_info.phone && <div className="flex items-center gap-3"><Phone size={16} />{personal_info.phone}</div>}
-            {personal_info.location && <div className="flex items-center gap-3"><MapPin size={16} />{personal_info.location}</div>}
+            {personal_info.email && (
+              <div className="flex items-center gap-3">
+                <Mail size={16} />
+                <a href={`mailto:${personal_info.email}`} className="hover:underline hover:text-white">
+                  {personal_info.email}
+                </a>
+              </div>
+            )}
+            {personal_info.phone && (
+              <div className="flex items-center gap-3">
+                <Phone size={16} />
+                <a href={`tel:${personal_info.phone}`} className="hover:underline hover:text-white">
+                  {personal_info.phone}
+                </a>
+              </div>
+            )}
+            {personal_info.location && (
+              <div className="flex items-center gap-3">
+                <MapPin size={16} />
+                <span>{personal_info.location}</span>
+              </div>
+            )}
+            {personal_info.linkedin && (
+              <div className="flex items-center gap-3">
+                <Linkedin size={16} />
+                <a
+                  href={personal_info.linkedin.startsWith("http") ? personal_info.linkedin : `https://${personal_info.linkedin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline hover:text-white break-all"
+                >
+                  LinkedIn
+                </a>
+              </div>
+            )}
+            {personal_info.website && (
+              <div className="flex items-center gap-3">
+                <Globe size={16} />
+                <a
+                  href={personal_info.website.startsWith("http") ? personal_info.website : `https://${personal_info.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline hover:text-white break-all"
+                >
+                  Portfolio
+                </a>
+              </div>
+            )}
           </div>
         </div>
 

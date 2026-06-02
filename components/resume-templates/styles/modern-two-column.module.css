@@ -45,8 +45,8 @@
   color: var(--resume-accent-primary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: calc(var(--item-gap) * 1.5);
-  padding-bottom: calc(var(--item-gap) * 0.5);
+  margin-bottom: var(--item-gap);
+  padding-bottom: var(--item-gap);
   border-bottom: 2px solid var(--resume-accent-primary);
 }
 
@@ -55,6 +55,7 @@
   position: relative;
   display: inline-block;
   padding-bottom: 0.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .nameAccent::after {

@@ -30,12 +30,8 @@ export const authApi = {
     return response.data;
   },
 
-  getProfile: async (token: string): Promise<ProfileResponse> => {
-    const response = await api.get<ProfileResponse>('/user/profile', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  getProfile: async (): Promise<ProfileResponse> => {
+    const response = await api.get<ProfileResponse>('/user/profile');
     return response.data;
   },
 
@@ -50,6 +46,7 @@ export const authApi = {
   },
 
   logout: async (): Promise<ApiResponse> => {
-    return { success: true, message: 'Logged out successfully' };
+    const response = await api.post<ApiResponse>('/auth/logout');
+    return response.data;
   }
 };

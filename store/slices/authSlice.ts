@@ -11,11 +11,18 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  user: typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+  user: typeof window !== 'undefined' ? (() => {
+    try {
+      const u = localStorage.getItem('user');
+      return u ? JSON.parse(u) : null;
+    } catch {
+      return null;
+    }
+  })() : null,
+  token: null,
   isLoading: false,
   error: null,
-  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
+  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('user') : false,
 };
 
 export const login = createAsyncThunk(
@@ -24,7 +31,6 @@ export const login = createAsyncThunk(
     try {
       const response = await authApi.login(credentials);
       if (response.success && response.data) {
-        localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data;
       }
@@ -58,7 +64,6 @@ export const verifyOtp = createAsyncThunk(
     try {
       const response = await authApi.verifyOtp(data);
       if (response.success && response.data) {
-        localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
         return response.data;
       }
@@ -88,14 +93,9 @@ export const resendOtp = createAsyncThunk(
 
 export const fetchProfile = createAsyncThunk(
   'auth/fetchProfile',
-  async (argToken: string | undefined | void, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const state = getState() as { auth: { token: string | null } };
-      const token = argToken || state.auth.token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
-      if (!token) {
-        return rejectWithValue('No authentication token found');
-      }
-      const response = await authApi.getProfile(token);
+      const response = await authApi.getProfile();
       if (response.success && response.data) {
         localStorage.setItem('user', JSON.stringify(response.data));
         return response.data;
@@ -150,7 +150,6 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
       localStorage.removeItem('user');
     },
     clearError: (state) => {

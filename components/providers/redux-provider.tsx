@@ -7,8 +7,8 @@ import { fetchProfile } from "@/store/slices/authSlice";
 
 export function ReduxProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    const user = localStorage.getItem("user");
+    if (user) {
       store.dispatch(fetchProfile());
     }
   }, []);

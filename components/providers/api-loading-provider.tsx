@@ -91,7 +91,7 @@ export function ApiLoadingProvider({ children }: { children: React.ReactNode }) 
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-base font-bold text-gray-900 dark:text-white">Connecting to server</h3>
+                <h3 className="text-base font-bold text-gray-900 dark:text-white">Loading...</h3>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Please hold on while we process your request. This will only take a moment.
                 </p>

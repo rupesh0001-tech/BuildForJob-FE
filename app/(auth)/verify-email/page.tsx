@@ -12,9 +12,6 @@ export default function VerifyEmailPage() {
         <AuthBrand />
 
         <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-xl">
-          <h1 className="text-2xl font-bold text-black dark:text-white mb-2 text-center">Verify your email</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-8">We've sent a code to your inbox.</p>
-
           <Suspense fallback={<div className="h-40 flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div></div>}>
             <VerifyEmailForm />
           </Suspense>

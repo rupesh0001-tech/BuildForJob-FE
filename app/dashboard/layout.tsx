@@ -6,7 +6,6 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { ProtectedRoute } from "@/components/providers/protected-route";
-import { DashboardApiLoader } from "@/components/providers/api-loading-provider";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -52,7 +51,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             "flex-1 overflow-y-auto p-6 md:p-8 relative transition-all duration-500 ease-in-out",
             isBuilderPage && isSidebarOpen && "blur-md pointer-events-none"
           )}>
-            <DashboardApiLoader />
             {children}
           </main>
         </div>

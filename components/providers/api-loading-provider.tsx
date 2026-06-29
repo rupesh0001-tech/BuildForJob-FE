@@ -11,7 +11,7 @@ export const useApiLoading = () => useContext(ApiLoadingContext);
 export function ApiLoadingProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
-  const isDashboard = pathname?.startsWith("/dashboard");
+  const showFullscreenLoader = pathname?.startsWith("/login") || pathname?.startsWith("/register") || pathname?.startsWith("/verify-email");
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | null = null;
@@ -46,7 +46,7 @@ export function ApiLoadingProvider({ children }: { children: React.ReactNode }) 
     <ApiLoadingContext.Provider value={{ isLoading }}>
       {children}
       <AnimatePresence>
-        {isLoading && !isDashboard && (
+        {isLoading && showFullscreenLoader && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -133,7 +133,7 @@ export function DashboardApiLoader() {
               </div>
             </div>
             <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest animate-pulse">
-              Updating Content...
+              Loading...
             </p>
           </div>
         </motion.div>

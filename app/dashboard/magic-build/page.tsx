@@ -39,6 +39,12 @@ export default function MagicBuildPage() {
   const [resumeId, setResumeId] = useState<string>("");
   const [coverLetterId, setCoverLetterId] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleNavigate = (url: string) => {
+    setIsNavigating(true);
+    router.push(url);
+  };
 
   useEffect(() => {
     let active = true;
@@ -232,6 +238,24 @@ export default function MagicBuildPage() {
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col items-center justify-center min-h-[70vh] py-12 px-6">
+      <AnimatePresence>
+        {isNavigating && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 dark:bg-black/80 backdrop-blur-md"
+          >
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="animate-spin text-[#001BB7]" size={40} />
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest animate-pulse">
+                Opening document...
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {errorMessage ? (
           <motion.div 
@@ -320,31 +344,34 @@ export default function MagicBuildPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <Link
-                href={resumeId ? `/dashboard/resume-builder?id=${resumeId}` : "/dashboard/resumes"}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all"
+              <button
+                onClick={() => handleNavigate(resumeId ? `/dashboard/resume-builder?id=${resumeId}` : "/dashboard/resumes")}
+                disabled={isNavigating}
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
                    <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform"><FileText size={18} /></div>
                    <div className="text-left font-semibold text-black dark:text-white text-sm">Edit Resume</div>
                 </div>
                 <ArrowRight size={16} className="text-gray-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href={coverLetterId ? `/dashboard/cover-letter?id=${coverLetterId}` : "/dashboard/cover-letter/all"}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all"
+              </button>
+              <button
+                onClick={() => handleNavigate(coverLetterId ? `/dashboard/cover-letter?id=${coverLetterId}` : "/dashboard/cover-letter/all")}
+                disabled={isNavigating}
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
               >
                 <div className="flex items-center gap-3">
                    <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform"><Mail size={18} /></div>
                    <div className="text-left font-semibold text-black dark:text-white text-sm">Edit Cover Letter</div>
                 </div>
                 <ArrowRight size={16} className="text-gray-400 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </button>
             </div>
 
             <button 
-              onClick={() => router.push("/dashboard")}
-              className="w-full py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:brightness-110 transition-all shadow-sm flex items-center justify-center gap-2"
+              onClick={() => handleNavigate("/dashboard")}
+              disabled={isNavigating}
+              className="w-full py-3 bg-primary text-white rounded-xl font-semibold text-sm hover:brightness-110 transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <ChevronLeft size={16} />
               Back to Dashboard

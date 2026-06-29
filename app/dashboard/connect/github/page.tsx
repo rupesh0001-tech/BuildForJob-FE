@@ -103,6 +103,7 @@ export default function GitHubConnectPage() {
       toast.success("Profile synchronized and saved successfully!");
     } catch (error: any) {
       toast.error(error || "Failed to sync profile");
+      throw error;
     }
   };
 

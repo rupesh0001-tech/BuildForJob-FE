@@ -56,7 +56,7 @@ export default function DashboardOverviewPage() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-black dark:text-white mb-1">
-                  🎉 Profile 100% Completed!
+                   Profile 100% Completed!
                 </h3>
                 <p className="text-sm text-gray-800 dark:text-gray-400 max-w-2xl leading-relaxed">
                   You've completed your profile. Build your resume and cover letter in 1 click!

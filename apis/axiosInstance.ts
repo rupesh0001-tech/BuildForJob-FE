@@ -5,23 +5,38 @@ const api = axios.create({
   withCredentials: true,
 });
 
+let activeRequests = 0;
+
+const updateLoadingState = (delta: number) => {
+  activeRequests = Math.max(0, activeRequests + delta);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('global-api-loading', { detail: activeRequests > 0 }));
+  }
+};
+
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
+    updateLoadingState(1);
     if (process.env.NODE_ENV === 'development') {
       console.log(` [API Request] : Sending ${config.method?.toUpperCase()} to ${config.url}`);
     }
     return config;
   },
   (error) => {
+    updateLoadingState(-1);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor to handle errors globally
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    updateLoadingState(-1);
+    return response;
+  },
   (error) => {
+    updateLoadingState(-1);
     // Log error to console in development mode
     if (process.env.NODE_ENV === 'development') {
       console.group(' [Frontend API Error] ');

@@ -3,7 +3,7 @@ import React from "react";
 import CoverLetterForm from "@/components/cover-letter/CoverLetterForm";
 import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
 import CoverLetterThemeSelector from "@/components/cover-letter/CoverLetterThemeSelector";
-import { Download, ChevronLeft } from "lucide-react";
+import { Download, ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
@@ -149,6 +149,17 @@ const CoverLetterPage = () => {
       toast.error("Failed to generate PDF. Please try again.", { id: toastId });
     }
   };
+
+  if (isLoading && editId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] bg-transparent">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-[#001BB7]" size={40} />
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest animate-pulse">Loading Cover Letter Builder...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-8xl mx-auto space-y-6 pb-20 p-4 md:p-6">

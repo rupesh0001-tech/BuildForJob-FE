@@ -37,7 +37,7 @@ interface GithubSyncModalProps {
   onClose: () => void;
   githubData: GithubData;
   currentData: Partial<User>;
-  onSync: (mergedData: Partial<User>) => void;
+  onSync: (mergedData: Partial<User>) => Promise<void> | void;
 }
 
 export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSync }: GithubSyncModalProps) {
@@ -56,9 +56,11 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
     Array.from(new Set(githubData?.skills || []))
   );
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   if (!isOpen) return null;
 
-  const handleMerge = () => {
+  const handleMerge = async () => {
     const nameParts = (githubData.profile.name || "").split(" ");
     const githubFirstName = nameParts[0] || "";
     const githubLastName = nameParts.slice(1).join(" ") || "";
@@ -110,8 +112,15 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
 
     mergedData.skills = [...nonSyncedSkills, ...newSkills];
 
-    onSync(mergedData);
-    onClose();
+    try {
+      setIsSyncing(true);
+      await onSync(mergedData);
+      onClose();
+    } catch (error) {
+      console.error("Failed to sync GitHub profile:", error);
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const nameParts = (githubData.profile.name || "").split(" ");
@@ -125,8 +134,91 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-white dark:bg-[#08080a] w-full max-w-4xl max-h-[90vh] rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col"
+          className="relative bg-white dark:bg-[#08080a] w-full max-w-4xl max-h-[90vh] rounded-2xl border border-gray-200 dark:border-white/10 shadow-2xl overflow-hidden flex flex-col"
         >
+          <AnimatePresence>
+            {isSyncing && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-[#08080a]/95 backdrop-blur-md"
+              >
+                <div className="flex flex-col items-center max-w-sm text-center px-6 space-y-6">
+                  {/* Animated Icon Container */}
+                  <div className="relative">
+                    {/* Outer glowing pulsing circle */}
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [0.15, 0.3, 0.15],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      className="absolute -inset-4 rounded-full bg-[#001BB7] blur-md"
+                    />
+                    
+                    {/* Inner rotating/pulsing ring */}
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="w-20 h-20 rounded-full border-2 border-t-[#001BB7] border-r-transparent border-b-[#001BB7]/30 border-l-transparent"
+                    />
+                    
+                    {/* Center github icon */}
+                    <div className="absolute inset-0 flex items-center justify-center text-[#001BB7]">
+                      <motion.div
+                        animate={{
+                          scale: [0.9, 1.1, 0.9],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <Github size={36} />
+                      </motion.div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Syncing GitHub Changes</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      We are saving the selected repositories, skills, and profile updates to your profile. This will take just a moment.
+                    </p>
+                  </div>
+
+                  {/* Progress indicators / stages */}
+                  <div className="w-full space-y-2">
+                    <div className="h-1 w-full bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-[#001BB7]"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{
+                          duration: 4,
+                          ease: "easeInOut",
+                          repeat: Infinity,
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+                      <span>Processing Data</span>
+                      <span>Uploading Profile</span>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {/* Header */}
           <div className="p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -138,7 +230,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
                 <p className="text-sm text-gray-500">Review and merge your GitHub data into your profile</p>
               </div>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors">
+            <button onClick={onClose} disabled={isSyncing} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-xl transition-colors disabled:opacity-50">
               <X size={20} className="text-gray-500" />
             </button>
           </div>
@@ -297,13 +389,15 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
             <div className="flex items-center gap-3">
               <button 
                 onClick={onClose}
-                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
+                disabled={isSyncing}
+                className="px-6 py-2.5 rounded-xl text-sm font-semibold text-gray-500 hover:bg-gray-100 dark:hover:bg-white/10 transition-all disabled:opacity-50"
               >
                 Cancel
               </button>
               <button 
                 onClick={handleMerge}
-                className="px-6 py-2.5 bg-[#001BB7] text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[#001BB7]/90 transition-all shadow-lg shadow-[#001BB7]/20"
+                disabled={isSyncing}
+                className="px-6 py-2.5 bg-[#001BB7] text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[#001BB7]/90 transition-all shadow-lg shadow-[#001BB7]/20 disabled:opacity-50"
               >
                 Sync with Profile <ArrowRight size={16} />
               </button>

@@ -118,6 +118,7 @@ export default function ProfileSettingsPage() {
       toast.success("GitHub data merged into profile!");
     } catch (error: any) {
       toast.error(error || "Failed to save synced data");
+      throw error;
     } finally {
       setIsSaving(false);
     }
@@ -279,20 +280,20 @@ export default function ProfileSettingsPage() {
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400"> Edit your professional profile to generate high-impact resumes instantly. </p>
         </div>
         <div className="flex items-center gap-4 bg-white dark:bg-black/40 backdrop-blur-md border border-gray-300 dark:border-white/10 px-5 py-2.5 rounded-2xl shadow-sm">
-          <div className="relative w-10 h-10 flex items-center justify-center">
+          <div className="relative w-12 h-12 flex items-center justify-center">
              <svg className="w-full h-full -rotate-90" viewBox="0 0 44 44">
-                <circle cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3" className="text-gray-100 dark:text-white/5" />
+                <circle cx="22" cy="22" r="20" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-gray-100 dark:text-white/5" />
                 <motion.circle 
-                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-[#001BB7]/20 blur-[2px]"
-                  initial={{ strokeDasharray: "0 113.1" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 113.1} 113.1` }} transition={{ duration: 1.2, ease: "circOut" }}
+                  cx="22" cy="22" r="20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-[#001BB7]/20 blur-[1px]"
+                  initial={{ strokeDasharray: "0 125.7" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 125.7} 125.7` }} transition={{ duration: 1.2, ease: "circOut" }}
                 />
                 <motion.circle 
-                  cx="22" cy="22" r="18" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" className="text-[#001BB7]"
-                  initial={{ strokeDasharray: "0 113.1" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 113.1} 113.1` }} transition={{ duration: 1, ease: "circOut" }}
+                  cx="22" cy="22" r="20" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" className="text-[#001BB7]"
+                  initial={{ strokeDasharray: "0 125.7" }} animate={{ strokeDasharray: `${(completionPercent / 100) * 125.7} 125.7` }} transition={{ duration: 1, ease: "circOut" }}
                 />
              </svg>
              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-semibold text-gray-900 dark:text-white">{completionPercent}%</span>
+                <span className="text-[10px] font-bold text-gray-900 dark:text-white">{completionPercent}%</span>
              </div>
           </div>
           

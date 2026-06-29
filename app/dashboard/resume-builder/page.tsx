@@ -195,6 +195,17 @@ export default function ResumeBuilderPage() {
     }
   };
 
+  if (resumeState.isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] bg-transparent">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-[#001BB7]" size={40} />
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest animate-pulse">Loading Resume Builder...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-8xl mx-auto space-y-6 pb-20">
       {/* Top Header */}

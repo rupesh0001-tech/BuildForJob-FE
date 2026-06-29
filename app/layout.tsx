@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/theme-provider"
 import { ReduxProvider } from "@/components/providers/redux-provider"
+import { ApiLoadingProvider } from "@/components/providers/api-loading-provider"
 import { Toaster } from "sonner"
 
 export default function RootLayout({
@@ -35,7 +36,9 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col font-sans`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" disableTransitionOnChange>
           <ReduxProvider>
-            {children}
+            <ApiLoadingProvider>
+              {children}
+            </ApiLoadingProvider>
             <Toaster position="top-right" />
           </ReduxProvider>
         </ThemeProvider>

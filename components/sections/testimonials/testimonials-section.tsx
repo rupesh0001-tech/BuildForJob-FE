@@ -12,16 +12,19 @@ export function TestimonialsSection() {
           {
             name: "Sarah Chen",
             role: "Frontend Engineer @ Stripe",
+            image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80",
             text: "The ATS score checker completely changed my approach. I realized my previous resume wasn't even passing the automated filters. Got 3 interviews in my first week using BuildForJob."
           },
           {
             name: "Michael Rodriguez",
             role: "Product Manager @ Airbnb",
+            image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80",
             text: "Generated a tailored cover letter in 30 seconds that perfectly matched the PM job description. The hiring manager explicitly brought it up in my interview."
           },
           {
             name: "David Kim",
             role: "Recent Grad",
+            image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80",
             text: "The GitHub portfolio sync is magic. I literally clicked one button and had a beautiful personal website with all my side projects laid out perfectly."
           }
         ].map((t, i) => (
@@ -31,7 +34,7 @@ export function TestimonialsSection() {
             </div>
             <p className="text-gray-600 dark:text-gray-300 mb-4 text-sm italic">"{t.text}"</p>
             <div className="flex items-center gap-3">
-               <div className="w-10 h-10 rounded-full bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-900 border border-black/5 dark:border-white/20" />
+               <img src={t.image} alt={t.name} className="w-10 h-10 rounded-full object-cover border border-black/5 dark:border-white/20" />
                <div>
                  <div className="font-semibold text-black dark:text-white">{t.name}</div>
                  <div className="text-xs text-gray-500">{t.role}</div>

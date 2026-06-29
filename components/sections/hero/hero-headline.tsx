@@ -13,7 +13,7 @@ export function HeroHeadline() {
     >
       Single platform for AI powered <br /> <WordRotate 
         className="text-transparent my-1 bg-clip-text bg-linear-to-r from-purple-500 to-blue-500 dark:from-purple-400 dark:to-emerald-200" 
-        words={["Resume Builder ", "Cover Letter Builder", "Portfolio Builder", "LinkedIn Profile Enhancer", "GitHub Portfolio Builder", "ATS Checker"]} 
+        words={["Resume Builder ", "Cover Letter Builder", "Portfolio Builder", "ATS Checker"]} 
       />
       <br className="hidden md:block" />
       <span className="text bg-clip-text text-black dark:text-white">

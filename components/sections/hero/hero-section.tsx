@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
-import ScrollRevealParagraph from "@/components/scroll-reveal-paragraph";
+
 import { GridBackground } from "@/components/ui/grid-background";
 import { HeroCta } from "./hero-cta";
 import { HeroBadge } from "./hero-badge";
@@ -39,12 +39,11 @@ export function HeroSection() {
           <HeroBadge />
           <HeroHeadline />
 
-          <ScrollRevealParagraph 
-            className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto"
-            paragraph="Stop getting rejected by ATS. Build unbeatable resumes, perfect cover letters, and stunning portfolios automatically from your GitHub profile."
-          />
+          <p className="text-base md:text-lg text-black mb-8 max-w-2xl mx-auto">
+            Stop getting rejected by ATS. Build unbeatable resumes, perfect cover letters, and stunning portfolios automatically from your GitHub profile.
+          </p>
 
-          <HeroCta />
+          {/* <HeroCta /> */}
           
           <motion.p variants={fadeIn} className="mt-6 text-sm text-gray-500 flex items-center justify-center gap-2">
             <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-500" /> No credit card required. Free templates included.

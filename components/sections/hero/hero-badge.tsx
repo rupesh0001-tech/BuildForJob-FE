@@ -14,7 +14,7 @@ export function HeroBadge() {
     >
       <Badge variant="purple">
         <Sparkles size={14} />
-        <span>AI-Powered Resume & Portfolio Builder v2.0 is live</span>
+        <span> New templates added </span>
       </Badge>
     </motion.div>
   );

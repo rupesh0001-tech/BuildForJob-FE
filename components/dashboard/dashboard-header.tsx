@@ -59,16 +59,6 @@ export function DashboardHeader({ isSidebarOpen, setIsSidebarOpen }: DashboardHe
       </div>
       
       <div className="flex items-center gap-4">
-        <button
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="p-2.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-all text-gray-600 dark:text-gray-300 cursor-pointer active:scale-95 border border-transparent hover:border-black/5 dark:hover:border-white/10"
-          aria-label="Toggle Dark Mode"
-        >
-          {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-        </button>
-        
-        <div className="h-8 w-px bg-black/10 dark:bg-white/10 mx-1" />
-        
         <UserDropdown />
       </div>
     </header>

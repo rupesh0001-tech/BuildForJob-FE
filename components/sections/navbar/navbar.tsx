@@ -33,19 +33,12 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex gap-8 items-center text-sm font-medium text-gray-600 dark:text-gray-300">
-          <a href="#features" className="hover:text-black dark:hover:text-white transition-colors">Features</a>
-          <a href="#demo" className="hover:text-black dark:hover:text-white transition-colors">How it works</a>
-          <a href="#pricing" className="hover:text-black dark:hover:text-white transition-colors">Pricing</a>
+        <nav className="hidden md:flex gap-8 items-center text-base font-medium text-gray-600 dark:text-gray-300">
+          <a href="#features" className="hover:text-black dark:hover:text-white cursor-pointer transition-colors">Features</a>
+          <Link href="/blogs" className="hover:text-black dark:hover:text-white cursor-pointer transition-colors">Blog</Link>
+          <a href="#pricing" className="hover:text-black dark:hover:text-white cursor-pointer transition-colors">Pricing</a>
           
           <div className="flex gap-4 items-center ml-4 border-l border-black/10 dark:border-white/10 pl-8">
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-600 dark:text-gray-300"
-              aria-label="Toggle Dark Mode"
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
 
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
@@ -56,8 +49,8 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
               </div>
             ) : (
               <>
-                <Link href="/login">
-                  <Button variant="ghost">Log in</Button>
+                <Link className="cursor-pointer" href="/login">
+                  <Button className="cursor-pointer"  variant="ghost">Log in</Button>
                 </Link>
                 <Link href="/register">
                   <Button1 className="py-2.5 h-auto">
@@ -71,12 +64,6 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
 
         {/* Mobile Toggle */}
         <div className="md:hidden flex items-center gap-4">
-          <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-600 dark:text-gray-300"
-            >
-              {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
           <button 
             className="text-gray-600 dark:text-gray-300"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -96,7 +83,7 @@ export function Navbar({ isScrolled, mobileMenuOpen, setMobileMenuOpen, theme, s
             className="absolute top-full left-0 right-0 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-b border-black/5 cursor-pointer dark:border-white/10 p-6 flex flex-col gap-4 shadow-2xl md:hidden"
           >
             <a href="#features" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Features</a>
-            <a href="#demo" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">How it works </a>
+            <Link href="/blogs" onClick={() => setMobileMenuOpen(false)} className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Blog</Link>
             <a href="#pricing" className="text-lg text-gray-600 dark:text-gray-300 hover:text-black dark:hover:text-white">Pricing</a>
             
             <div className="h-px bg-black/10 dark:bg-white/10 my-2" />

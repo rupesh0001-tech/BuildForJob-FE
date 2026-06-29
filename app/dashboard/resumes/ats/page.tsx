@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { checkATSScore, getATSSuggestions, getATSReports, unlockReportSuggestions } from "@/apis/ats.api";
 import type { ATSResult, ATSSuggestions } from "@/apis/ats.api";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchProfile } from "@/store/slices/authSlice";
 
 // ─── Score colour helpers ──────────────────────────────────────────────────
 
@@ -219,6 +221,7 @@ function DropZone({
 // ─── Main page ─────────────────────────────────────────────────────────────
 
 export default function ATSCheckerPage() {
+  const dispatch = useAppDispatch();
   const [file, setFile] = useState<File | null>(null);
   const [jd, setJd] = useState("");
   const [loading, setLoading] = useState(false);
@@ -262,6 +265,7 @@ export default function ATSCheckerPage() {
     try {
       const data = await checkATSScore(file, jd);
       setResult(data);
+      dispatch(fetchProfile() as any);
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
       const msg =
@@ -293,6 +297,7 @@ export default function ATSCheckerPage() {
           suggestions: suggestionsData,
         });
       }
+      dispatch(fetchProfile() as any);
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
       const msg =

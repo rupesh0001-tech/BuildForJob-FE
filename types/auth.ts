@@ -18,6 +18,9 @@ export interface User {
   jobTitle?: string;
   isVerified?: boolean;
   profileSynced?: boolean;
+  tokens?: number;
+  lastTokenReset?: string;
+  plan?: 'FREE' | 'PRO';
   createdAt?: string;
 
   // Profile Builder Fields

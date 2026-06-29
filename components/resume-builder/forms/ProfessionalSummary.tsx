@@ -1,11 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setProfessionalSummary } from "@/lib/store/features/resume-slice";
+import { fetchProfile } from "@/store/slices/authSlice";
+import { generateAI } from "@/apis/ai.api";
 import FormTextArea from "../FormTextArea";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ProfessionalSummaryProps {
   setFormTab: (tab: number) => void;
@@ -14,9 +17,35 @@ interface ProfessionalSummaryProps {
 const ProfessionalSummary = ({ setFormTab }: ProfessionalSummaryProps) => {
   const dispatch = useDispatch();
   const { professionalSummaryData } = useSelector((state: RootState) => state.resume);
+  const [isEnhancing, setIsEnhancing] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     dispatch(setProfessionalSummary(e.target.value));
+  };
+
+  const handleEnhance = async () => {
+    if (!professionalSummaryData || professionalSummaryData.trim().length < 10) {
+      toast.error("Please write a draft of your summary first (at least 10 characters) so the AI can enhance it.");
+      return;
+    }
+
+    setIsEnhancing(true);
+    const toastId = toast.loading("Enhancing summary with AI...");
+    try {
+      const prompt = `Rewrite this professional resume summary to be more professional, results-oriented, and metric-driven. Keep it concise (2-3 sentences max). Summary: "${professionalSummaryData}"`;
+      const result = await generateAI(prompt, 'summary');
+      dispatch(setProfessionalSummary(result));
+      toast.success("Summary enhanced successfully!", { id: toastId });
+      
+      // Update profile to show refreshed token count in navbar
+      dispatch(fetchProfile() as any);
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.message || "Failed to enhance summary.";
+      toast.error(msg, { id: toastId });
+    } finally {
+      setIsEnhancing(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,11 +72,16 @@ const ProfessionalSummary = ({ setFormTab }: ProfessionalSummaryProps) => {
 
         <button
           type="button"
-          disabled
-          className="w-full py-3 px-4 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium opacity-50 cursor-not-allowed"
+          onClick={handleEnhance}
+          disabled={isEnhancing}
+          className="w-full py-3 px-4 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-primary/10 dark:hover:bg-primary/20 transition-all cursor-pointer disabled:opacity-50 select-none"
         >
-          <Sparkles size={18} />
-          Enhance with AI (Coming Soon)
+          {isEnhancing ? (
+            <Loader2 className="animate-spin animate-duration-1000" size={18} />
+          ) : (
+            <Sparkles size={18} />
+          )}
+          Enhance with AI (-0.5 Credits)
         </button>
 
         <button

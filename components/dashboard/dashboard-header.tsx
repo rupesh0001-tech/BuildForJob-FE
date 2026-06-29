@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { Sun, Moon, Menu, X, Bell } from "lucide-react";
+import { Sun, Moon, Menu, X, Bell, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
@@ -26,6 +26,11 @@ export function DashboardHeader({ isSidebarOpen, setIsSidebarOpen }: DashboardHe
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const isPro = user?.plan === "PRO";
+  const totalTokens = isPro ? 50.0 : 5.0;
+  const tokenBalance = user?.tokens ?? 5.0;
+  const tokensUsed = Math.max(0, totalTokens - tokenBalance);
 
   if (!mounted) {
     return (
@@ -59,6 +64,44 @@ export function DashboardHeader({ isSidebarOpen, setIsSidebarOpen }: DashboardHe
       </div>
       
       <div className="flex items-center gap-4">
+        {/* Token Balance Tracker in Navbar */}
+        <div className="relative group">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 font-semibold text-sm hover:border-[#001BB7]/40 dark:hover:border-white/20 transition-all cursor-pointer select-none">
+            <Coins className="text-amber-500 dark:text-amber-400 shrink-0" size={16} />
+            <span>{tokenBalance.toFixed(1)} Credits</span>
+          </div>
+          
+          {/* Hover limits panel popup */}
+          <div className="absolute right-0 top-full mt-2 w-64 p-4 bg-white dark:bg-[#0c0c0e] border border-gray-200 dark:border-white/10 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[99]">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-xs font-semibold text-gray-700 dark:text-gray-300">
+                <span>Tokens Used</span>
+                <span className="text-black dark:text-white font-bold">{tokensUsed.toFixed(1)} / {totalTokens.toFixed(1)}</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-[#001BB7] to-purple-500 rounded-full" 
+                  style={{ width: `${(tokensUsed / totalTokens) * 100}%` }}
+                />
+              </div>
+              <div className="flex justify-between items-center text-xs font-semibold text-gray-700 dark:text-gray-300">
+                <span>Remaining</span>
+                <span className="text-[#001BB7] font-bold">{tokenBalance.toFixed(1)} Credits</span>
+              </div>
+              <div className="pt-2 border-t border-gray-100 dark:border-white/5 space-y-1.5 text-[10px] text-gray-500 dark:text-gray-400">
+                <div className="flex justify-between">
+                  <span>1 ATS Scan</span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">-1.0 Credit</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>AI Rewrite / Summary</span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">-0.5 Credits</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <UserDropdown />
       </div>
     </header>

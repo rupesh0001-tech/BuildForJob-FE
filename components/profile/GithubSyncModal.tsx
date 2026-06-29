@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Github, X, Check, ArrowRight, Save, Info, RefreshCw, 
@@ -57,8 +58,14 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
   );
 
   const [isSyncing, setIsSyncing] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleMerge = async () => {
     const nameParts = (githubData.profile.name || "").split(" ");
@@ -127,9 +134,9 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
   const githubFirstName = nameParts[0] || "";
   const githubLastName = nameParts.slice(1).join(" ") || "";
 
-  return (
+  return createPortal(
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -397,7 +404,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
               <button 
                 onClick={handleMerge}
                 disabled={isSyncing}
-                className="px-6 py-2.5 bg-[#001BB7] text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[#001BB7]/90 transition-all shadow-lg shadow-[#001BB7]/20 disabled:opacity-50"
+                className="px-6 py-2.5 bg-[#001BB7] text-white rounded-xl text-sm font-semibold flex items-center gap-2 hover:bg-[#001BB7]/95 transition-all shadow-lg shadow-[#001BB7]/20 disabled:opacity-50"
               >
                 Sync with Profile <ArrowRight size={16} />
               </button>
@@ -405,6 +412,7 @@ export function GithubSyncModal({ isOpen, onClose, githubData, currentData, onSy
           </div>
         </motion.div>
       </div>
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

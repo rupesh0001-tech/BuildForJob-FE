@@ -67,7 +67,7 @@ export default function PortfolioPreviewPage() {
   // If still loading and we have no data
   if (loading && (isLoading || !portfolioData)) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center bg-gray-900 text-white">
+      <div className="flex flex-col items-center justify-center min-h-screen text-center bg-gray-50 text-gray-800">
         <Loader2 className="animate-spin text-[#001BB7] mb-4" size={40} />
         <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest animate-pulse">
           Generating Portfolio Preview...
@@ -78,9 +78,9 @@ export default function PortfolioPreviewPage() {
 
   if (!portfolioData) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center bg-gray-900 text-white p-6">
+      <div className="flex flex-col items-center justify-center min-h-screen text-center bg-gray-50 text-gray-800 p-6">
         <h1 className="text-2xl font-bold text-red-500 mb-2">No Portfolio Data Found</h1>
-        <p className="text-gray-400 max-w-md">
+        <p className="text-gray-500 max-w-md">
           Please open the Portfolio Builder in the dashboard first to initialize your draft profile.
         </p>
       </div>
@@ -90,7 +90,7 @@ export default function PortfolioPreviewPage() {
   const generatedHtml = generatePortfolioHtml(portfolioData);
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-[#0D1117]">
+    <div className="w-screen h-screen overflow-hidden bg-white">
       <iframe
         title="Portfolio Full Screen Preview"
         srcDoc={generatedHtml}

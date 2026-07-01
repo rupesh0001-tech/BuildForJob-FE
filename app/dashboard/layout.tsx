@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/providers/protected-route";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isBuilderPage = pathname === "/dashboard/resume-builder" || pathname === "/dashboard/cover-letter" || pathname === "/dashboard/portfolio";
+  const isBuilderPage = pathname === "/dashboard/resume-builder" || pathname === "/dashboard/cover-letter";
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isBuilderPage);
 
   // Close sidebar when navigating to builder pages

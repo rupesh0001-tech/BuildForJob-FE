@@ -11,6 +11,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const isBuilderPage = pathname === "/dashboard/resume-builder" || pathname === "/dashboard/cover-letter";
   const [isSidebarOpen, setIsSidebarOpen] = useState(!isBuilderPage);
+  const [hasActiveModal, setHasActiveModal] = useState(false);
 
   // Close sidebar when navigating to builder pages
   React.useEffect(() => {
@@ -21,6 +22,40 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [isBuilderPage]);
 
+  // Monitor DOM for active modals to auto-collapse the sidebar
+  React.useEffect(() => {
+    const checkModal = () => {
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      const hasDialog = dialogs.length > 0;
+      
+      // Also look for elements with high z-indices or backdrop filters
+      const hasModalBackdrop = Array.from(document.querySelectorAll('div')).some(el => {
+        const className = el.className || "";
+        return className.includes('fixed') && className.includes('inset-0') && (
+          className.includes('z-50') ||
+          className.includes('z-[100]') ||
+          className.includes('z-[110]') ||
+          className.includes('bg-black/') ||
+          className.includes('backdrop-blur')
+        );
+      });
+
+      setHasActiveModal(hasDialog || hasModalBackdrop);
+    };
+
+    // Initial check
+    checkModal();
+
+    const observer = new MutationObserver(() => {
+      checkModal();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  const shouldSidebarBeOpen = hasActiveModal ? false : isSidebarOpen;
+
   return (
     <ProtectedRoute>
       <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-primary/30 transition-colors duration-300">
@@ -29,7 +64,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
              style={{ backgroundImage: `radial-gradient(#001BB7 0.5px, transparent 0.5px)`, backgroundSize: '24px 24px' }} />
         
         <Sidebar 
-          isOpen={isSidebarOpen} 
+          isOpen={shouldSidebarBeOpen} 
           onClose={() => setIsSidebarOpen(false)} 
           isOverlay={isBuilderPage}
         />

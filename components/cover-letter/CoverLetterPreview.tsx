@@ -7,8 +7,9 @@ import ClassicTemplate from "./templates/ClassicTemplate";
 import ModernTemplate from "./templates/ModernTemplate";
 import MinimalTemplate from "./templates/MinimalTemplate";
 
-const CoverLetterPreview = () => {
-  const state = useSelector((state: RootState) => state.coverLetter);
+const CoverLetterPreview = ({ stateOverride }: { stateOverride?: any }) => {
+  const reduxState = useSelector((state: RootState) => state.coverLetter);
+  const state = stateOverride || reduxState;
   const { template } = state;
 
   const renderTemplate = () => {

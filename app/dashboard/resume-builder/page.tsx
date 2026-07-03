@@ -2,8 +2,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ResumeForm from "@/components/resume-builder/ResumeForm";
 import ResumePreview from "@/components/resume-builder/ResumePreview";
-import { ArrowLeft, Download, Save, Clock, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, Save, Clock, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { OptimizeModal } from "@/components/general/OptimizeModal";
+import axiosInstance from "@/apis/axiosInstance";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -33,6 +35,45 @@ export default function ResumeBuilderPage() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [localTitle, setLocalTitle] = useState(titleParam || resumeState.resumeTitle || "Untitled Resume");
+  const [showOptimizeModal, setShowOptimizeModal] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+
+  const handleOptimize = async (companyName: string, roles: string[]) => {
+    try {
+      setIsOptimizing(true);
+      const content = {
+        personalInfoData: resumeState.personalInfoData,
+        professionalSummaryData: resumeState.professionalSummaryData,
+        experienceData: resumeState.experienceData,
+        educationData: resumeState.educationData,
+        projectData: resumeState.projectData,
+        skillData: resumeState.skillData,
+        template: resumeState.template,
+        accentColor: resumeState.accentColor,
+        sectionVisibility: resumeState.sectionVisibility
+      };
+
+      const response = await axiosInstance.post("/ai/optimize-resume", {
+        resumeId: resumeState.currentResumeId || undefined,
+        content,
+        companyName,
+        roles
+      });
+
+      if (response.data.success) {
+        const optimizedContent = response.data.data.content;
+        dispatch(updateResumeState(optimizedContent));
+        toast.success(`Resume optimized successfully for ${companyName}!`);
+        setShowOptimizeModal(false);
+      }
+    } catch (error: any) {
+      console.error("Optimization failed:", error);
+      const msg = error.response?.data?.message || "Optimization failed. Upgrade to PRO to use optimization features.";
+      toast.error(msg);
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
 
   // Load existing resume or handle new one
   useEffect(() => {
@@ -233,6 +274,15 @@ export default function ResumeBuilderPage() {
 
         <div className="flex items-center gap-3 w-full md:w-auto">
           <button
+            type="button"
+            onClick={() => setShowOptimizeModal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold font-sans text-sm transition-all shadow-sm shadow-purple-500/20"
+          >
+            <Sparkles size={16} />
+            Optimize
+          </button>
+
+          <button
             onClick={() => handleSave(false)}
             disabled={isSaving}
             className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl font-semibold font-sans text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm"
@@ -264,6 +314,15 @@ export default function ResumeBuilderPage() {
           </div>
         </div>
       </div>
+
+      <OptimizeModal
+        isOpen={showOptimizeModal}
+        onClose={() => setShowOptimizeModal(false)}
+        onOptimize={handleOptimize}
+        isOptimizing={isOptimizing}
+        title="Optimize Resume for Company"
+        description="Rewrite summaries, projects, and work experience tailored to match the target company's culture and keywords."
+      />
     </div>
   );
 }

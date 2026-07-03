@@ -44,7 +44,7 @@ const initialState: CoverLetterState = {
     companyName: "",
   },
   date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
-  salutation: "Dear Hiring Manager,",
+  salutation: "",
   mode: "structured",
   body: {
     intro: "",
@@ -54,7 +54,7 @@ const initialState: CoverLetterState = {
     conclusion: "",
   },
   manualContent: "",
-  signOff: "Sincerely,",
+  signOff: "",
   template: "Modern",
   coverLettersList: [],
   currentId: null,
@@ -160,6 +160,18 @@ export const coverLetterSlice = createSlice({
     },
     setCurrentId: (state, action: PayloadAction<string | null>) => {
       state.currentId = action.payload;
+    },
+    updateCoverLetterState: (state, action: PayloadAction<any>) => {
+      if (action.payload.personalInfo) state.personalInfo = { ...state.personalInfo, ...action.payload.personalInfo };
+      if (action.payload.employerInfo) state.employerInfo = { ...state.employerInfo, ...action.payload.employerInfo };
+      if (action.payload.date !== undefined) state.date = action.payload.date;
+      if (action.payload.salutation !== undefined) state.salutation = action.payload.salutation;
+      if (action.payload.mode !== undefined) state.mode = action.payload.mode;
+      if (action.payload.body) state.body = { ...state.body, ...action.payload.body };
+      if (action.payload.manualContent !== undefined) state.manualContent = action.payload.manualContent;
+      if (action.payload.signOff !== undefined) state.signOff = action.payload.signOff;
+      if (action.payload.template !== undefined) state.template = action.payload.template;
+      if (action.payload.title !== undefined) state.title = action.payload.title;
     }
   },
   extraReducers: (builder) => {
@@ -230,7 +242,8 @@ export const {
   updateTemplate,
   updateTitle,
   resetCoverLetterEditor,
-  setCurrentId
+  setCurrentId,
+  updateCoverLetterState
 } = coverLetterSlice.actions;
 
 export default coverLetterSlice.reducer;

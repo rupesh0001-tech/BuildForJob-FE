@@ -3,12 +3,12 @@ import React from "react";
 import CoverLetterForm from "@/components/cover-letter/CoverLetterForm";
 import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
 import CoverLetterThemeSelector from "@/components/cover-letter/CoverLetterThemeSelector";
-import { Download, ChevronLeft, Loader2 } from "lucide-react";
+import { Download, ArrowLeft, Save, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { 
   updatePersonalInfo, 
@@ -20,8 +20,11 @@ import {
   saveCoverLetter,
   updateTitle,
   resetCoverLetterEditor,
-  updateEmployerInfo
+  updateEmployerInfo,
+  updateCoverLetterState
 } from "@/lib/store/features/cover-letter-slice";
+import { OptimizeModal } from "@/components/general/OptimizeModal";
+import axiosInstance from "@/apis/axiosInstance";
 import { toast } from "sonner";
 
 const CoverLetterPage = () => {
@@ -45,6 +48,44 @@ const CoverLetterPage = () => {
   
   const magic = searchParams.get("magic");
   const editId = searchParams.get("id");
+  const [showOptimizeModal, setShowOptimizeModal] = useState(false);
+  const [isOptimizing, setIsOptimizing] = useState(false);
+
+  const handleOptimize = async (companyName: string, roles: string[]) => {
+    try {
+      setIsOptimizing(true);
+      const content = {
+        personalInfo,
+        employerInfo,
+        date,
+        salutation,
+        mode,
+        body,
+        manualContent,
+        signOff
+      };
+
+      const response = await axiosInstance.post("/ai/optimize-cover-letter", {
+        coverLetterId: currentId || undefined,
+        content,
+        companyName,
+        roles
+      });
+
+      if (response.data.success) {
+        const optimizedContent = response.data.data.content;
+        dispatch(updateCoverLetterState(optimizedContent));
+        toast.success(`Cover letter optimized successfully for ${companyName}!`);
+        setShowOptimizeModal(false);
+      }
+    } catch (error: any) {
+      console.error("Optimization failed:", error);
+      const msg = error.response?.data?.message || "Optimization failed. Upgrade to PRO to use optimization features.";
+      toast.error(msg);
+    } finally {
+      setIsOptimizing(false);
+    }
+  };
 
   useEffect(() => {
     if (editId) {
@@ -162,42 +203,51 @@ const CoverLetterPage = () => {
   }
 
   return (
-    <div className="max-w-8xl mx-auto space-y-6 pb-20 p-4 md:p-6">
+    <div className="max-w-8xl mx-auto space-y-6 pb-20">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-black/40 p-4 rounded-2xl backdrop-blur-xl">
+        <div className="flex items-center gap-4 w-full md:w-auto">
           <Link 
             href="/dashboard/cover-letter/all"
-            className="p-2 rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-primary transition-all hover:shadow-lg"
+            className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
           >
-            <ChevronLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
-          <div className="space-y-1">
+          <div className="flex-1">
             <input
               type="text"
               value={title}
               onChange={(e) => dispatch(updateTitle(e.target.value))}
-              className="bg-transparent border-none outline-none text-xl font-bold text-gray-900 dark:text-white focus:ring-0 p-0 w-full max-w-[300px]"
+              className="bg-transparent border-none outline-none font-semibold text-lg font-sans dark:text-white w-full focus:ring-0 p-0"
               placeholder="Enter title..."
             />
-            <p className="text-xs text-gray-500 flex items-center gap-1.5 uppercase tracking-wider font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-              Live Builder
+            <p className="text-[10px] text-gray-500 font-semibold font-sans uppercase tracking-widest">
+              {currentId ? "Syncing to Cloud" : "New Cover Letter Project"}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
           <button
+            type="button"
+            onClick={() => setShowOptimizeModal(true)}
+            className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold font-sans text-sm transition-all shadow-sm shadow-purple-500/20"
+          >
+            <Sparkles size={16} />
+            Optimize
+          </button>
+
+          <button
             onClick={handleSave}
             disabled={isLoading}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-white/10 active:scale-[0.98] transition-all shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl font-semibold font-sans text-sm hover:bg-gray-50 dark:hover:bg-white/10 transition-all shadow-sm"
           >
-            {isLoading ? "Saving..." : "Save Changes"}
+            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+            Save
           </button>
           <button
             onClick={handleDownload}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl font-semibold font-sans text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
           >
             <Download size={18} />
             Download PDF
@@ -212,13 +262,21 @@ const CoverLetterPage = () => {
         </div>
 
         {/* Preview Section */}
-        <div className="w-fit bg-white/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-0 overflow-hidden flex flex-col backdrop-blur-sm">
+        <div className="w-fit bg-gray-50/50 dark:bg-black/20 rounded-3xl border border-gray-200 dark:border-white/10 h-full p-0 overflow-hidden flex flex-col">
           <div className="h-full overflow-y-auto custom-scrollbar p-2 md:p-4 shadow-2xl">
             <CoverLetterPreview />
           </div>
         </div>
       </div>
 
+      <OptimizeModal
+        isOpen={showOptimizeModal}
+        onClose={() => setShowOptimizeModal(false)}
+        onOptimize={handleOptimize}
+        isOptimizing={isOptimizing}
+        title="Optimize Cover Letter"
+        description="Rewrite intro, bodies, and call-to-action tailored to match the target company's culture and keywords."
+      />
     </div>
   );
 };

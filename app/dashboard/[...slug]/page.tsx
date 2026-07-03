@@ -12,8 +12,6 @@ const PLANNED_ROUTES = [
   "/dashboard/resumes",
   "/dashboard/resumes/versions",
   "/dashboard/cover-letter",
-  "/dashboard/portfolio",
-  "/dashboard/portfolio/create",
   "/dashboard/linkedin/enhancer",
   "/dashboard/connect/github",
   "/dashboard/connect/linkedin",

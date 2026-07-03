@@ -12,7 +12,10 @@ import ImpactTemplate from "./templates/ImpactTemplate";
 import Resume, { ResumeData } from "@/components/resume-templates/resume-component";
 import { AccentColor, DEFAULT_TEMPLATE_SETTINGS } from "@/lib/resume-matcher/template-settings";
 
-const ResumePreview = () => {
+const ResumePreview = ({ stateOverride }: { stateOverride?: any }) => {
+  const reduxState = useSelector((state: RootState) => state.resume);
+  const activeState = stateOverride || reduxState;
+
   const {
     personalInfoData,
     professionalSummaryData,
@@ -23,7 +26,7 @@ const ResumePreview = () => {
     template,
     accentColor,
     sectionVisibility,
-  } = useSelector((state: RootState) => state.resume);
+  } = activeState;
 
   const data = {
     personal_info: personalInfoData,
@@ -58,25 +61,25 @@ const ResumePreview = () => {
       linkedin: personalInfoData.linkedin,
     },
     summary: professionalSummaryData,
-    workExperience: experienceData.map((exp, index) => ({
+    workExperience: (experienceData || []).map((exp: any, index: number) => ({
       id: index,
       title: exp.position,
       company: exp.company,
       years: `${exp.startDate} - ${exp.is_current ? 'Present' : exp.endDate}`,
-      description: exp.description ? exp.description.split('\n').filter(line => line.trim() !== '') : [],
+      description: exp.description ? exp.description.split('\n').filter((line: string) => line.trim() !== '') : [],
     })),
-    education: educationData.map((edu, index) => ({
+    education: (educationData || []).map((edu: any, index: number) => ({
       id: index,
       institution: edu.institution,
       degree: edu.degree,
       years: edu.graduation_date,
       description: edu.field,
     })),
-    personalProjects: projectData.map((p, index) => ({
+    personalProjects: (projectData || []).map((p: any, index: number) => ({
       id: index,
       name: p.name,
       role: p.techStack,
-      description: p.description ? p.description.split('\n').filter(line => line.trim() !== '') : [],
+      description: p.description ? p.description.split('\n').filter((line: string) => line.trim() !== '') : [],
     })),
     additional: {
       technicalSkills: skillData,

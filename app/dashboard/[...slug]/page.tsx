@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname, notFound } from 'next/navigation';
-import { Sparkles, ArrowLeft } from 'lucide-react';
+import { Sparkles, ArrowLeft } from '@/lib/icons';
 import Link from 'next/link';
 import { Button2 } from "@/components/general/buttons/button2";
 

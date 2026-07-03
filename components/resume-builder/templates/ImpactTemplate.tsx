@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Mail, Phone, MapPin, Linkedin, Globe } from "lucide-react";
+import { Mail, Phone, MapPin, Linkedin, Globe } from '@/lib/icons';
 import { TemplateProps } from "@/types/resume";
 
 const ImpactTemplate = ({ data, accentColor }: TemplateProps) => {

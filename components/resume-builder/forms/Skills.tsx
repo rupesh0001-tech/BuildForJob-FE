@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setSkill } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
-import { ChartLine, X, Plus } from "lucide-react";
+import { ChartLine, X, Plus } from '@/lib/icons';
 
 const Skills = () => {
   const dispatch = useDispatch();

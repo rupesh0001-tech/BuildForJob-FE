@@ -22,7 +22,7 @@ import {
   ChevronDown,
   Check,
   Search,
-} from "lucide-react";
+} from '@/lib/icons';
 import { checkATSScore, getATSSuggestions, getATSReports, unlockReportSuggestions } from "@/apis/ats.api";
 import type { ATSResult, ATSSuggestions } from "@/apis/ats.api";
 import { getCompanies } from "@/apis/companies.api";
@@ -611,8 +611,8 @@ export default function ATSCheckerPage() {
             >
               {/* PDF Upload */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                   Resume PDF
+                <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                  Resume PDF
                 </label>
                 <DropZone
                   file={file}
@@ -623,8 +623,8 @@ export default function ATSCheckerPage() {
 
               {/* Auto-Fill Job Description */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                   Auto-Fill Job Description
+                <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1">
+                  Auto-Fill Job Description
                 </label>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   {/* Company Dropdown */}
@@ -632,41 +632,41 @@ export default function ATSCheckerPage() {
                     <button
                       type="button"
                       onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
-                      className="w-full flex items-center justify-between pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:border-purple-500/50 text-black dark:text-white cursor-pointer transition-all text-left"
+                      className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all cursor-pointer"
                     >
                       <span className="truncate">
-                        {selectedCompanyId ? companies.find(c => c.id === selectedCompanyId)?.name : "Select Company"}
+                        {selectedCompanyId ? companies.find(c => c.id === selectedCompanyId)?.name : <span className="text-gray-400">Select Company</span>}
                       </span>
-                      <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${companyDropdownOpen ? "rotate-180" : ""}`} />
+                      <ChevronDown size={16} className={`text-gray-400 shrink-0 ml-2 transition-transform duration-200 ${companyDropdownOpen ? "rotate-180" : ""}`} />
                     </button>
 
                     <AnimatePresence>
                       {companyDropdownOpen && (
                         <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          initial={{ opacity: 0, y: 6, scale: 0.99 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.99 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-0 right-0 mt-2 bg-white dark:bg-[#08080a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl z-[60] overflow-hidden flex flex-col max-h-72"
+                          className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-[#0a0a10] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl z-[60] overflow-hidden flex flex-col max-h-72"
                         >
-                          {/* Search box inside dropdown */}
-                          <div className="p-2 border-b border-gray-100 dark:border-white/5 flex items-center gap-2 bg-gray-50/50 dark:bg-white/5">
-                            <Search size={14} className="text-gray-400 shrink-0 ml-1" />
+                          {/* Search */}
+                          <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 dark:border-white/5">
+                            <Search size={14} className="text-gray-400 shrink-0" />
                             <input
                               type="text"
                               placeholder="Search company..."
                               value={companySearch}
                               onChange={(e) => setCompanySearch(e.target.value)}
                               onClick={(e) => e.stopPropagation()}
-                              className="w-full bg-transparent text-xs font-semibold focus:outline-none text-black dark:text-white py-1 font-sans"
+                              className="w-full bg-transparent text-sm font-medium focus:outline-none text-gray-900 dark:text-white placeholder:text-gray-400"
                             />
                           </div>
 
-                          <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
+                          <div className="flex-1 overflow-y-auto">
                             {Object.keys(groupedCompanies).length > 0 ? (
                               Object.keys(groupedCompanies).map(industry => (
-                                <div key={industry} className="space-y-1">
-                                  <div className="px-3 py-1.5 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest bg-purple-500/5 select-none font-sans">
+                                <div key={industry}>
+                                  <div className="px-4 py-2 text-[10px] font-semibold text-gray-400 uppercase tracking-widest bg-gray-50 dark:bg-white/5 select-none">
                                     {getIndustryLabel(industry)}
                                   </div>
                                   {groupedCompanies[industry].map((company: any) => {
@@ -680,19 +680,19 @@ export default function ATSCheckerPage() {
                                           setCompanyDropdownOpen(false);
                                           setCompanySearch("");
                                         }}
-                                        className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-black dark:text-white ${
-                                          isSelected ? "bg-purple-500/5 text-purple-650 dark:text-purple-400 font-bold" : ""
+                                        className={`w-full text-left px-4 py-3 text-sm font-medium flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${
+                                          isSelected ? "text-[#001BB7] dark:text-blue-400 bg-blue-50/50 dark:bg-blue-500/5" : "text-gray-900 dark:text-white"
                                         }`}
                                       >
                                         <span className="truncate">{company.name}</span>
-                                        {isSelected && <Check size={12} className="text-purple-600 dark:text-purple-400" />}
+                                        {isSelected && <Check size={14} className="text-[#001BB7] dark:text-blue-400 shrink-0" />}
                                       </button>
                                     );
                                   })}
                                 </div>
                               ))
                             ) : (
-                              <div className="px-4 py-6 text-center text-xs text-gray-500 font-sans italic">
+                              <div className="px-4 py-8 text-center text-sm text-gray-400">
                                 No companies found
                               </div>
                             )}
@@ -707,24 +707,24 @@ export default function ATSCheckerPage() {
                     <button
                       type="button"
                       onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                      className="w-full flex items-center justify-between pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:border-purple-500/50 text-black dark:text-white cursor-pointer transition-all text-left"
+                      className="w-full flex items-center justify-between px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all cursor-pointer"
                     >
                       <span className="truncate">
-                        {selectedRole ? selectedRole : "Select Job Role"}
+                        {selectedRole ? selectedRole : <span className="text-gray-400">Select Job Role</span>}
                       </span>
-                      <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${roleDropdownOpen ? "rotate-180" : ""}`} />
+                      <ChevronDown size={16} className={`text-gray-400 shrink-0 ml-2 transition-transform duration-200 ${roleDropdownOpen ? "rotate-180" : ""}`} />
                     </button>
 
                     <AnimatePresence>
                       {roleDropdownOpen && (
                         <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          initial={{ opacity: 0, y: 6, scale: 0.99 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.99 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute left-0 right-0 mt-2 bg-white dark:bg-[#08080a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl z-[60] overflow-hidden flex flex-col max-h-72"
+                          className="absolute left-0 right-0 mt-1.5 bg-white dark:bg-[#0a0a10] border border-gray-200 dark:border-white/10 rounded-xl shadow-xl z-[60] overflow-hidden flex flex-col max-h-72"
                         >
-                          <div className="overflow-y-auto py-1 custom-scrollbar">
+                          <div className="overflow-y-auto py-1">
                             {[
                               "Software Engineer",
                               "Frontend Engineer",
@@ -745,12 +745,12 @@ export default function ATSCheckerPage() {
                                     setSelectedRole(role);
                                     setRoleDropdownOpen(false);
                                   }}
-                                  className={`w-full text-left px-4 py-2.5 text-xs font-semibold flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-black dark:text-white ${
-                                    isSelected ? "bg-purple-500/5 text-purple-650 dark:text-purple-400 font-bold" : ""
+                                  className={`w-full text-left px-4 py-3 text-sm font-medium flex items-center justify-between hover:bg-gray-50 dark:hover:bg-white/5 transition-colors ${
+                                    isSelected ? "text-[#001BB7] dark:text-blue-400 bg-blue-50/50 dark:bg-blue-500/5" : "text-gray-900 dark:text-white"
                                   }`}
                                 >
-                                  <span className="truncate">{role}</span>
-                                  {isSelected && <Check size={12} className="text-purple-600 dark:text-purple-400" />}
+                                  <span>{role}</span>
+                                  {isSelected && <Check size={14} className="text-[#001BB7] dark:text-blue-400 shrink-0" />}
                                 </button>
                               );
                             })}
@@ -765,16 +765,16 @@ export default function ATSCheckerPage() {
                     type="button"
                     disabled={!selectedCompanyId || !selectedRole || jdGenerating}
                     onClick={handleGenerateCompanyRoleJD}
-                    className="px-6 py-3.5 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl text-sm font-bold shadow-lg shadow-purple-600/20 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5 shrink-0"
+                    className="px-5 py-4 bg-[#001BB7] hover:bg-[#0020d4] text-white rounded-xl text-sm font-medium transition-all disabled:opacity-40 cursor-pointer flex items-center justify-center gap-2 shrink-0"
                   >
                     {jdGenerating ? (
                       <>
-                        <Loader2 size={14} className="animate-spin" />
+                        <Loader2 size={15} className="animate-spin" />
                         Generating...
                       </>
                     ) : (
                       <>
-                        <Sparkles size={14} />
+                        <Sparkles size={15} />
                         Auto-Fill
                       </>
                     )}
@@ -786,20 +786,19 @@ export default function ATSCheckerPage() {
               <div className="space-y-2">
                 <label
                   htmlFor="ats-jd-input"
-                  className="text-sm font-semibold text-gray-800 dark:text-gray-400 uppercase tracking-wider flex items-center gap-1.5"
+                  className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-2 px-1"
                 >
-                   Job Description
+                  Job Description
                 </label>
                 <textarea
                   id="ats-jd-input"
                   value={jd}
                   onChange={(e) => setJd(e.target.value)}
-                  placeholder="Paste the full job description here or select a company and role above to auto-fill..."
+                  placeholder="Paste the full job description here or use Auto-Fill above..."
                   rows={10}
-                  className="w-full px-6 py-5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/5 outline-none rounded-2xl text-base font-semibold text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all resize-none
-                  [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none"
+                  className="w-full px-5 py-4 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] rounded-xl text-sm font-medium text-gray-900 dark:text-white placeholder:text-gray-400 transition-all resize-none"
                 />
-                <p className="text-xs text-gray-400 text-right">
+                <p className="text-[10px] font-medium text-gray-400 text-right px-1">
                   {jd.trim().split(/\s+/).filter(Boolean).length} words
                 </p>
               </div>
@@ -811,10 +810,10 @@ export default function ATSCheckerPage() {
                     initial={{ opacity: 0, y: -6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
-                    className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl"
+                    className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl"
                   >
-                    <AlertCircle size={18} className="text-red-500 shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{error}</p>
+                    <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -824,34 +823,15 @@ export default function ATSCheckerPage() {
                 id="ats-check-btn"
                 onClick={handleCheck}
                 disabled={!file || jd.trim().length < 20 || loading}
-                className={`w-full py-4 rounded-2xl font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-lg
-                  ${
-                    !file || jd.trim().length < 20 || loading
-                      ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed shadow-none"
-                      : "bg-primary text-white hover:brightness-110 active:scale-[0.99] shadow-primary/25"
-                  }`}
+                className={`w-full py-4 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 ${
+                  !file || jd.trim().length < 20 || loading
+                    ? "bg-gray-100 dark:bg-white/5 text-gray-400 cursor-not-allowed"
+                    : "bg-primary text-white hover:brightness-110 active:scale-[0.99] shadow-lg shadow-primary/20"
+                }`}
               >
                 {loading ? (
                   <>
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v8z"
-                      />
-                    </svg>
+                    <Loader2 size={16} className="animate-spin" />
                     Analysing with AI…
                   </>
                 ) : (

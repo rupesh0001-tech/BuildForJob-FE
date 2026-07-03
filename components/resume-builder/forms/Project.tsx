@@ -6,7 +6,7 @@ import { RootState } from "@/lib/store/store";
 import { setProject, Project as ProjectType } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
 import FormTextArea from "../FormTextArea";
-import { FileSignature, Layers, Trash2, Plus, Code } from "lucide-react";
+import { FileSignature, Layers, Trash2, Plus, Code } from '@/lib/icons';
 
 interface ProjectProps {
   setFormTab: (tab: number) => void;

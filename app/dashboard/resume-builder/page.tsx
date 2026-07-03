@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ResumeForm from "@/components/resume-builder/ResumeForm";
 import ResumePreview from "@/components/resume-builder/ResumePreview";
-import { ArrowLeft, Download, Save, Clock, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Download, Save, Clock, Loader2, Sparkles } from '@/lib/icons';
 import Link from "next/link";
 import { OptimizeModal } from "@/components/general/OptimizeModal";
 import axiosInstance from "@/apis/axiosInstance";

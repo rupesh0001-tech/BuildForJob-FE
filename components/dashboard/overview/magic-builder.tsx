@@ -19,7 +19,7 @@ import {
   ArrowRight,
   ExternalLink,
   PartyPopper
-} from "lucide-react";
+} from '@/lib/icons';
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

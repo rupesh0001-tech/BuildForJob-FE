@@ -7,7 +7,7 @@ import { setProfessionalSummary } from "@/lib/store/features/resume-slice";
 import { fetchProfile } from "@/store/slices/authSlice";
 import { generateAI } from "@/apis/ai.api";
 import FormTextArea from "../FormTextArea";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2 } from '@/lib/icons';
 import { toast } from "sonner";
 
 interface ProfessionalSummaryProps {

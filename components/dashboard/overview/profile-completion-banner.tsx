@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, ArrowRight, CheckCircle2, X } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, X } from '@/lib/icons';
 import Link from 'next/link';
 import { useAppSelector } from '@/store/hooks';
 

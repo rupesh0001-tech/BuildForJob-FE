@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { Code } from "lucide-react";
+import { Code } from '@/lib/icons';
 import { HeroBtn } from "@/components/general/buttons/hero-btn";
 import { Button2 } from "@/components/general/buttons/button2";
 

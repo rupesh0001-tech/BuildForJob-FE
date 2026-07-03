@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Briefcase, MapPin, DollarSign, ExternalLink } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, ExternalLink } from '@/lib/icons';
 import { motion } from 'framer-motion';
 
 const jobs = [

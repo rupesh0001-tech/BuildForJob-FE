@@ -3,7 +3,7 @@ import React from "react";
 import CoverLetterForm from "@/components/cover-letter/CoverLetterForm";
 import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
 import CoverLetterThemeSelector from "@/components/cover-letter/CoverLetterThemeSelector";
-import { Download, ArrowLeft, Save, Loader2, Sparkles } from "lucide-react";
+import { Download, ArrowLeft, Save, Loader2, Sparkles } from '@/lib/icons';
 import Link from "next/link";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";

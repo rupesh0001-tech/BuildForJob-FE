@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Lock } from "lucide-react";
+import { Lock } from '@/lib/icons';
 
 export function HeroMockup() {
   return (

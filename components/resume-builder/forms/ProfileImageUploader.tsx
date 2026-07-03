@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setPersonalInfo } from "@/lib/store/features/resume-slice";
-import { Camera, Check, X } from "lucide-react";
+import { Camera, Check, X } from '@/lib/icons';
 
 const ProfileImageUploader = () => {
   const dispatch = useDispatch();

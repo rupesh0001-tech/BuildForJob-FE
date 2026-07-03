@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { Sparkles } from '@/lib/icons';
 import { Badge } from "@/components/ui/badge";
 
 export function HeroBadge() {

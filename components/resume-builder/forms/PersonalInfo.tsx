@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setPersonalInfo } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
-import { User, Mail, Phone, MapPin, Linkedin, Globe, Briefcase } from "lucide-react";
+import { User, Mail, Phone, MapPin, Linkedin, Globe, Briefcase } from '@/lib/icons';
 import ProfileImageUploader from "./ProfileImageUploader";
 
 interface PersonalInfoProps {

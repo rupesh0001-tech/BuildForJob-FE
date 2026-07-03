@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Target, Mail, Code, Users, Sparkles, Notebook, Option, LayoutDashboard, Computer } from "lucide-react";
+import { Target, Mail, Code, Users, Sparkles, Notebook, Option, LayoutDashboard, Computer } from '@/lib/icons';
 import { FeatureCard } from "./feature-card";
 import { FeaturesHeader } from "./features-header";
 

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { User, LogOut, Settings, LayoutDashboard, ChevronDown } from "lucide-react";
+import { User, LogOut, Settings, LayoutDashboard, ChevronDown } from '@/lib/icons';
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { useRouter } from "next/navigation";

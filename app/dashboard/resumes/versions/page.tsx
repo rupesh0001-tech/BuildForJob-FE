@@ -19,7 +19,7 @@ import {
   Eye,
   Mail,
   ExternalLink
-} from "lucide-react";
+} from '@/lib/icons';
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { getVersions, createVersion, deleteVersion } from "@/apis/versions.api";
@@ -249,7 +249,7 @@ export default function VersionsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-bold text-black dark:text-white font-sans tracking-tight">Application Versions</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage and track custom resume and cover letter versions tailored for each job application.</p>
+
         </div>
 
         <button

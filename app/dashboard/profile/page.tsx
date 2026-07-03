@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchProfile } from "@/store/slices/authSlice";
-import { Mail, User as UserIcon, Calendar, ShieldCheck } from "lucide-react";
+import { Mail, User as UserIcon, Calendar, ShieldCheck } from '@/lib/icons';
 import { motion } from "framer-motion";
 
 export default function ProfilePage() {

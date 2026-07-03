@@ -6,7 +6,7 @@ import {
   Mail, User as UserIcon, Phone, MapPin, Briefcase, FileText, 
   Camera, Save, Loader2, Plus, Trash2, GraduationCap, 
   Code, Globe, Linkedin, Github, Twitter, RefreshCw, Check
-} from "lucide-react";
+} from '@/lib/icons';
 import { motion, AnimatePresence } from "framer-motion";
 import { Button1 } from "@/components/general/buttons/button1";
 import { useRouter, useSearchParams } from "next/navigation";

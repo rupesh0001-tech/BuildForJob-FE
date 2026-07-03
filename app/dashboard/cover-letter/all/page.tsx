@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect } from "react";
-import { Plus, Mail, Download, Eye, MoreVertical, Calendar, FileText, Search, Sparkles, Building2, Trash2, FilePlus, Loader2 } from "lucide-react";
+import { Plus, Mail, Download, Eye, MoreVertical, Calendar, FileText, Search, Sparkles, Building2, Trash2, FilePlus, Loader2 } from '@/lib/icons';
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button1 } from "@/components/general/buttons/button1";

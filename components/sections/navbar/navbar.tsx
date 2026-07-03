@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Sun, Moon, Menu, X, User, LogOut, LayoutDashboard, Settings } from "lucide-react";
+import { Briefcase, Sun, Moon, Menu, X, User, LogOut, LayoutDashboard, Settings } from '@/lib/icons';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Button1 } from "@/components/general/buttons/button1";

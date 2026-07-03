@@ -13,7 +13,7 @@ import AccentColorSelector from "./forms/AccentColorSelector";
 import { cn } from "@/lib/utils";
 
 import { setSectionVisibility } from "@/lib/store/features/resume-slice";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from '@/lib/icons';
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 

@@ -9,7 +9,7 @@ import {
   LayoutDashboard, FileCheck, FilePlus, Wand2, 
   Files, History, Mail, Edit, MonitorUp, Globe, 
   TrendingUp, Link as LinkIcon, Briefcase, User 
-} from "lucide-react";
+} from '@/lib/icons';
 
 export const navigation = [
   {

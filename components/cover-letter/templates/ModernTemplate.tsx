@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CoverLetterState } from "@/lib/store/features/cover-letter-slice";
-import { Mail, Phone, MapPin, Link as LinkIcon, Github } from "lucide-react";
+import { Mail, Phone, MapPin, Link as LinkIcon, Github } from '@/lib/icons';
 
 interface TemplateProps {
   data: CoverLetterState;

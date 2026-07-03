@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from '@/lib/icons';
 import { Button1 } from "@/components/general/buttons/button1";
 import { useAppSelector } from "@/store/hooks";
 import { useRouter } from "next/navigation";

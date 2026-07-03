@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, Globe, Linkedin, Github, ExternalLink } from 'lucide-react';
+import { Mail, Phone, MapPin, Globe, Linkedin, Github, ExternalLink } from '@/lib/icons';
 import type {
   ResumeData,
   ResumeSectionHeadings,

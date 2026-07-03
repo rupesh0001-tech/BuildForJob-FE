@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Search, Building2, Plus, Check, Loader2 } from "lucide-react";
+import { X, Search, Building2, Plus, Check, Loader2 } from '@/lib/icons';
 import { motion, AnimatePresence } from "framer-motion";
 import { getCompanies, createCompany } from "@/apis/companies.api";
 import { toast } from "sonner";

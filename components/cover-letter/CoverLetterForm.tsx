@@ -16,7 +16,7 @@ import {
 import FormInput from "../resume-builder/FormInput";
 import FormTextArea from "../resume-builder/FormTextArea";
 import CoverLetterThemeSelector from "./CoverLetterThemeSelector";
-import { User, MapPin, Phone, Mail, Link, Calendar, Briefcase, Building, PenTool, Layout, Github, Type, FileText } from "lucide-react";
+import { User, MapPin, Phone, Mail, Link, Calendar, Briefcase, Building, PenTool, Layout, Github, Type, FileText } from '@/lib/icons';
 
 const CoverLetterForm = () => {
   const dispatch = useDispatch();

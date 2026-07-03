@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Code } from "lucide-react";
+import { Mail, Code } from '@/lib/icons';
 import { AuthButton } from "@/components/general/buttons/auth-button";
 
 export function OAuthButtons() {

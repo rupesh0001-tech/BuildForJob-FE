@@ -1,4 +1,4 @@
-import { FileText, Mail, ShieldCheck, UserCircle } from 'lucide-react';
+import { FileText, Mail, ShieldCheck, UserCircle } from '@/lib/icons';
 
 const activities = [
   {

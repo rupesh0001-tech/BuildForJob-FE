@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Sparkles, Building2, ChevronDown, Loader2 } from "lucide-react";
+import { X, Sparkles, Building2, ChevronDown, Loader2 } from '@/lib/icons';
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { CompanyPickerModal } from "./CompanyPickerModal";
@@ -102,113 +102,111 @@ export function OptimizeModal({
             initial={{ scale: 0.97, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.97, opacity: 0, y: 15 }}
-            className="bg-white dark:bg-[#08080a] rounded-3xl p-8 max-w-xl w-full shadow-2xl border border-gray-300 dark:border-white/10 relative overflow-hidden flex flex-col max-h-[90vh]"
+            className="bg-white dark:bg-[#08080a] rounded-2xl p-7 max-w-xl w-full shadow-2xl border border-gray-200 dark:border-white/10 relative overflow-hidden flex flex-col max-h-[90vh]"
           >
-            {/* Background blur decor */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 blur-3xl" />
-
-            <div className="flex items-center justify-between mb-6 shrink-0 relative z-10">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-purple-500/10 rounded-xl text-purple-500">
-                  <Sparkles size={20} />
+            {/* Header */}
+            <div className="flex items-start justify-between mb-7 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-[#001BB7]/8 dark:bg-blue-500/10 rounded-xl text-[#001BB7] dark:text-blue-400">
+                  <Sparkles size={18} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-black dark:text-white tracking-tight">{title}</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+                  <h3 className="text-base font-semibold text-gray-900 dark:text-white tracking-tight">{title}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium">{description}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors cursor-pointer shrink-0 ml-4"
               >
-                <X size={20} className="text-gray-500" />
+                <X size={18} className="text-gray-500" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="relative z-10 flex flex-col h-full overflow-y-auto pr-1 space-y-6">
+            <form onSubmit={handleSubmit} className="flex flex-col h-full overflow-y-auto space-y-5">
               
               {/* Company Selection */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider px-1">Target Company *</label>
-                
+                <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 px-1">Target Company *</label>
                 <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={15} />
                   <button
                     type="button"
                     onClick={() => setCompanyPickerOpen(true)}
-                    className="w-full pl-11 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-primary/50 transition-all text-left flex items-center justify-between text-black dark:text-white cursor-pointer"
+                    className="w-full pl-10 pr-4 py-4 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all text-left flex items-center justify-between cursor-pointer"
                   >
-                    <span className="truncate">{selectedCompany || "Select Target Company..."}</span>
-                    <ChevronDown size={16} className="text-gray-400" />
+                    <span className="truncate">{selectedCompany || <span className="text-gray-400">Select Target Company...</span>}</span>
+                    <ChevronDown size={15} className="text-gray-400 shrink-0 ml-2" />
                   </button>
                 </div>
               </div>
 
               {/* Role Selection */}
               <div className="space-y-3">
-                <label className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider px-1">
-                  Target Roles * (Select up to 3)
+                <label className="text-[10px] uppercase tracking-widest font-semibold text-gray-500 dark:text-gray-400 px-1">
+                  Target Roles * (up to 3)
                 </label>
 
                 {/* Popular Roles Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 px-1">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {POPULAR_ROLES.map(role => {
                     const isSelected = selectedRoles.includes(role);
                     return (
                       <label
                         key={role}
-                        className={`flex items-center gap-2 p-2 border rounded-xl text-xs font-medium cursor-pointer transition-all ${
+                        className={`flex items-center gap-2.5 px-3 py-3 border rounded-xl cursor-pointer transition-all select-none ${
                           isSelected
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400"
+                            ? "border-[#001BB7]/30 bg-[#001BB7]/5 dark:bg-blue-500/5"
+                            : "border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5"
                         }`}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={(e) => handleRoleCheckboxChange(role, e.target.checked)}
-                          className="rounded border-gray-300 text-primary focus:ring-primary w-3.5 h-3.5"
+                          className="rounded border-gray-300 dark:border-white/20 text-[#001BB7] focus:ring-[#001BB7]/30 w-3.5 h-3.5 shrink-0"
                         />
-                        <span className="truncate">{role}</span>
+                        <span className={`text-xs font-medium truncate ${isSelected ? "text-[#001BB7] dark:text-blue-400" : "text-gray-700 dark:text-gray-300"}`}>{role}</span>
                       </label>
                     );
                   })}
                 </div>
 
                 {/* Custom Role Input */}
-                <div className="flex gap-2 items-center px-1">
+                <div className="flex gap-2 items-center">
                   <input
                     type="text"
-                    placeholder="Enter custom role (e.g. Solution Architect)"
+                    placeholder="Add custom role..."
                     value={customRoleInput}
                     onChange={(e) => setCustomRoleInput(e.target.value)}
-                    className="flex-1 px-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-xs font-semibold outline-none focus:border-primary text-black dark:text-white"
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddCustomRole())}
+                    className="flex-1 px-4 py-3.5 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#001BB7]/20 focus:border-[#001BB7] transition-all placeholder:text-gray-400"
                   />
                   <button
                     type="button"
                     onClick={handleAddCustomRole}
-                    className="px-4 py-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-gray-300 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-3.5 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-medium transition-all cursor-pointer border border-gray-200 dark:border-white/10 shrink-0"
                   >
                     Add
                   </button>
                 </div>
 
-                {/* Selected Roles Badges */}
+                {/* Selected Roles Tags */}
                 {selectedRoles.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 px-1 pt-1">
+                  <div className="flex flex-wrap gap-1.5">
                     {selectedRoles.map(role => (
                       <span
                         key={role}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-semibold"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 text-xs font-medium"
                       >
                         {role}
                         <button
                           type="button"
                           onClick={() => handleRemoveRole(role)}
-                          className="p-0.5 hover:bg-purple-500/20 rounded-full transition-colors"
+                          className="text-gray-400 hover:text-red-500 transition-colors"
                         >
-                          <X size={10} />
+                          <X size={11} />
                         </button>
                       </span>
                     ))}
@@ -217,28 +215,28 @@ export function OptimizeModal({
               </div>
 
               {/* Form buttons */}
-              <div className="flex gap-4 pt-6 border-t border-gray-100 dark:border-white/5 shrink-0">
+              <div className="flex gap-3 pt-5 border-t border-gray-100 dark:border-white/5 shrink-0">
                 <button
                   type="button"
                   disabled={isOptimizing}
                   onClick={onClose}
-                  className="flex-1 py-3.5 bg-gray-100 dark:bg-white/5 rounded-xl font-semibold text-sm transition-colors text-gray-800 dark:text-gray-400 disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-4 bg-gray-100 dark:bg-white/5 rounded-xl font-medium text-sm transition-colors text-gray-700 dark:text-gray-400 disabled:opacity-50 cursor-pointer border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/10"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isOptimizing}
-                  className="flex-1 py-3.5 bg-primary text-white rounded-xl font-semibold text-sm shadow-xl shadow-primary/20 hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-4 bg-[#001BB7] text-white rounded-xl font-medium text-sm hover:bg-[#0020d4] transition-all disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-[#001BB7]/20"
                 >
                   {isOptimizing ? (
                     <>
-                      <Loader2 size={18} className="animate-spin" />
+                      <Loader2 size={15} className="animate-spin" />
                       Optimizing...
                     </>
                   ) : (
                     <>
-                      <Sparkles size={16} />
+                      <Sparkles size={15} />
                       Run Optimization
                     </>
                   )}

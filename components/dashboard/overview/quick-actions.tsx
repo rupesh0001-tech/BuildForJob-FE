@@ -1,4 +1,4 @@
-import { FilePlus, Edit, Search, Github } from 'lucide-react';
+import { FilePlus, Edit, Search, Github } from '@/lib/icons';
 import Link from 'next/link';
 
 const actions = [

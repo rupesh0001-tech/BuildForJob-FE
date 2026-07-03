@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setExperience, Experience as ExperienceType } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
-import { Briefcase, Building, Calendar, Trash2, Plus } from "lucide-react";
+import { Briefcase, Building, Calendar, Trash2, Plus } from '@/lib/icons';
 
 interface ExperienceProps {
   setFormTab: (tab: number) => void;

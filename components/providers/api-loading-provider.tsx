@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from '@/lib/icons';
 import { usePathname } from "next/navigation";
 
 const ApiLoadingContext = createContext<{ isLoading: boolean }>({ isLoading: false });

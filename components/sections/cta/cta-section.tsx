@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle } from '@/lib/icons';
 import ScrollRevealParagraph from "@/components/scroll-reveal-paragraph";
 
 export function CtaSection() {

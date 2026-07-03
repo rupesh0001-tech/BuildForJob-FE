@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Zap, Check, ArrowRight, Sparkles, Award } from "lucide-react";
+import { Zap, Check, ArrowRight, Sparkles, Award } from '@/lib/icons';
 import ScrollRevealParagraph from "@/components/scroll-reveal-paragraph";
 
 export function ShowcaseSection() {

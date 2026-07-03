@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setAccentColor } from "@/lib/store/features/resume-slice";
-import { ChevronDown, Pipette } from "lucide-react";
+import { ChevronDown, Pipette } from '@/lib/icons';
 
 const colorPresets = [
   { name: "Blue", code: "#3b82f6" },

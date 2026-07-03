@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { type ResumeData } from '@/components/resume-templates/resume-component';
 import { segmentTextByKeywords } from '@/lib/resume-matcher/keyword-matcher';
-import { FileUser, Briefcase, GraduationCap, FolderKanban, Wrench } from 'lucide-react';
+import { FileUser, Briefcase, GraduationCap, FolderKanban, Wrench } from '@/lib/icons';
 import { useTranslations } from '@/lib/resume-matcher/i18n-mock';
 
 interface HighlightedResumeViewProps {

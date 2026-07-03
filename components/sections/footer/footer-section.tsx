@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Briefcase, Globe, Code, Users, Camera } from "lucide-react";
+import { Briefcase, Globe, Code, Users, Camera } from '@/lib/icons';
 import { useTheme } from "next-themes";
 
 export function FooterSection() {

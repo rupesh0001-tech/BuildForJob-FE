@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setTemplate } from "@/lib/store/features/resume-slice";
-import { ChevronDown, Palette } from "lucide-react";
+import { ChevronDown, Palette } from '@/lib/icons';
 
 const templates = [
   { name: "Classic", id: "classic" },

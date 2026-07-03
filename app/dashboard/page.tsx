@@ -6,7 +6,7 @@ import { ProfileCompletionBanner } from "@/components/dashboard/overview/profile
 import { VersionsPreview } from "@/components/dashboard/overview/versions-preview";
 import { useAppSelector } from '@/store/hooks';
 import Link from 'next/link';
-import { Sparkles, RefreshCw, Layout } from 'lucide-react';
+import { Sparkles, RefreshCw, Layout } from '@/lib/icons';
 
 export default function DashboardOverviewPage() {
   const { user } = useAppSelector((state) => state.auth);

@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { fetchProfile } from "@/store/slices/authSlice";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from '@/lib/icons';
 import React from "react";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {

@@ -5,7 +5,7 @@ import { useTheme } from "next-themes";
 import Link from "next/link";
 import { Navbar } from "@/components/sections/navbar/navbar";
 import { FooterSection } from "@/components/sections/footer/footer-section";
-import { BookOpen, Sparkles, ArrowLeft, Mail } from "lucide-react";
+import { BookOpen, Sparkles, ArrowLeft, Mail } from '@/lib/icons';
 import { Button } from "@/components/ui/button";
 import { Button1 } from "@/components/general/buttons/button1";
 

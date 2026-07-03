@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Github, X, Check, ArrowRight, Save, Info, RefreshCw, 
   AlertTriangle, User as UserIcon, Code 
-} from 'lucide-react';
+} from '@/lib/icons';
 
 import type { User } from '@/types/auth';
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { History, ArrowRight, Clock } from 'lucide-react';
+import { History, ArrowRight, Clock } from '@/lib/icons';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { getVersions } from '@/apis/versions.api';

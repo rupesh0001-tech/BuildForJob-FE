@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setEducation, Education as EducationType } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
-import { GraduationCap, School, Book, Calendar, Trash2, Plus, BarChart } from "lucide-react";
+import { GraduationCap, School, Book, Calendar, Trash2, Plus, BarChart } from '@/lib/icons';
 
 interface EducationProps {
   setFormTab: (tab: number) => void;

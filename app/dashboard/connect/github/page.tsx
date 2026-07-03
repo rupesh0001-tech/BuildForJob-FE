@@ -14,7 +14,7 @@ import {
   MapPin,
   Code,
   Link as LinkIcon
-} from "lucide-react";
+} from '@/lib/icons';
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { fetchGitHubData, extractUsername } from "@/lib/github/github-api";

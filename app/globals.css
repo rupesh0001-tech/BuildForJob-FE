@@ -23,30 +23,40 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
 html {
-  font-size: 110%; /* Base font-size scaled by 1.1x (17.6px) */
+  font-size: 110%;
+  /* Base font-size scaled by 1.1x (17.6px) */
 }
 
 /* Globally zoom out the application on larger screens (proportional to 110% scaling) */
 @media (min-width: 768px) {
   html {
-    font-size: 15.4px; /* 14px * 1.1 */
+    font-size: 15.4px;
+    /* 14px * 1.1 */
   }
 }
 
 @media (min-width: 1280px) {
   html {
-    font-size: 14.3px; /* 13px * 1.1 */
+    font-size: 14.3px;
+    /* 13px * 1.1 */
   }
 }
 
 @utility scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+
+  /* Firefox */
   &::-webkit-scrollbar {
-    display: none !important; /* Safari and Chrome */
+    display: none !important;
+    /* Safari and Chrome */
   }
 }
 
@@ -70,4 +80,11 @@ input[type="radio"],
 .clickable,
 [onclick] {
   cursor: pointer !important;
+}
+
+/* Modern icon style — thinner, rounder strokes across all Lucide icons */
+.lucide {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }

@@ -4,7 +4,7 @@ import React, { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
 import { setToken, fetchProfile } from "@/store/slices/authSlice";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2 } from '@/lib/icons';
 import { toast } from "sonner";
 
 function AuthCallbackHandler() {

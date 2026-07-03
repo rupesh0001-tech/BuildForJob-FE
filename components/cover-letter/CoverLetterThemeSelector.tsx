@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { updateTemplate } from "@/lib/store/features/cover-letter-slice";
-import { ChevronDown, Palette } from "lucide-react";
+import { ChevronDown, Palette } from '@/lib/icons';
 
 const templates = [
   { name: "Classic", id: "classic" },

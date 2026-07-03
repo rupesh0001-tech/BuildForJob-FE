@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle } from '@/lib/icons';
 
 import { GridBackground } from "@/components/ui/grid-background";
 import { HeroCta } from "./hero-cta";

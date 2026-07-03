@@ -19,10 +19,11 @@ export const navigation = [
     ]
   },
   {
-    title: "Resumes",
+    title: "Resumes & Portfolios",
     items: [
       { name: "ATS Checker", href: "/dashboard/resumes/ats", icon: FileCheck },
       { name: "Resume Builder", href: "/dashboard/resume-builder", icon: FilePlus },
+      { name: "Portfolio Builder", href: "/dashboard/portfolio", icon: Globe },
       { name: "My Resumes", href: "/dashboard/resumes", icon: Files },
     ]
   },
@@ -54,7 +55,6 @@ export const navigation = [
   {
     title: "Coming Soon",
     items: [
-      { name: "Portfolio Builder", href: "#", icon: Globe, isComingSoon: true },
       { name: "LinkedIn Enhancer", href: "#", icon: TrendingUp, isComingSoon: true },
       { name: "LinkedIn Connector", href: "#", icon: Briefcase, isComingSoon: true },
     ]

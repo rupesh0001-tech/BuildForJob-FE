@@ -94,9 +94,10 @@ export function OptimizeModal({
   };
 
   return (
-    <AnimatePresence>
+    <>
+      <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+        <div key="optimize-modal-overlay" className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
           <motion.div
             initial={{ scale: 0.97, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -247,13 +248,14 @@ export function OptimizeModal({
           </motion.div>
         </div>
       )}
-
-      <CompanyPickerModal
-        isOpen={companyPickerOpen}
-        onClose={() => setCompanyPickerOpen(false)}
-        onSelect={(companyName) => setSelectedCompany(companyName)}
-        selectedValue={selectedCompany}
-      />
     </AnimatePresence>
+
+    <CompanyPickerModal
+      isOpen={companyPickerOpen}
+      onClose={() => setCompanyPickerOpen(false)}
+      onSelect={(companyName) => setSelectedCompany(companyName)}
+      selectedValue={selectedCompany}
+    />
+    </>
   );
 }

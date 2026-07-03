@@ -20,6 +20,8 @@ import {
   Loader2,
   Building2,
   ChevronDown,
+  Check,
+  Search,
 } from "lucide-react";
 import { checkATSScore, getATSSuggestions, getATSReports, unlockReportSuggestions } from "@/apis/ats.api";
 import type { ATSResult, ATSSuggestions } from "@/apis/ats.api";
@@ -246,6 +248,26 @@ export default function ATSCheckerPage() {
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [jdGenerating, setJdGenerating] = useState(false);
+
+  // Dropdown Refs & States
+  const companyRef = useRef<HTMLDivElement>(null);
+  const roleRef = useRef<HTMLDivElement>(null);
+  const [companyDropdownOpen, setCompanyDropdownOpen] = useState(false);
+  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [companySearch, setCompanySearch] = useState("");
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (companyRef.current && !companyRef.current.contains(e.target as Node)) {
+        setCompanyDropdownOpen(false);
+      }
+      if (roleRef.current && !roleRef.current.contains(e.target as Node)) {
+        setRoleDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -532,7 +554,11 @@ export default function ATSCheckerPage() {
     }
   };
 
-  const groupedCompanies = companies.reduce((acc: any, company: any) => {
+  const filteredCompanies = companies.filter(c =>
+    c.name.toLowerCase().includes(companySearch.toLowerCase())
+  );
+
+  const groupedCompanies = filteredCompanies.reduce((acc: any, company: any) => {
     const industry = company.industry || "Other";
     if (!acc[industry]) {
       acc[industry] = [];
@@ -602,49 +628,136 @@ export default function ATSCheckerPage() {
                 </label>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   {/* Company Dropdown */}
-                  <div className="relative flex-1">
-                    <select
-                      value={selectedCompanyId}
-                      onChange={(e) => setSelectedCompanyId(e.target.value)}
-                      className="w-full pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/5 text-black dark:text-white cursor-pointer appearance-none font-sans"
+                  <div className="relative flex-1" ref={companyRef}>
+                    <button
+                      type="button"
+                      onClick={() => setCompanyDropdownOpen(!companyDropdownOpen)}
+                      className="w-full flex items-center justify-between pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:border-purple-500/50 text-black dark:text-white cursor-pointer transition-all text-left"
                     >
-                      <option value="">Select Company</option>
-                      {Object.keys(groupedCompanies).map(industry => (
-                        <optgroup key={industry} label={getIndustryLabel(industry)} className="font-bold bg-white dark:bg-[#0c0c0e] text-purple-600 dark:text-purple-400">
-                          {groupedCompanies[industry].map((company: any) => (
-                            <option key={company.id} value={company.id} className="font-medium text-black dark:text-white">
-                              {company.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                      <ChevronDown size={16} />
-                    </div>
+                      <span className="truncate">
+                        {selectedCompanyId ? companies.find(c => c.id === selectedCompanyId)?.name : "Select Company"}
+                      </span>
+                      <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${companyDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {companyDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-0 right-0 mt-2 bg-white dark:bg-[#08080a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl z-[60] overflow-hidden flex flex-col max-h-72"
+                        >
+                          {/* Search box inside dropdown */}
+                          <div className="p-2 border-b border-gray-100 dark:border-white/5 flex items-center gap-2 bg-gray-50/50 dark:bg-white/5">
+                            <Search size={14} className="text-gray-400 shrink-0 ml-1" />
+                            <input
+                              type="text"
+                              placeholder="Search company..."
+                              value={companySearch}
+                              onChange={(e) => setCompanySearch(e.target.value)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-full bg-transparent text-xs font-semibold focus:outline-none text-black dark:text-white py-1 font-sans"
+                            />
+                          </div>
+
+                          <div className="flex-1 overflow-y-auto py-1 custom-scrollbar">
+                            {Object.keys(groupedCompanies).length > 0 ? (
+                              Object.keys(groupedCompanies).map(industry => (
+                                <div key={industry} className="space-y-1">
+                                  <div className="px-3 py-1.5 text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest bg-purple-500/5 select-none font-sans">
+                                    {getIndustryLabel(industry)}
+                                  </div>
+                                  {groupedCompanies[industry].map((company: any) => {
+                                    const isSelected = selectedCompanyId === company.id;
+                                    return (
+                                      <button
+                                        key={company.id}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedCompanyId(company.id);
+                                          setCompanyDropdownOpen(false);
+                                          setCompanySearch("");
+                                        }}
+                                        className={`w-full text-left px-4 py-2 text-xs font-semibold flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-black dark:text-white ${
+                                          isSelected ? "bg-purple-500/5 text-purple-650 dark:text-purple-400 font-bold" : ""
+                                        }`}
+                                      >
+                                        <span className="truncate">{company.name}</span>
+                                        {isSelected && <Check size={12} className="text-purple-600 dark:text-purple-400" />}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              ))
+                            ) : (
+                              <div className="px-4 py-6 text-center text-xs text-gray-500 font-sans italic">
+                                No companies found
+                              </div>
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Job Role Dropdown */}
-                  <div className="relative flex-1">
-                    <select
-                      value={selectedRole}
-                      onChange={(e) => setSelectedRole(e.target.value)}
-                      className="w-full pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/5 text-black dark:text-white cursor-pointer appearance-none font-sans"
+                  <div className="relative flex-1" ref={roleRef}>
+                    <button
+                      type="button"
+                      onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                      className="w-full flex items-center justify-between pl-4 pr-10 py-3.5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl text-sm font-semibold outline-none focus:border-purple-500/50 text-black dark:text-white cursor-pointer transition-all text-left"
                     >
-                      <option value="">Select Job Role</option>
-                      <option value="Software Engineer">Software Engineer</option>
-                      <option value="Frontend Engineer">Frontend Engineer</option>
-                      <option value="Backend Engineer">Backend Engineer</option>
-                      <option value="Fullstack Engineer">Fullstack Engineer</option>
-                      <option value="Mobile Engineer">Mobile Engineer</option>
-                      <option value="DevOps Engineer">DevOps Engineer</option>
-                      <option value="Data Scientist">Data Scientist</option>
-                      <option value="Product Manager">Product Manager</option>
-                      <option value="QA Engineer">QA Engineer</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                      <ChevronDown size={16} />
-                    </div>
+                      <span className="truncate">
+                        {selectedRole ? selectedRole : "Select Job Role"}
+                      </span>
+                      <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${roleDropdownOpen ? "rotate-180" : ""}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {roleDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute left-0 right-0 mt-2 bg-white dark:bg-[#08080a] border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl z-[60] overflow-hidden flex flex-col max-h-72"
+                        >
+                          <div className="overflow-y-auto py-1 custom-scrollbar">
+                            {[
+                              "Software Engineer",
+                              "Frontend Engineer",
+                              "Backend Engineer",
+                              "Fullstack Engineer",
+                              "Mobile Engineer",
+                              "DevOps Engineer",
+                              "Data Scientist",
+                              "Product Manager",
+                              "QA Engineer"
+                            ].map((role) => {
+                              const isSelected = selectedRole === role;
+                              return (
+                                <button
+                                  key={role}
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedRole(role);
+                                    setRoleDropdownOpen(false);
+                                  }}
+                                  className={`w-full text-left px-4 py-2.5 text-xs font-semibold flex items-center justify-between hover:bg-gray-100 dark:hover:bg-white/5 transition-all text-black dark:text-white ${
+                                    isSelected ? "bg-purple-500/5 text-purple-650 dark:text-purple-400 font-bold" : ""
+                                  }`}
+                                >
+                                  <span className="truncate">{role}</span>
+                                  {isSelected && <Check size={12} className="text-purple-600 dark:text-purple-400" />}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Generate Button */}

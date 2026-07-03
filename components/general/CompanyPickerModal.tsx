@@ -44,7 +44,11 @@ export function CompanyPickerModal({
       setLoading(true);
       const response = await getCompanies(userOnly);
       if (response.success) {
-        setCompanies(response.data);
+        // Filter based on context:
+        // - userOnly = true (Versions Page): only show user-created custom companies (isCustom === true)
+        // - userOnly = false (Optimize Page): only show global predefined companies (isCustom === false)
+        const filtered = response.data.filter((c: any) => userOnly ? c.isCustom : !c.isCustom);
+        setCompanies(filtered);
       }
     } catch (err) {
       console.error("Failed to load companies:", err);
@@ -137,43 +141,45 @@ export function CompanyPickerModal({
             </div>
 
             {/* Inline Company Creator */}
-            <div className="mt-3 shrink-0 relative z-10">
-              {isCreating ? (
-                <div className="flex gap-2 items-center w-full p-2 bg-gray-50 dark:bg-white/5 border border-dashed border-gray-300 dark:border-white/10 rounded-xl">
-                  <input
-                    type="text"
-                    placeholder="Enter custom company name..."
-                    value={newCompanyName}
-                    onChange={(e) => setNewCompanyName(e.target.value)}
-                    className="flex-1 px-4 py-3.5 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-lg text-sm font-semibold outline-none focus:border-primary text-black dark:text-white"
-                  />
+            {userOnly && (
+              <div className="mt-3 shrink-0 relative z-10">
+                {isCreating ? (
+                  <div className="flex gap-2 items-center w-full p-2 bg-gray-50 dark:bg-white/5 border border-dashed border-gray-300 dark:border-white/10 rounded-xl">
+                    <input
+                      type="text"
+                      placeholder="Enter custom company name..."
+                      value={newCompanyName}
+                      onChange={(e) => setNewCompanyName(e.target.value)}
+                      className="flex-1 px-4 py-3.5 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-lg text-sm font-semibold outline-none focus:border-primary text-black dark:text-white"
+                    />
+                    <button
+                      type="button"
+                      disabled={creating}
+                      onClick={handleAddNewCompany}
+                      className="px-4 py-3.5 bg-primary text-white rounded-lg text-xs font-bold hover:brightness-110 transition-all flex items-center gap-1 cursor-pointer"
+                    >
+                      {creating ? <Loader2 size={12} className="animate-spin" /> : "Create"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={creating}
+                      onClick={() => setIsCreating(false)}
+                      className="px-3.5 py-3.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-lg text-xs font-bold hover:bg-gray-200 dark:hover:bg-white/20 transition-all cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    disabled={creating}
-                    onClick={handleAddNewCompany}
-                    className="px-4 py-3.5 bg-primary text-white rounded-lg text-xs font-bold hover:brightness-110 transition-all flex items-center gap-1 cursor-pointer"
+                    onClick={() => setIsCreating(true)}
+                    className="w-full py-2.5 px-4 text-left text-xs font-bold text-primary hover:bg-primary/5 hover:underline border border-dashed border-primary/20 bg-primary/5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    {creating ? <Loader2 size={12} className="animate-spin" /> : "Create"}
+                    <Plus size={14} /> + Create New Custom Company
                   </button>
-                  <button
-                    type="button"
-                    disabled={creating}
-                    onClick={() => setIsCreating(false)}
-                    className="px-3.5 py-3.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 rounded-lg text-xs font-bold hover:bg-gray-200 dark:hover:bg-white/20 transition-all cursor-pointer"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setIsCreating(true)}
-                  className="w-full py-2.5 px-4 text-left text-xs font-bold text-primary hover:bg-primary/5 hover:underline border border-dashed border-primary/20 bg-primary/5 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Plus size={14} /> + Create New Custom Company
-                </button>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Scrollable Company List */}
             <div className="flex-1 overflow-y-auto mt-4 space-y-1 pr-1 scrollbar-thin scrollbar-thumb-gray-200">

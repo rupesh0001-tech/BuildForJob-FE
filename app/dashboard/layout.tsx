@@ -25,19 +25,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // Monitor DOM for active modals to auto-collapse the sidebar
   React.useEffect(() => {
     const checkModal = () => {
-      const dialogs = document.querySelectorAll('[role="dialog"]');
+      // Find all visible active dialogs
+      const dialogs = Array.from(document.querySelectorAll('[role="dialog"]')).filter(el => {
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      });
       const hasDialog = dialogs.length > 0;
       
-      // Also look for elements with high z-indices or backdrop filters
+      // Look for active fullscreen fixed modal backdrops/overlays (not background decorators)
       const hasModalBackdrop = Array.from(document.querySelectorAll('div')).some(el => {
         const className = el.className || "";
-        return className.includes('fixed') && className.includes('inset-0') && (
-          className.includes('z-50') ||
-          className.includes('z-[100]') ||
-          className.includes('z-[110]') ||
-          className.includes('bg-black/') ||
-          className.includes('backdrop-blur')
-        );
+        const style = window.getComputedStyle(el);
+        
+        // Modal backdrops must be fixed, inset-0, visible, and block pointer events
+        const isFixedInset = className.includes('fixed') && className.includes('inset-0');
+        const isVisible = style.display !== 'none' && style.visibility !== 'hidden' && (el.offsetWidth > 0 || el.offsetHeight > 0);
+        const isPointerInteractive = !className.includes('pointer-events-none') && style.pointerEvents !== 'none';
+        
+        if (!isFixedInset || !isVisible || !isPointerInteractive) return false;
+        
+        // Must have high modal-level z-index
+        const hasHighZ = className.includes('z-50') ||
+                         className.includes('z-[100]') ||
+                         className.includes('z-[110]') ||
+                         className.includes('z-[120]') ||
+                         className.includes('z-[9999]') ||
+                         className.includes('z-[45]');
+                         
+        return hasHighZ && (className.includes('bg-black/') || className.includes('backdrop-blur'));
       });
 
       setHasActiveModal(hasDialog || hasModalBackdrop);

@@ -18,9 +18,14 @@ import {
   ArrowLeft,
   ArrowRight,
   Loader2,
+  Building2,
+  ChevronDown,
 } from "lucide-react";
 import { checkATSScore, getATSSuggestions, getATSReports, unlockReportSuggestions } from "@/apis/ats.api";
 import type { ATSResult, ATSSuggestions } from "@/apis/ats.api";
+import { getCompanies } from "@/apis/companies.api";
+import { generateJobDescription } from "@/apis/ai.api";
+import { toast } from "sonner";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchProfile } from "@/store/slices/authSlice";
 
@@ -235,6 +240,49 @@ export default function ATSCheckerPage() {
   const [activeTab, setActiveTab] = useState<"scan" | "history">("scan");
   const [history, setHistory] = useState<ATSResult[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  // Company Profiles for Auto-Fill
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
+  const [jdGenerating, setJdGenerating] = useState(false);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await getCompanies();
+        if (response.success) {
+          // Filter to show only CompanyProfile (isCustom === false)
+          const globalCompanies = response.data.filter((c: any) => !c.isCustom);
+          setCompanies(globalCompanies);
+        }
+      } catch (err) {
+        console.error("Failed to load companies:", err);
+      }
+    };
+    fetchCompanies();
+  }, []);
+
+  const handleGenerateCompanyRoleJD = async () => {
+    if (!selectedCompanyId || !selectedRole) {
+      toast.error("Please select a target company and role.");
+      return;
+    }
+    const selectedCompany = companies.find(c => c.id === selectedCompanyId);
+    if (!selectedCompany) return;
+
+    try {
+      setJdGenerating(true);
+      const generatedText = await generateJobDescription(selectedCompany.name, [selectedRole]);
+      setJd(generatedText);
+      toast.success(`Generated optimized ${selectedRole} job description for ${selectedCompany.name}!`);
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Failed to generate job description with AI.";
+      toast.error(msg);
+    } finally {
+      setJdGenerating(false);
+    }
+  };
 
   const fetchHistory = async () => {
     setHistoryLoading(true);
@@ -469,10 +517,118 @@ export default function ATSCheckerPage() {
     }
   };
 
+  const getIndustryLabel = (industry: string) => {
+    switch (industry) {
+      case 'Big Tech':
+        return 'Big Tech';
+      case 'FinTech':
+        return 'FinTech';
+      case 'SaaS':
+        return 'SaaS / Product';
+      case 'Unicorn':
+        return 'Startups / Unicorns';
+      default:
+        return industry;
+    }
+  };
+
+  const groupedCompanies = companies.reduce((acc: any, company: any) => {
+    const industry = company.industry || "Other";
+    if (!acc[industry]) {
+      acc[industry] = [];
+    }
+    acc[industry].push(company);
+    return acc;
+  }, {});
+
   const improvementCount = result ? Math.max(3, Math.floor((105 - result.score) / 6)) : 0;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20 px-4">
+      
+      {/* ── Page Header & Auto-Fill JD Tool ── */}
+      {!result && (
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 bg-white dark:bg-[#0c0c0e]/40 border border-gray-200 dark:border-white/10 p-6 rounded-3xl relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16 blur-3xl pointer-events-none" />
+          
+          <div className="space-y-1 relative z-10">
+            <h1 className="text-xl font-black text-black dark:text-white tracking-tight flex items-center gap-2">
+              <Sparkles className="text-purple-500 animate-pulse" size={20} />
+              Auto-Fill Job Description
+            </h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Select a company and role to write an optimized job description automatically using AI.</p>
+          </div>
+
+          {/* Modern Dropdowns & Action */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 relative z-10">
+            {/* Company Dropdown */}
+            <div className="relative w-full sm:w-48">
+              <select
+                value={selectedCompanyId}
+                onChange={(e) => setSelectedCompanyId(e.target.value)}
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-xs font-bold outline-none focus:border-primary text-black dark:text-white cursor-pointer appearance-none font-sans"
+              >
+                <option value="">Select Company</option>
+                {Object.keys(groupedCompanies).map(industry => (
+                  <optgroup key={industry} label={getIndustryLabel(industry)} className="font-bold bg-white dark:bg-[#0c0c0e] text-purple-600 dark:text-purple-400">
+                    {groupedCompanies[industry].map((company: any) => (
+                      <option key={company.id} value={company.id} className="font-medium text-black dark:text-white">
+                        {company.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <ChevronDown size={14} />
+              </div>
+            </div>
+
+            {/* Job Role Dropdown */}
+            <div className="relative w-full sm:w-48">
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="w-full pl-4 pr-10 py-3 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl text-xs font-bold outline-none focus:border-primary text-black dark:text-white cursor-pointer appearance-none font-sans"
+              >
+                <option value="">Select Job Role</option>
+                <option value="Software Engineer">Software Engineer</option>
+                <option value="Frontend Engineer">Frontend Engineer</option>
+                <option value="Backend Engineer">Backend Engineer</option>
+                <option value="Fullstack Engineer">Fullstack Engineer</option>
+                <option value="Mobile Engineer">Mobile Engineer</option>
+                <option value="DevOps Engineer">DevOps Engineer</option>
+                <option value="Data Scientist">Data Scientist</option>
+                <option value="Product Manager">Product Manager</option>
+                <option value="QA Engineer">QA Engineer</option>
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                <ChevronDown size={14} />
+              </div>
+            </div>
+
+            {/* Generate Button */}
+            <button
+              type="button"
+              disabled={!selectedCompanyId || !selectedRole || jdGenerating}
+              onClick={handleGenerateCompanyRoleJD}
+              className="px-5 py-3 bg-primary text-white rounded-xl text-xs font-bold shadow-lg shadow-primary/20 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              {jdGenerating ? (
+                <>
+                  <Loader2 size={12} className="animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={12} />
+                  Auto-Fill
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
       
       {/* ── Tabs Header ── */}
       {!result && (
@@ -535,7 +691,7 @@ export default function ATSCheckerPage() {
                   id="ats-jd-input"
                   value={jd}
                   onChange={(e) => setJd(e.target.value)}
-                  placeholder="Paste the full job description here — requirements, responsibilities, skills…"
+                  placeholder="Paste the full job description here or select a company and role above to auto-fill..."
                   rows={10}
                   className="w-full px-6 py-5 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/10 focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/5 outline-none rounded-2xl text-base font-semibold text-gray-800 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 transition-all resize-none
                   [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:display-none"

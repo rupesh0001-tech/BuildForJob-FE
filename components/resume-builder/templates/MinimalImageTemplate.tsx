@@ -4,8 +4,17 @@ import { TemplateProps } from "@/types/resume";
 const MinimalImageTemplate = ({ data, accentColor }: TemplateProps) => {
     const formatDate = (dateStr: string) => {
         if (!dateStr) return "";
-        const [year, month] = dateStr.split("-");
-        return new Date(parseInt(year), parseInt(month) - 1).toLocaleDateString("en-US", {
+        const parts = dateStr.split("-");
+        if (parts.length === 1) {
+            const y = parseInt(parts[0]);
+            if (isNaN(y)) return dateStr;
+            return parts[0];
+        }
+        const [year, month] = parts;
+        const y = parseInt(year);
+        const m = parseInt(month);
+        if (isNaN(y) || isNaN(m)) return dateStr;
+        return new Date(y, m - 1).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
         });

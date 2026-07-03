@@ -11,13 +11,15 @@ interface CompanyPickerModalProps {
   onClose: () => void;
   onSelect: (companyName: string) => void;
   selectedValue?: string;
+  userOnly?: boolean;
 }
 
 export function CompanyPickerModal({
   isOpen,
   onClose,
   onSelect,
-  selectedValue = ""
+  selectedValue = "",
+  userOnly = false
 }: CompanyPickerModalProps) {
   const [companies, setCompanies] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,7 +42,7 @@ export function CompanyPickerModal({
   const fetchCompaniesList = async () => {
     try {
       setLoading(true);
-      const response = await getCompanies();
+      const response = await getCompanies(userOnly);
       if (response.success) {
         setCompanies(response.data);
       }

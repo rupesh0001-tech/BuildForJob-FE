@@ -40,8 +40,11 @@ const Project = ({ setFormTab }: ProjectProps) => {
     });
   };
 
-  const handleDelete = (id: string) => {
-    dispatch(setProject(projectData.filter((p) => p._id !== id)));
+  const handleDelete = (key: string) => {
+    dispatch(setProject(projectData.filter((p, index) => {
+      const pKey = p._id || (p as any).id || `p-${index}`;
+      return pKey !== key;
+    })));
   };
 
   return (
@@ -88,24 +91,27 @@ const Project = ({ setFormTab }: ProjectProps) => {
         {projectData.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400 italic">No projects added yet.</p>
         ) : (
-          projectData.map((p) => (
-            <div
-              key={p._id}
-              className="p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex justify-between items-start group"
-            >
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white">{p.name}</p>
-                <p className="text-sm text-primary dark:text-primary/80 font-medium">{p.techStack}</p>
-                {p.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{p.description}</p>}
-              </div>
-              <button
-                onClick={() => handleDelete(p._id!)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+          projectData.map((p, index) => {
+            const pKey = p._id || (p as any).id || `p-${index}`;
+            return (
+              <div
+                key={pKey}
+                className="p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex justify-between items-start group"
               >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white">{p.name}</p>
+                  <p className="text-sm text-primary dark:text-primary/80 font-medium">{p.techStack}</p>
+                  {p.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{p.description}</p>}
+                </div>
+                <button
+                  onClick={() => handleDelete(pKey)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            );
+          })
         )}
       </div>
 

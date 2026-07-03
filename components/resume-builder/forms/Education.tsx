@@ -45,8 +45,11 @@ const Education = ({ setFormTab }: EducationProps) => {
     });
   };
 
-  const handleDelete = (id: string) => {
-    dispatch(setEducation(educationData.filter((edu) => edu._id !== id)));
+  const handleDelete = (key: string) => {
+    dispatch(setEducation(educationData.filter((edu, index) => {
+      const eduKey = edu._id || (edu as any).id || `edu-${index}`;
+      return eduKey !== key;
+    })));
   };
 
   return (
@@ -132,27 +135,30 @@ const Education = ({ setFormTab }: EducationProps) => {
         {educationData.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400 italic">No education added yet.</p>
         ) : (
-          educationData.map((edu) => (
-            <div
-              key={edu._id}
-              className="p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex justify-between items-start group"
-            >
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white">{edu.degree}</p>
-                <p className="text-sm text-primary dark:text-primary/80 font-medium">{edu.institution}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Field: {edu.field} | Graduated: {edu.graduation_date}
-                </p>
-                {edu.gpa && <p className="text-xs text-gray-500 dark:text-gray-400">GPA: {edu.gpa}</p>}
-              </div>
-              <button
-                onClick={() => handleDelete(edu._id!)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+          educationData.map((edu, index) => {
+            const eduKey = edu._id || (edu as any).id || `edu-${index}`;
+            return (
+              <div
+                key={eduKey}
+                className="p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex justify-between items-start group"
               >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white">{edu.degree}</p>
+                  <p className="text-sm text-primary dark:text-primary/80 font-medium">{edu.institution}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Field: {edu.field} | Graduated: {edu.graduation_date}
+                  </p>
+                  {edu.gpa && <p className="text-xs text-gray-500 dark:text-gray-400">GPA: {edu.gpa}</p>}
+                </div>
+                <button
+                  onClick={() => handleDelete(eduKey)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            );
+          })
         )}
       </div>
 

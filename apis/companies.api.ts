@@ -1,7 +1,7 @@
 import axiosInstance from "./axiosInstance";
 
-export const getCompanies = async () => {
-  const response = await axiosInstance.get("/companies");
+export const getCompanies = async (userOnly = false) => {
+  const response = await axiosInstance.get(`/companies${userOnly ? "?userOnly=true" : ""}`);
   return response.data;
 };
 

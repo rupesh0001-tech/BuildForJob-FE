@@ -15,7 +15,8 @@ export function SidebarUser() {
     : user?.email 
       ? user.email.substring(0, 2).toUpperCase() 
       : "JD";
-  const subtext = user?.jobTitle || "Pro Plan";
+  const isPro = user?.plan === "PRO";
+  const subtext = user?.jobTitle || (isPro ? "Pro Plan" : "Free Plan");
 
   return (
     <div className="px-4 mt-auto">

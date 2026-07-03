@@ -46,8 +46,11 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
     });
   };
 
-  const handleDelete = (id: string) => {
-    dispatch(setExperience(experienceData.filter((exp) => exp._id !== id)));
+  const handleDelete = (key: string) => {
+    dispatch(setExperience(experienceData.filter((exp, index) => {
+      const expKey = exp._id || (exp as any).id || `exp-${index}`;
+      return expKey !== key;
+    })));
   };
 
   return (
@@ -126,26 +129,29 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
         {experienceData.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400 italic">No experience added yet.</p>
         ) : (
-          experienceData.map((exp) => (
-            <div
-              key={exp._id}
-              className="p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex justify-between items-start group"
-            >
-              <div>
-                <p className="font-bold text-gray-900 dark:text-white">{exp.position}</p>
-                <p className="text-sm text-primary dark:text-primary/80 font-medium">{exp.company}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {exp.startDate} - {exp.is_current ? "Present" : exp.endDate}
-                </p>
-              </div>
-              <button
-                onClick={() => handleDelete(exp._id!)}
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+          experienceData.map((exp, index) => {
+            const expKey = exp._id || (exp as any).id || `exp-${index}`;
+            return (
+              <div
+                key={expKey}
+                className="p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl flex justify-between items-start group"
               >
-                <Trash2 size={16} />
-              </button>
-            </div>
-          ))
+                <div>
+                  <p className="font-bold text-gray-900 dark:text-white">{exp.position}</p>
+                  <p className="text-sm text-primary dark:text-primary/80 font-medium">{exp.company}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    {exp.startDate} - {exp.is_current ? "Present" : exp.endDate}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDelete(expKey)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            );
+          })
         )}
       </div>
 

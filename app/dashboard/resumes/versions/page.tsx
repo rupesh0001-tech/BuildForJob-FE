@@ -17,7 +17,8 @@ import {
   Filter,
   Check,
   Eye,
-  Mail
+  Mail,
+  ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,8 +33,10 @@ import ResumePreview from "@/components/resume-builder/ResumePreview";
 import CoverLetterPreview from "@/components/cover-letter/CoverLetterPreview";
 
 // Helper function for date formatting
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | undefined | null) => {
+  if (!dateString) return "N/A";
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "N/A";
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "2-digit",
@@ -186,16 +189,30 @@ export default function VersionsPage() {
         resumeUrl: "" // Clear any previous custom url
       });
     } else {
-      // Find the URL if it was uploaded, or build cover letter preview url,
-      // For cover letter projects, we can pass their target URL or link them.
-      // In this setup, versions handle coverLetterUrl. If our selected cover letter
-      // does not have a public url yet, we set coverLetterUrl to indicate selection.
-      // (The backend receives coverLetterUrl if they are files or links).
       setFormData({
         ...formData,
         coverLetterId: pickerSelectedItem.id,
         coverLetterUrl: pickerSelectedItem.content?.website || `Cover Letter: ${pickerSelectedItem.title}`
       });
+    }
+    setPickerOpen(false);
+  };
+
+  const handleSelectCard = (item: any) => {
+    if (pickerType === "resume") {
+      setFormData({
+        ...formData,
+        resumeId: item.id,
+        resumeUrl: "",
+      });
+      setResumeFile(null);
+    } else {
+      setFormData({
+        ...formData,
+        coverLetterId: item.id,
+        coverLetterUrl: item.content?.website || `Cover Letter: ${item.title}`
+      });
+      setClFile(null);
     }
     setPickerOpen(false);
   };
@@ -589,159 +606,155 @@ export default function VersionsPage() {
         {pickerOpen && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <motion.div
-              initial={{ scale: 0.98, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.98, opacity: 0 }}
-              className="bg-white dark:bg-[#08080a] rounded-3xl w-full max-w-6xl h-[85vh] shadow-2xl border border-gray-200 dark:border-white/10 flex overflow-hidden relative"
+              initial={{ scale: 0.98, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.98, opacity: 0, y: 15 }}
+              className="bg-white dark:bg-[#08080a] rounded-3xl w-full max-w-2xl h-[75vh] shadow-2xl border border-gray-200 dark:border-white/10 flex flex-col overflow-hidden relative"
             >
-              {/* Left Column: Filter and Document Selection list */}
-              <div className="w-[380px] shrink-0 border-r border-gray-200 dark:border-white/10 flex flex-col h-full bg-white dark:bg-[#08080a]">
-                {/* Header */}
-                <div className="p-5 border-b border-gray-200 dark:border-white/10 shrink-0">
-                  <h3 className="text-lg font-bold text-black dark:text-white capitalize flex items-center gap-2">
-                    {pickerType === "resume" ? <FileText size={18} /> : <Mail size={18} />}
-                    Select {pickerType === "resume" ? "Resume" : "Cover Letter"}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">Filter, sort, and preview documents in your library.</p>
-                </div>
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -mr-12 -mt-12 blur-2xl pointer-events-none" />
 
-                {/* Filter and search bar */}
-                <div className="p-4 border-b border-gray-200 dark:border-white/10 space-y-3 bg-gray-50/50 dark:bg-white/5 shrink-0">
-                  <div className="relative">
-                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                    <input
-                      type="text"
-                      placeholder="Search title..."
-                      value={pickerSearchQuery}
-                      onChange={(e) => setPickerSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-lg text-xs font-semibold outline-none focus:border-primary text-black dark:text-white"
-                    />
+              {/* Header */}
+              <div className="p-6 border-b border-gray-100 dark:border-white/5 shrink-0 flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                    {pickerType === "resume" ? <FileText size={20} /> : <Mail size={20} />}
                   </div>
-
-                  <div className="flex gap-2">
-                    {/* Sort Selector */}
-                    <div className="flex-1 relative">
-                      <ArrowUpDown className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
-                      <select
-                        value={pickerSortBy}
-                        onChange={(e: any) => setPickerSortBy(e.target.value)}
-                        className="w-full pl-8 pr-2 py-3 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-lg text-xs font-semibold outline-none focus:border-primary text-black dark:text-white cursor-pointer appearance-none font-sans"
-                      >
-                        <option value="updated">Recent Updated</option>
-                        <option value="title">Title A-Z</option>
-                      </select>
-                    </div>
-
-                    {/* Filter template */}
-                    <div className="flex-1 relative">
-                      <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
-                      <select
-                        value={pickerFilterTemplate}
-                        onChange={(e: any) => setPickerFilterTemplate(e.target.value)}
-                        className="w-full pl-8 pr-2 py-3 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-lg text-xs font-semibold outline-none focus:border-primary text-black dark:text-white cursor-pointer appearance-none font-sans"
-                      >
-                        <option value="all">All Templates</option>
-                        {pickerType === "resume" ? (
-                          <>
-                            <option value="modern">Modern</option>
-                            <option value="minimal">Minimal</option>
-                            <option value="classic">Classic</option>
-                            <option value="professional">Professional</option>
-                          </>
-                        ) : (
-                          <>
-                            <option value="Modern">Modern</option>
-                            <option value="Classic">Classic</option>
-                            <option value="Minimal">Minimal</option>
-                          </>
-                        )}
-                      </select>
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-black dark:text-white tracking-tight">
+                      Select {pickerType === "resume" ? "Resume" : "Cover Letter"}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-0.5 font-sans">Choose a document from your library for this version.</p>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(false)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                >
+                  <X size={20} className="text-gray-500" />
+                </button>
+              </div>
 
-                {/* List container */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-2.5 custom-scrollbar">
-                  {getPickerItems().length > 0 ? (
-                    getPickerItems().map(item => (
-                      <div
-                        key={item.id}
-                        onClick={() => setPickerSelectedItem(item)}
-                        className={`p-4 border rounded-xl cursor-pointer transition-all flex flex-col justify-between h-28 relative overflow-hidden ${
-                          pickerSelectedItem?.id === item.id
-                            ? "border-primary bg-primary/5 dark:bg-primary/10 shadow-sm"
-                            : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
-                        }`}
-                      >
-                        <div className="space-y-1 pr-6">
-                          <h4 className="font-semibold text-sm text-black dark:text-white line-clamp-1">{item.title}</h4>
-                          <p className="text-[10px] text-gray-500 capitalize">{item.template || "Standard"} Template</p>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                          <Calendar size={10} />
-                          <span>Updated {formatDate(item.updatedAt)}</span>
-                        </div>
-                        {pickerSelectedItem?.id === item.id && (
-                          <div className="absolute top-3 right-3 w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center">
-                            <Check size={12} />
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-center text-gray-500 py-10">
-                      <FileText size={28} className="text-gray-300 mb-2" />
-                      <p className="text-xs font-semibold">No items match filters</p>
-                    </div>
-                  )}
+              {/* Filter and search bar */}
+              <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5 space-y-3 shrink-0 relative z-10">
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                  <input
+                    type="text"
+                    placeholder="Search title..."
+                    value={pickerSearchQuery}
+                    onChange={(e) => setPickerSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-xl text-xs font-semibold outline-none focus:border-primary text-black dark:text-white font-sans"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  {/* Sort Selector */}
+                  <div className="flex-1 relative">
+                    <ArrowUpDown className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
+                    <select
+                      value={pickerSortBy}
+                      onChange={(e: any) => setPickerSortBy(e.target.value)}
+                      className="w-full pl-8 pr-2 py-2.5 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-xl text-xs font-semibold outline-none focus:border-primary text-black dark:text-white cursor-pointer appearance-none font-sans"
+                    >
+                      <option value="updated">Recent Updated</option>
+                      <option value="title">Title A-Z</option>
+                    </select>
+                  </div>
+
+                  {/* Filter template */}
+                  <div className="flex-1 relative">
+                    <Filter className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" size={12} />
+                    <select
+                      value={pickerFilterTemplate}
+                      onChange={(e: any) => setPickerFilterTemplate(e.target.value)}
+                      className="w-full pl-8 pr-2 py-2.5 bg-white dark:bg-black border border-gray-300 dark:border-white/10 rounded-xl text-xs font-semibold outline-none focus:border-primary text-black dark:text-white cursor-pointer appearance-none font-sans"
+                    >
+                      <option value="all">All Templates</option>
+                      {pickerType === "resume" ? (
+                        <>
+                          <option value="modern">Modern</option>
+                          <option value="minimal">Minimal</option>
+                          <option value="classic">Classic</option>
+                          <option value="professional">Professional</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Modern">Modern</option>
+                          <option value="Classic">Classic</option>
+                          <option value="Minimal">Minimal</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
                 </div>
               </div>
 
-              {/* Right Column: Live Document Preview & Actions */}
-              <div className="flex-1 flex flex-col h-full bg-gray-50/50 dark:bg-black/40 overflow-hidden">
-                {/* Preview Header */}
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-white/10 flex items-center justify-between bg-white dark:bg-[#08080a] shrink-0">
-                  <div className="truncate pr-4">
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Previewing document</span>
-                    <h3 className="font-bold text-black dark:text-white truncate mt-0.5">{pickerSelectedItem ? pickerSelectedItem.title : "No Selection"}</h3>
-                  </div>
+              {/* Grid Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar relative z-10">
+                {getPickerItems().length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {getPickerItems().map(item => {
+                      const isSelected = (pickerType === "resume" ? formData.resumeId : formData.coverLetterId) === item.id;
+                      const editUrl = pickerType === "resume" 
+                        ? `/dashboard/resume-builder?id=${item.id}` 
+                        : `/dashboard/cover-letter?id=${item.id}`;
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPickerOpen(false)}
-                      className="px-4 py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 rounded-xl text-xs font-bold transition-all cursor-pointer font-sans"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={!pickerSelectedItem}
-                      onClick={handleSelectFromPicker}
-                      className="px-5 py-3 bg-primary text-white rounded-xl text-xs font-bold hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 cursor-pointer font-sans"
-                    >
-                      Select Document
-                    </button>
-                  </div>
-                </div>
+                      return (
+                        <div
+                          key={item.id}
+                          className={`p-5 border rounded-2xl transition-all flex flex-col justify-between h-36 relative overflow-hidden group border-gray-200 dark:border-white/10 bg-white dark:bg-[#0c0c0e]/40 hover:shadow-lg dark:hover:shadow-black/40 hover:border-primary/40`}
+                        >
+                          <div className="space-y-1 pr-6">
+                            <h4 className="font-bold text-sm text-black dark:text-white line-clamp-1">{item.title}</h4>
+                            <p className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">{item.template || "Standard"} Template</p>
+                          </div>
+                          
+                          <div className="flex items-center gap-1.5 text-[10px] text-gray-500 font-medium">
+                            <Calendar size={10} />
+                            <span>Updated {formatDate(item.updatedAt)}</span>
+                          </div>
 
-                {/* Preview frame container */}
-                <div className="flex-1 overflow-y-auto p-8 flex justify-center items-start">
-                  {pickerSelectedItem ? (
-                    <div className="w-full max-w-[210mm] shadow-2xl rounded-2xl overflow-hidden scale-[0.6] md:scale-[0.7] xl:scale-[0.8] origin-top bg-white border border-gray-200 dark:border-white/10 shrink-0">
-                      {pickerType === "resume" ? (
-                        <ResumePreview stateOverride={pickerSelectedItem.content} />
-                      ) : (
-                        <CoverLetterPreview stateOverride={{ ...pickerSelectedItem.content, template: pickerSelectedItem.template }} />
-                      )}
-                    </div>
-                  ) : (
-                    <div className="h-full w-full flex flex-col items-center justify-center text-center text-gray-500">
-                      <Eye size={40} className="text-gray-300 mb-2" />
-                      <p className="text-sm font-semibold">Select a document from the list to display its preview.</p>
-                    </div>
-                  )}
-                </div>
+                          {/* Action overlay buttons */}
+                          <div className="mt-3 flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleSelectCard(item)}
+                              className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1 cursor-pointer ${
+                                isSelected
+                                  ? "bg-primary text-white"
+                                  : "bg-primary/10 text-primary hover:bg-primary hover:text-white"
+                              }`}
+                            >
+                              {isSelected ? <Check size={12} /> : null}
+                              {isSelected ? "Selected" : "Select"}
+                            </button>
+                            <a
+                              href={editUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-700 dark:text-gray-300 rounded-lg text-[10px] font-bold transition-all flex items-center justify-center gap-1 border border-transparent hover:border-gray-200 dark:hover:border-white/10"
+                            >
+                              <ExternalLink size={12} />
+                              Preview & Edit
+                            </a>
+                          </div>
+
+                          {isSelected && (
+                            <div className="absolute top-4 right-4 w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center shadow-md">
+                              <Check size={12} />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="py-16 text-center text-gray-500 italic font-sans flex flex-col items-center justify-center gap-2">
+                    <FileText size={32} className="text-gray-300 animate-pulse" />
+                    <p className="text-sm font-semibold">No items match filters</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
@@ -774,6 +787,7 @@ export default function VersionsPage() {
         onClose={() => setCompanyPickerOpen(false)}
         onSelect={(companyName) => setFormData({ ...formData, companyName })}
         selectedValue={formData.companyName}
+        userOnly={true}
       />
     </div>
   );

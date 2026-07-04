@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { authApi } from '@/apis/auth.api';
 import { User, LoginCredentials, RegisterData, VerifyOtpData } from '@/types/auth';
+import { getErrorMessage } from '@/lib/utils';
 
 interface AuthState {
   user: User | null;
@@ -36,8 +37,7 @@ export const login = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Login failed');
+      return rejectWithValue(getErrorMessage(error, 'Login failed'));
     }
   }
 );
@@ -52,8 +52,7 @@ export const register = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Registration failed');
+      return rejectWithValue(getErrorMessage(error, 'Registration failed'));
     }
   }
 );
@@ -69,8 +68,7 @@ export const verifyOtp = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Verification failed');
+      return rejectWithValue(getErrorMessage(error, 'Verification failed'));
     }
   }
 );
@@ -85,8 +83,7 @@ export const resendOtp = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to resend OTP');
+      return rejectWithValue(getErrorMessage(error, 'Failed to resend OTP'));
     }
   }
 );
@@ -102,8 +99,7 @@ export const fetchProfile = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch profile');
+      return rejectWithValue(getErrorMessage(error, 'Failed to fetch profile'));
     }
   }
 );
@@ -119,8 +115,7 @@ export const updateProfile = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to update profile');
+      return rejectWithValue(getErrorMessage(error, 'Failed to update profile'));
     }
   }
 );
@@ -136,8 +131,7 @@ export const uploadAvatar = createAsyncThunk(
       }
       return rejectWithValue(response.message);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to upload avatar');
+      return rejectWithValue(getErrorMessage(error, 'Failed to upload avatar'));
     }
   }
 );

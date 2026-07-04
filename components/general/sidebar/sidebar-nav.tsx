@@ -24,7 +24,8 @@ export function SidebarNav({ navigation, onClose }: SidebarNavProps) {
 
     const routesThatCloseSidebar = [
       "/dashboard/resume-builder",
-      "/dashboard/cover-letter"
+      "/dashboard/cover-letter",
+      "/dashboard/portfolio"
     ];
 
     if (routesThatCloseSidebar.includes(href)) {

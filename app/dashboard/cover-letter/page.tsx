@@ -26,6 +26,7 @@ import {
 import { OptimizeModal } from "@/components/general/OptimizeModal";
 import axiosInstance from "@/apis/axiosInstance";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 const CoverLetterPage = () => {
   const searchParams = useSearchParams();
@@ -80,7 +81,7 @@ const CoverLetterPage = () => {
       }
     } catch (error: any) {
       console.error("Optimization failed:", error);
-      const msg = error.response?.data?.message || "Optimization failed. Upgrade to PRO to use optimization features.";
+      const msg = getErrorMessage(error, "Optimization failed. Upgrade to PRO to use optimization features.");
       toast.error(msg);
     } finally {
       setIsOptimizing(false);

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchProfile } from "@/store/slices/authSlice";
 import api from "@/apis/axiosInstance";
@@ -35,6 +36,8 @@ import {
   FileText, 
   Info,
   ChevronRight,
+  ChevronDown,
+  Palette,
   Code,
   Github,
   Linkedin,
@@ -57,8 +60,9 @@ export default function PortfolioPage() {
   const { user } = useAppSelector((state) => state.auth);
 
   // States
-  const [viewState, setViewState] = useState<"landing" | "builder">("landing");
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateDefinition | null>(null);
+  const [viewState, setViewState] = useState<"landing" | "builder">("builder");
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateDefinition | null>(TEMPLATES[0]);
+  const [isTemplateDropdownOpen, setIsTemplateDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"personal" | "sections" | "design">("personal");
   const [previewMode, setPreviewMode] = useState<"editor" | "preview">("editor");
   const [viewportSize, setViewportSize] = useState<"desktop" | "tablet" | "mobile">("desktop");
@@ -77,8 +81,12 @@ export default function PortfolioPage() {
   const [uploadingProjectImages, setUploadingProjectImages] = useState<{ [key: string]: boolean }>({});
 
   // Dynamic portfolio data and settings
-  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null);
-  const [portfolioSettings, setPortfolioSettings] = useState<PortfolioSettings | null>(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(
+    JSON.parse(JSON.stringify(TEMPLATES[0].defaultData))
+  );
+  const [portfolioSettings, setPortfolioSettings] = useState<PortfolioSettings | null>(
+    JSON.parse(JSON.stringify(TEMPLATES[0].defaultSettings))
+  );
 
   // Video refs for play on hover
   const videoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({});
@@ -383,62 +391,80 @@ export default function PortfolioPage() {
         <div className="space-y-6">
           
           {/* Header Action Bar */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-4 rounded-2xl shadow-sm">
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => setViewState("landing")}
-                className="p-2.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-xl text-slate-500 dark:text-gray-400 transition-all border border-black/5 dark:border-white/5"
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-black/40 p-4 rounded-2xl backdrop-blur-xl relative z-50">
+            <div className="flex items-center gap-4 w-full md:w-auto">
+              <Link 
+                href="/dashboard"
+                className="p-2 rounded-xl bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-slate-700 dark:text-gray-300"
               >
-                <ArrowLeft size={20} />
-              </button>
-              <div>
-                <h2 className="font-extrabold text-lg text-slate-800 dark:text-white">
+                <ArrowLeft size={18} />
+              </Link>
+              <div className="flex-1">
+                <h2 className="bg-transparent border-none outline-none font-semibold text-lg font-sans dark:text-white w-full focus:ring-0 p-0">
                   Portfolio Builder
                 </h2>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-slate-500 dark:text-gray-400">
-                    Template: <span className="font-bold text-[#001BB7] dark:text-[#001BB7]">{selectedTemplate.name}</span>
-                  </span>
-                  <span className="text-slate-300">|</span>
-                  
-                  {/* Template switcher dropdown toggle */}
-                  <select 
-                    className="bg-transparent border-0 text-xs font-bold text-slate-600 dark:text-gray-300 focus:outline-none cursor-pointer hover:text-[#001BB7]"
-                    value={selectedTemplate.id}
-                    onChange={(e) => {
-                      const found = TEMPLATES.find(t => t.id === e.target.value);
-                      if (found) {
-                        setSelectedTemplate(found);
-                        setPortfolioSettings(JSON.parse(JSON.stringify(found.defaultSettings)));
-                        toast.success(`Switched active design to: ${found.name}`);
-                      }
-                    }}
-                  >
-                    {TEMPLATES.map(t => (
-                      <option key={t.id} value={t.id} className="dark:bg-[#12121A]">{t.name}</option>
-                    ))}
-                  </select>
-                </div>
+                <p className="text-[10px] text-gray-500 font-semibold font-sans uppercase tracking-widest mt-0.5">
+                  Syncing to Cloud
+                </p>
               </div>
             </div>
 
             {/* View selectors */}
-            <div className="flex items-center gap-4 flex-wrap w-full md:w-auto justify-end">
+            <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+              {/* Template switcher dropdown toggle */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsTemplateDropdownOpen(!isTemplateDropdownOpen)}
+                  className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all shadow-sm"
+                >
+                  <Palette size={16} className="text-purple-500" />
+                  <span>{selectedTemplate.name}</span>
+                  <ChevronDown size={14} className={`transition-transform duration-200 ${isTemplateDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {isTemplateDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-45" onClick={() => setIsTemplateDropdownOpen(false)} />
+                    <ul className="absolute right-0 mt-2 w-48 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-[60] py-1 overflow-hidden animate-in fade-in zoom-in duration-200">
+                      {TEMPLATES.map((t) => (
+                        <li
+                          key={t.id}
+                          className={`px-4 py-2 text-sm cursor-pointer transition-colors ${
+                            t.id === selectedTemplate.id
+                              ? "bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 font-semibold"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10"
+                          }`}
+                          onClick={() => {
+                            setSelectedTemplate(t);
+                            setPortfolioSettings(JSON.parse(JSON.stringify(t.defaultSettings)));
+                            toast.success(`Switched active design to: ${t.name}`);
+                            setIsTemplateDropdownOpen(false);
+                          }}
+                        >
+                          {t.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+
               {/* Autofill Button */}
               {user && (
                 <button 
                   onClick={() => setShowAutofillModal(true)}
-                  className="h-11 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-orange-500/10 hover:brightness-105 active:scale-[0.99] transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold font-sans text-sm transition-all shadow-sm shadow-purple-500/20 active:scale-[0.99]"
                 >
-                  <Sparkles size={14} /> Auto Fill
+                  <Sparkles size={16} /> Auto Fill
                 </button>
               )}
 
               {/* View toggle (Editor vs Preview - Split removed) */}
-              <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl border border-black/5 dark:border-white/5 h-11 items-center">
+              <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10 h-11 items-center">
                 <button 
                   onClick={() => setPreviewMode("editor")}
-                  className={`h-9 px-4 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${previewMode === "editor" ? "bg-white dark:bg-white/10 text-[#001BB7] dark:text-white shadow" : "text-slate-500 dark:text-gray-400"}`}
+                  className={`h-9 px-4 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${previewMode === "editor" ? "bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow" : "text-gray-500 dark:text-gray-400 hover:text-slate-800"}`}
                 >
                   <Edit3 size={12} /> Editor
                 </button>
@@ -447,7 +473,7 @@ export default function PortfolioPage() {
                     if (hasUnlockedPreview) setPreviewMode("preview");
                   }}
                   disabled={!hasUnlockedPreview}
-                  className={`h-9 px-4 rounded-lg text-xs font-bold transition-all flex items-center gap-1 group relative ${previewMode === "preview" ? "bg-white dark:bg-white/10 text-[#001BB7] dark:text-white shadow" : "text-slate-500 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed"}`}
+                  className={`h-9 px-4 rounded-lg text-xs font-bold transition-all flex items-center gap-1 group relative ${previewMode === "preview" ? "bg-white dark:bg-white/10 text-slate-800 dark:text-white shadow" : "text-gray-500 dark:text-gray-400 disabled:opacity-40 disabled:cursor-not-allowed"}`}
                   title={!hasUnlockedPreview ? "Please complete Personal Info to unlock" : ""}
                 >
                   <Eye size={12} /> Preview
@@ -461,7 +487,7 @@ export default function PortfolioPage() {
 
               {/* Viewport size switcher */}
               {previewMode === "preview" && (
-                <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl border border-black/5 dark:border-white/5 h-11 items-center">
+                <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10 h-11 items-center">
                   <button 
                     onClick={() => setViewportSize("desktop")}
                     className={`p-2 rounded-lg transition-all ${viewportSize === "desktop" ? "bg-white dark:bg-white/10 text-[#001BB7] dark:text-white shadow" : "text-slate-400"}`}
@@ -521,11 +547,11 @@ export default function PortfolioPage() {
                       
                       {/* Name and Job Title */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Full Name *</label>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Full Name *</label>
                           <input 
                             type="text" 
-                            className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white font-medium focus:ring-2 focus:ring-[#001BB7]/10"
+                            className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                             value={portfolioData.personalInfo.fullName}
                             onChange={(e) => {
                               const copy = { ...portfolioData };
@@ -535,11 +561,11 @@ export default function PortfolioPage() {
                             placeholder="Rupesh Jagtap"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Job Title *</label>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Job Title *</label>
                           <input 
                             type="text" 
-                            className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white font-medium focus:ring-2 focus:ring-[#001BB7]/10"
+                            className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                             value={portfolioData.personalInfo.jobTitle}
                             onChange={(e) => {
                               const copy = { ...portfolioData };
@@ -552,11 +578,11 @@ export default function PortfolioPage() {
                       </div>
 
                       {/* Tagline */}
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Tagline / One-Liner</label>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Tagline / One-Liner</label>
                         <input 
                           type="text" 
-                          className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white font-medium focus:ring-2 focus:ring-[#001BB7]/10"
+                          className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                           value={portfolioData.personalInfo.tagline}
                           onChange={(e) => {
                             const copy = { ...portfolioData };
@@ -685,11 +711,11 @@ export default function PortfolioPage() {
 
                       {/* Contact Info */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-black/5 dark:border-white/5 pt-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Email *</label>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Email *</label>
                           <input 
                             type="email" 
-                            className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white"
+                            className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                             value={portfolioData.personalInfo.email}
                             onChange={(e) => {
                               const copy = { ...portfolioData };
@@ -699,11 +725,11 @@ export default function PortfolioPage() {
                             placeholder="rupesh@example.com"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Phone</label>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Phone</label>
                           <input 
                             type="text" 
-                            className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white"
+                            className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                             value={portfolioData.personalInfo.phone || ""}
                             onChange={(e) => {
                               const copy = { ...portfolioData };
@@ -716,11 +742,11 @@ export default function PortfolioPage() {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Location</label>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Location</label>
                           <input 
                             type="text" 
-                            className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white"
+                            className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                             value={portfolioData.personalInfo.location}
                             onChange={(e) => {
                               const copy = { ...portfolioData };
@@ -730,11 +756,11 @@ export default function PortfolioPage() {
                             placeholder="Pune, India"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Bio Paragraphs</label>
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Bio Paragraphs</label>
                           <textarea 
                             rows={3}
-                            className="w-full bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white resize-none"
+                            className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white resize-none text-sm"
                             value={portfolioData.personalInfo.bio}
                             onChange={(e) => {
                               const copy = { ...portfolioData };
@@ -748,13 +774,13 @@ export default function PortfolioPage() {
 
                       {/* Social handles */}
                       <div className="border-t border-black/5 dark:border-white/5 pt-6 space-y-4">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Social Handles</h4>
+                        <h4 className="text-sm font-bold uppercase tracking-wider text-slate-400">Social Handles</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">GitHub Link</label>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs font-medium font-sans text-gray-700 dark:text-gray-300">GitHub Link</label>
                             <input 
                               type="text" 
-                              className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white"
+                              className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                               value={portfolioData.personalInfo.socialLinks.github || ""}
                               onChange={(e) => {
                                 const copy = { ...portfolioData };
@@ -764,11 +790,11 @@ export default function PortfolioPage() {
                               placeholder="https://github.com/..."
                             />
                           </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">LinkedIn Link</label>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs font-medium font-sans text-gray-700 dark:text-gray-300">LinkedIn Link</label>
                             <input 
                               type="text" 
-                              className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white"
+                              className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                               value={portfolioData.personalInfo.socialLinks.linkedin || ""}
                               onChange={(e) => {
                                 const copy = { ...portfolioData };
@@ -778,11 +804,11 @@ export default function PortfolioPage() {
                               placeholder="https://linkedin.com/in/..."
                             />
                           </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-bold text-slate-500 uppercase">Twitter/X Link</label>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-xs font-medium font-sans text-gray-700 dark:text-gray-300">Twitter/X Link</label>
                             <input 
                               type="text" 
-                              className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-[#001BB7] text-slate-800 dark:text-white"
+                              className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                               value={portfolioData.personalInfo.socialLinks.twitter || ""}
                               onChange={(e) => {
                                 const copy = { ...portfolioData };
@@ -833,18 +859,19 @@ export default function PortfolioPage() {
 
                         <div className="space-y-4">
                           {portfolioData.projects.map((proj, idx) => (
-                            <div key={proj.id} className="bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-4 rounded-xl space-y-4 relative group">
-                              <div className="flex items-center justify-between border-b pb-2 border-slate-100 dark:border-white/5">
-                                <div className="flex-1">
+                            <div key={proj.id} className="bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-5 rounded-xl space-y-4 relative group shadow-sm">
+                              <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-white/5">
+                                <div className="flex-1 mr-4">
                                   <input 
                                     type="text" 
-                                    className="bg-transparent border-b border-transparent focus:border-[#001BB7] focus:outline-none font-bold text-sm w-full text-slate-800 dark:text-white"
+                                    className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm font-bold"
                                     value={proj.name}
                                     onChange={(e) => {
                                       const copy = { ...portfolioData };
                                       copy.projects[idx].name = e.target.value;
                                       setPortfolioData(copy);
                                     }}
+                                    placeholder="Project Name"
                                   />
                                 </div>
                                 <button 
@@ -861,23 +888,24 @@ export default function PortfolioPage() {
                               </div>
 
                               {/* Project description */}
-                              <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Description</label>
+                              <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Description</label>
                                 <textarea 
                                   rows={2}
-                                  className="w-full bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl text-xs p-3 focus:outline-none focus:border-[#001BB7]"
+                                  className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white resize-none text-sm"
                                   value={proj.description}
                                   onChange={(e) => {
                                     const copy = { ...portfolioData };
                                     copy.projects[idx].description = e.target.value;
                                     setPortfolioData(copy);
                                   }}
+                                  placeholder="Enter project description..."
                                 />
                               </div>
 
-                              {/* Project Image Uploader (Replacing raw text URL inputs) */}
-                              <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-slate-400 uppercase">Project Screenshot Image</label>
+                              {/* Project Image Uploader */}
+                              <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Project Screenshot Image</label>
                                 <div className="flex items-center gap-4 p-3 border border-black/5 dark:border-white/5 bg-slate-50/50 dark:bg-black/20 rounded-xl">
                                   {proj.imageUrl ? (
                                     <img 
@@ -917,7 +945,7 @@ export default function PortfolioPage() {
                                             copy.projects[idx].imageUrl = "";
                                             setPortfolioData(copy);
                                           }}
-                                          className="text-xs text-red-500 hover:underline"
+                                          className="text-xs text-red-500 hover:underline animate-fade-in"
                                         >
                                           Clear
                                         </button>
@@ -928,31 +956,33 @@ export default function PortfolioPage() {
                               </div>
 
                               {/* Tech Stack list inputs */}
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-bold text-slate-400 uppercase">Tech Stack (comma separated)</label>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-2">
+                                  <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Tech Stack (comma separated)</label>
                                   <input 
                                     type="text" 
-                                    className="w-full bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                                    className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                                     value={proj.techStack.join(", ")}
                                     onChange={(e) => {
                                       const copy = { ...portfolioData };
                                       copy.projects[idx].techStack = e.target.value.split(",").map(s => s.trim()).filter(s => s !== "");
                                       setPortfolioData(copy);
                                     }}
+                                    placeholder="React, TypeScript, CSS"
                                   />
                                 </div>
-                                <div className="space-y-1.5">
-                                  <label className="text-[10px] font-bold text-slate-400 uppercase">Live URL</label>
+                                <div className="flex flex-col gap-2">
+                                  <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Live URL</label>
                                   <input 
                                     type="text" 
-                                    className="w-full bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                                    className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                                     value={proj.liveUrl || ""}
                                     onChange={(e) => {
                                       const copy = { ...portfolioData };
                                       copy.projects[idx].liveUrl = e.target.value;
                                       setPortfolioData(copy);
                                     }}
+                                    placeholder="https://example.com"
                                   />
                                 </div>
                               </div>
@@ -983,11 +1013,11 @@ export default function PortfolioPage() {
 
                         <div className="space-y-4">
                           {portfolioData.techStack.map((cat, idx) => (
-                            <div key={idx} className="bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-4 rounded-xl space-y-3">
+                            <div key={idx} className="bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-4 rounded-xl space-y-3 shadow-sm">
                               <div className="flex justify-between items-center">
                                 <input 
                                   type="text" 
-                                  className="bg-transparent border-b border-transparent focus:border-[#001BB7] focus:outline-none font-bold text-xs text-slate-800 dark:text-white"
+                                  className="px-3 py-1.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-xs font-bold"
                                   value={cat.category}
                                   onChange={(e) => {
                                     const copy = { ...portfolioData };
@@ -1009,7 +1039,7 @@ export default function PortfolioPage() {
                               </div>
                               <input 
                                 type="text"
-                                className="w-full bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl text-xs p-2.5 focus:outline-none"
+                                className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                                 value={cat.items.join(", ")}
                                 onChange={(e) => {
                                   const copy = { ...portfolioData };
@@ -1038,28 +1068,28 @@ export default function PortfolioPage() {
                         </div>
 
                         {isAddingSection && (
-                          <div className="bg-white dark:bg-[#12121A] border border-[#001BB7]/30 p-5 rounded-xl space-y-3 shadow-sm">
+                          <div className="bg-white dark:bg-[#12121A] border border-[#001BB7]/30 p-5 rounded-xl space-y-4 shadow-sm">
                             <h4 className="text-xs font-bold uppercase tracking-wider text-[#001BB7]">Configure Section</h4>
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold text-slate-500">Section Title</label>
+                            <div className="flex flex-col gap-2">
+                              <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Section Title</label>
                               <input 
                                 type="text" 
-                                className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-lg px-3 py-2 text-xs focus:outline-none"
+                                className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                                 value={newSectionTitle}
                                 onChange={(e) => setNewSectionTitle(e.target.value)}
                                 placeholder="E.g. Services, Publications"
                               />
                             </div>
-                            <div className="space-y-1.5">
-                              <label className="text-[10px] font-bold text-slate-500">Layout Format</label>
+                            <div className="flex flex-col gap-2">
+                              <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Layout Format</label>
                               <select 
-                                className="w-full h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-lg px-3 py-2 text-xs focus:outline-none"
+                                className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm focus:border-primary"
                                 value={newSectionLayout}
                                 onChange={(e) => setNewSectionLayout(e.target.value as any)}
                               >
-                                <option value="grid">Grid (Cards)</option>
-                                <option value="timeline">Timeline</option>
-                                <option value="text">Text block list</option>
+                                <option value="grid" className="text-slate-800 dark:text-white dark:bg-[#12121A]">Grid (Cards)</option>
+                                <option value="timeline" className="text-slate-800 dark:text-white dark:bg-[#12121A]">Timeline</option>
+                                <option value="text" className="text-slate-800 dark:text-white dark:bg-[#12121A]">Text block list</option>
                               </select>
                             </div>
                             <div className="flex gap-2 justify-end">
@@ -1122,7 +1152,7 @@ export default function PortfolioPage() {
                                     <div className="flex gap-2">
                                       <input 
                                         type="text" 
-                                        className="w-full bg-white dark:bg-[#12121A] border border-black/10 dark:border-white/5 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none"
+                                        className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm"
                                         value={item.title}
                                         onChange={(e) => {
                                           const copy = { ...portfolioData };
@@ -1144,7 +1174,7 @@ export default function PortfolioPage() {
                                     </div>
                                     <textarea 
                                       rows={2}
-                                      className="w-full bg-white dark:bg-[#12121A] border border-black/10 dark:border-white/5 rounded-lg p-2 text-[11px] resize-none"
+                                      className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white resize-none text-sm"
                                       value={item.description || ""}
                                       onChange={(e) => {
                                         const copy = { ...portfolioData };
@@ -1185,7 +1215,7 @@ export default function PortfolioPage() {
                       
                       {/* Theme selection */}
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Palette Accent Color</label>
+                        <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Palette Accent Color</label>
                         <div className="grid grid-cols-3 gap-3">
                           {accentPresets.map((preset) => (
                             <button 
@@ -1203,10 +1233,9 @@ export default function PortfolioPage() {
                           ))}
                         </div>
                       </div>
-
-                      {/* Custom color picker */}
+                                        {/* Custom color picker */}
                       <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Custom Accent Color</label>
+                        <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Custom Accent Color</label>
                         <div className="flex gap-3">
                           <input 
                             type="color" 
@@ -1220,7 +1249,7 @@ export default function PortfolioPage() {
                           />
                           <input 
                             type="text" 
-                            className="h-11 bg-slate-50 dark:bg-black/20 border border-black/10 dark:border-white/5 rounded-xl px-4 py-2.5 text-xs text-center font-mono w-28 focus:outline-none"
+                            className="px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-gray-900 dark:text-white font-sans text-sm text-center font-mono w-28"
                             value={portfolioSettings.accentColor}
                             onChange={(e) => {
                               const copy = { ...portfolioSettings };
@@ -1228,54 +1257,6 @@ export default function PortfolioPage() {
                               setPortfolioSettings(copy);
                             }}
                           />
-                        </div>
-                      </div>
-
-                      {/* Font selector */}
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Typography / Font</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          {fontPresets.map((font) => (
-                            <button 
-                              key={font}
-                              onClick={() => {
-                                const copy = { ...portfolioSettings };
-                                copy.fontFamily = font;
-                                setPortfolioSettings(copy);
-                              }}
-                              className={`h-11 px-3 border rounded-xl text-xs transition-all ${portfolioSettings.fontFamily === font ? "border-[#001BB7] bg-[#001BB7]/5 font-semibold text-slate-800 dark:text-white" : "border-black/10 dark:border-white/5 bg-transparent"}`}
-                              style={{ fontFamily: font }}
-                            >
-                              {font}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Dark/Light theme */}
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Base Render Theme</label>
-                        <div className="grid grid-cols-2 gap-3">
-                          <button 
-                            onClick={() => {
-                              const copy = { ...portfolioSettings };
-                              copy.theme = "light";
-                              setPortfolioSettings(copy);
-                            }}
-                            className={`h-11 px-3 border rounded-xl text-xs transition-all ${portfolioSettings.theme === "light" ? "border-[#001BB7] bg-[#001BB7]/5 font-bold" : "border-black/10 dark:border-white/5 bg-transparent"}`}
-                          >
-                            Light Theme
-                          </button>
-                          <button 
-                            onClick={() => {
-                              const copy = { ...portfolioSettings };
-                              copy.theme = "dark";
-                              setPortfolioSettings(copy);
-                            }}
-                            className={`h-11 px-3 border rounded-xl text-xs transition-all ${portfolioSettings.theme === "dark" ? "border-[#001BB7] bg-[#001BB7]/5 font-bold" : "border-black/10 dark:border-white/5 bg-transparent"}`}
-                          >
-                            Dark Theme
-                          </button>
                         </div>
                       </div>
 
@@ -1290,18 +1271,6 @@ export default function PortfolioPage() {
             {previewMode === "preview" && (
               <div className="bg-white dark:bg-[#08080a] border border-black/5 dark:border-white/5 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[78vh] max-w-5xl mx-auto w-full">
                 
-                {/* Simulated browser bar */}
-                <div className="bg-slate-50 dark:bg-[#12121A] border-b border-black/5 dark:border-white/5 p-3 flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-400 inline-block" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-400 inline-block" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-400 inline-block" />
-                  
-                  <div className="bg-slate-200/50 dark:bg-black/30 rounded-lg px-4 py-1 flex items-center justify-between text-[10px] text-slate-500 dark:text-gray-400 w-full max-w-sm mx-auto font-mono">
-                    <span>https://{portfolioData.personalInfo.fullName.toLowerCase().replace(/\s+/g, "")}.dev</span>
-                    <ExternalLink size={10} className="opacity-60" />
-                  </div>
-                </div>
-
                 {/* Viewport container */}
                 <div className="flex-1 overflow-auto bg-slate-900 relative">
                   
@@ -1338,11 +1307,11 @@ export default function PortfolioPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center p-4 bg-slate-950/20">
+                    <div className={`w-full h-full flex items-center justify-center ${viewportSize === "desktop" ? "p-0 bg-transparent" : "p-4 bg-slate-950/20"}`}>
                       <div 
-                        className={`h-full w-full bg-white dark:bg-black overflow-y-auto rounded-xl transition-all duration-300 shadow-2xl ${
-                          viewportSize === "mobile" ? "max-w-[375px]" : 
-                          viewportSize === "tablet" ? "max-w-[768px]" : "w-full"
+                        className={`h-full w-full bg-white dark:bg-black overflow-y-auto transition-all duration-300 ${
+                          viewportSize === "mobile" ? "max-w-[375px] rounded-xl shadow-2xl" : 
+                          viewportSize === "tablet" ? "max-w-[768px] rounded-xl shadow-2xl" : "w-full rounded-none shadow-none"
                         }`}
                       >
                         <TemplateRenderer 
@@ -1416,7 +1385,7 @@ export default function PortfolioPage() {
                 </button>
                 <button 
                   onClick={confirmAutofill}
-                  className="flex-1 h-11 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold rounded-xl text-xs uppercase shadow-md shadow-orange-500/10 hover:brightness-105 active:scale-[0.99] transition-all"
+                  className="flex-1 h-11 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs uppercase shadow-md shadow-purple-500/20 active:scale-[0.99] transition-all"
                 >
                   Yes, Auto Fill
                 </button>

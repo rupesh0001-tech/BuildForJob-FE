@@ -525,5 +525,181 @@ export const TEMPLATES: TemplateDefinition[] = [
       ],
       customSections: []
     }
+  },
+  {
+    id: 'architect-prismatic',
+    name: 'The Architect / Prismatic',
+    description: 'A beautiful light-themed design using prismatic gradients, precise hairlines, and Geist/Geist Mono typography.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=500&auto=format&fit=crop&q=60',
+    videoUrl: '',
+    defaultSettings: {
+      theme: 'light',
+      accentColor: '#4648d4',
+      fontFamily: 'Inter',
+    },
+    defaultData: {
+      personalInfo: {
+        fullName: 'Rupesh Jagtap',
+        jobTitle: 'Principal Backend Engineer',
+        tagline: 'Building distributed systems, high-availability architecture, and performance engineering.',
+        bio: 'Distributed systems engineer focusing on Rust, Go, cloud infrastructure, and low-latency APIs. Turning complex requirements into scalable reality.',
+        email: 'guest@localhost',
+        phone: '',
+        location: 'San Francisco, CA',
+        avatarUrl: '',
+        resumeUrl: '#',
+        isOpenToWork: true,
+        socialLinks: {
+          github: 'https://github.com',
+          linkedin: 'https://linkedin.com',
+          twitter: 'https://twitter.com',
+          portfolioUrl: ''
+        }
+      },
+      aboutMe: {
+        paragraphs: [
+          'Distributed systems engineer focusing on Rust, Go, cloud infrastructure, and low-latency APIs. Turning complex requirements into scalable reality.'
+        ]
+      },
+      techStack: [
+        { category: 'Toolbox', items: ['Rust', 'Go', 'AWS', 'Kubernetes'] }
+      ],
+      projects: [
+        {
+          id: 'arch-p1',
+          name: 'FinTech Ledger Optimization',
+          description: 'Optimized FinTech ledger throughput by 400% through a custom-built distributed log architecture using Rust and Raft consensus.',
+          techStack: ['Rust', 'gRPC', 'ScyllaDB'],
+          features: [],
+          liveUrl: '#',
+          githubUrl: '#',
+          imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=500&auto=format&fit=crop&q=60'
+        }
+      ],
+      experience: [
+        {
+          id: 'arch-exp1',
+          company: 'FinTech Systems',
+          role: 'Principal Backend Engineer',
+          duration: '2022 - Present',
+          responsibilities: ['Developed and optimized low-latency payment processing pipelines handling high volumes.'],
+          technologies: ['Rust', 'Go', 'AWS', 'Kubernetes']
+        }
+      ],
+      education: [
+        {
+          id: 'arch-edu1',
+          degree: 'Master of Science',
+          field: 'Computer Engineering',
+          institution: 'Stanford University',
+          duration: '2018 - 2020',
+          gpa: '3.9 GPA'
+        }
+      ],
+      skills: [
+        { category: 'Rust Systems', items: ['Low-level control', 'Zero-cost abstractions', 'Memory safety'] },
+        { category: 'Go Microservices', items: ['High concurrency', 'Fast execution', 'Clean APIs'] },
+        { category: 'Cloud Infrastructure', items: ['AWS Systems', 'IAM Automation', 'Auto-scaling'] },
+        { category: 'Kubernetes Scale', items: ['Orchestration', 'Global traffic routing', 'Self-healing'] }
+      ],
+      achievements: [
+        'Reduced ledger latency to <2ms p99 at 1M RPM.',
+        'Designed multi-region failover handling 500k RPS.'
+      ],
+      codingProfiles: [],
+      customSections: []
+    }
+  },
+  {
+    id: 'engineering-sleek',
+    name: 'Engineering Sleek',
+    description: 'A clean light grid layout featuring services highlights, custom marquee sliders, and technical details.',
+    thumbnailUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&auto=format&fit=crop&q=60',
+    videoUrl: '',
+    defaultSettings: {
+      theme: 'light',
+      accentColor: '#3525cd',
+      fontFamily: 'Inter',
+    },
+    defaultData: {
+      personalInfo: {
+        fullName: 'Rupesh Jagtap',
+        jobTitle: 'Full-Stack Software Engineer',
+        tagline: 'Turn your idea into a successful Website/Software today.',
+        bio: 'We help businesses like yours earn more customers, standout from competitors, and make more money through precision-engineered digital solutions.',
+        email: 'rupeshjagtap157@gmail.com',
+        phone: '',
+        location: 'Pune, India',
+        avatarUrl: '',
+        resumeUrl: '#',
+        isOpenToWork: true,
+        socialLinks: {
+          github: 'https://github.com',
+          linkedin: 'https://linkedin.com',
+          twitter: 'https://twitter.com',
+          portfolioUrl: ''
+        }
+      },
+      aboutMe: {
+        paragraphs: [
+          'Full-stack developer passionate about building scalable, search-optimized web applications with modern design systems.'
+        ]
+      },
+      techStack: [
+        { category: 'Expertise', items: ['React', 'Next.js', 'Go', 'Docker'] }
+      ],
+      projects: [
+        {
+          id: 'sleek-p1',
+          name: 'RotationMatch Sports platform',
+          description: 'A high-performance sports analytics dashboard showing live player stats and scheduling grids.',
+          techStack: ['Next.js', 'Go', 'PostgreSQL'],
+          features: [],
+          liveUrl: '#',
+          githubUrl: '#',
+          imageUrl: 'https://images.unsplash.com/photo-1508830524479-70c3c3e4d7ec?w=500&auto=format&fit=crop&q=60'
+        },
+        {
+          id: 'sleek-p2',
+          name: 'Boomzo E-Commerce',
+          description: 'An elegant e-commerce product flow optimizing checkout speed and conversion rates.',
+          techStack: ['React', 'Node.js', 'MongoDB'],
+          features: [],
+          liveUrl: '#',
+          githubUrl: '#',
+          imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=500&auto=format&fit=crop&q=60'
+        }
+      ],
+      experience: [
+        {
+          id: 'sleek-exp1',
+          company: 'Digital Solutions',
+          role: 'Full-Stack Software Developer',
+          duration: '2021 - Present',
+          responsibilities: ['Designed and deployed search-optimized responsive web platforms.'],
+          technologies: ['React', 'Next.js', 'Go', 'Docker']
+        }
+      ],
+      education: [
+        {
+          id: 'sleek-edu1',
+          degree: 'Bachelor of Engineering',
+          field: 'Information Technology',
+          institution: 'Pune University',
+          duration: '2017 - 2021',
+          gpa: '9.2 CGPA'
+        }
+      ],
+      skills: [
+        { category: 'Web Development', items: ['React & Next.js', 'TypeScript', 'SEO Optimization'] },
+        { category: 'Systems Concurrency', items: ['Go routing', 'Dockerization', 'Redis caching'] }
+      ],
+      achievements: [
+        'Engineered high conversion checkout architectures.',
+        'Maintained 99.99% uptime across production clusters.'
+      ],
+      codingProfiles: [],
+      customSections: []
+    }
   }
 ];

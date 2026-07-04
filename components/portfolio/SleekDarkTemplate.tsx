@@ -65,7 +65,6 @@ export default function SleekDarkTemplate({ data, settings }: TemplateProps) {
               className="w-3 h-3 rounded-full animate-pulse" 
               style={{ backgroundColor: accent }}
             />
-            {data.personalInfo.fullName}
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-400">
             <a href="#about" className="hover:text-white transition-colors">About</a>
@@ -232,17 +231,11 @@ export default function SleekDarkTemplate({ data, settings }: TemplateProps) {
           </h2>
           <div className="grid md:grid-cols-2 gap-6">
             {data.projects?.map((project) => {
-              const isHovered = hoveredProject === project.id;
+              const isHovered = false;
               return (
                 <div 
                   key={project.id}
-                  className="group relative bg-[#12121A] border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all flex flex-col h-full shadow-2xl"
-                  onMouseEnter={() => {
-                    setHoveredProject(project.id);
-                  }}
-                  onMouseLeave={() => {
-                    setHoveredProject(null);
-                  }}
+                  className="group relative bg-[#12121A] border border-white/5 rounded-2xl overflow-hidden transition-all flex flex-col h-full shadow-2xl"
                 >
                   <div className="relative h-48 w-full bg-[#1A1A26] overflow-hidden shrink-0">
                     {/* Hover Video feature */}
@@ -259,17 +252,12 @@ export default function SleekDarkTemplate({ data, settings }: TemplateProps) {
                       <img 
                         src={project.imageUrl} 
                         alt={project.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-600">
                         <Code size={40} />
                       </div>
-                    )}
-                    {project.videoUrl && (
-                      <span className="absolute bottom-2 right-2 px-1.5 py-0.5 text-[10px] bg-black/75 rounded text-gray-400 font-mono tracking-tighter">
-                        HOVER FOR VIDEO
-                      </span>
                     )}
                   </div>
 
@@ -604,13 +592,6 @@ export default function SleekDarkTemplate({ data, settings }: TemplateProps) {
       <footer className="max-w-5xl mx-auto px-6 mt-24 pt-8 border-t border-white/5 text-center text-xs text-gray-500 flex flex-col sm:flex-row sm:justify-between items-center gap-4">
         <div>
           © {new Date().getFullYear()} {data.personalInfo.fullName}. All rights reserved.
-        </div>
-        <div className="flex items-center gap-2">
-          <span>Powered by</span>
-          <span className="font-bold text-white flex items-center gap-1.5">
-            <Sparkles size={12} className="text-blue-400" />
-            Leet#
-          </span>
         </div>
       </footer>
     </div>

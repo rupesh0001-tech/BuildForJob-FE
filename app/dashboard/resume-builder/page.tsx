@@ -6,6 +6,7 @@ import { ArrowLeft, Download, Save, Clock, Loader2, Sparkles } from '@/lib/icons
 import Link from "next/link";
 import { OptimizeModal } from "@/components/general/OptimizeModal";
 import axiosInstance from "@/apis/axiosInstance";
+import { getErrorMessage } from "@/lib/utils";
 import { toPng } from "html-to-image";
 import jsPDF from "jspdf";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -68,7 +69,7 @@ export default function ResumeBuilderPage() {
       }
     } catch (error: any) {
       console.error("Optimization failed:", error);
-      const msg = error.response?.data?.message || "Optimization failed. Upgrade to PRO to use optimization features.";
+      const msg = getErrorMessage(error, "Optimization failed. Upgrade to PRO to use optimization features.");
       toast.error(msg);
     } finally {
       setIsOptimizing(false);

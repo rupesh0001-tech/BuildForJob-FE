@@ -65,7 +65,7 @@ export default function RetroTerminalTemplate({ data, settings }: TemplateProps)
             <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
             <span className="ml-2 opacity-80 flex items-center gap-1">
               <Terminal size={12} />
-              guest@localhost:~{data.personalInfo.fullName.toLowerCase().replace(/\s+/g, '-')}
+              guest@localhost:~
             </span>
           </div>
           <span className="opacity-60 text-[10px]">BAUD: 9600 | TERM: VT100</span>
@@ -171,14 +171,12 @@ export default function RetroTerminalTemplate({ data, settings }: TemplateProps)
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               {data.projects?.map((project) => {
-                const isHovered = hoveredProject === project.id;
+                const isHovered = false;
                 return (
                   <div 
                     key={project.id}
                     className="border rounded-lg bg-black/20 overflow-hidden transition-all flex flex-col justify-between"
-                    style={{ borderColor: isHovered ? accent : `${accent}33` }}
-                    onMouseEnter={() => setHoveredProject(project.id)}
-                    onMouseLeave={() => setHoveredProject(null)}
+                    style={{ borderColor: `${accent}33` }}
                   >
                     <div className="h-40 w-full relative bg-black/60 border-b flex items-center justify-center" style={{ borderColor: `${accent}33` }}>
                       {isHovered && project.videoUrl ? (
@@ -194,7 +192,7 @@ export default function RetroTerminalTemplate({ data, settings }: TemplateProps)
                         <img 
                           src={project.imageUrl} 
                           alt={project.name}
-                          className="w-full h-full object-cover opacity-60 filter grayscale sepia"
+                          className="w-full h-full object-cover opacity-80"
                         />
                       ) : (
                         <Code size={36} className="opacity-40 animate-pulse" />

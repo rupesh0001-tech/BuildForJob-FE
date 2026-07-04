@@ -59,7 +59,6 @@ export default function CreativeGreenTemplate({ data, settings }: TemplateProps)
               className="w-3.5 h-3.5 rounded-full inline-block" 
               style={{ backgroundColor: accent }}
             />
-            {data.personalInfo.fullName}
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-[#465E51]">
             <a href="#about" className="hover:text-[#1E3A2F] transition-colors">About Us</a>
@@ -71,14 +70,6 @@ export default function CreativeGreenTemplate({ data, settings }: TemplateProps)
             ))}
             <a href="#contact" className="hover:text-[#1E3A2F] transition-colors">Contact</a>
           </nav>
-          
-          <a 
-            href="#contact" 
-            className="px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-xl text-white shadow-sm hover:brightness-105 transition-all"
-            style={{ backgroundColor: accent }}
-          >
-            Get Quote
-          </a>
         </div>
       </div>
 
@@ -95,11 +86,11 @@ export default function CreativeGreenTemplate({ data, settings }: TemplateProps)
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#1E3A2F] tracking-tight leading-[1.05]">
-              Turn your idea into a <span className="underline decoration-wavy underline-offset-4" style={{ textDecorationColor: accent }}>successful Software</span> today.
+              {data.personalInfo.tagline}
             </h1>
             
             <p className="text-[#465E51] text-lg leading-relaxed max-w-xl">
-              {data.personalInfo.tagline}
+              {data.personalInfo.bio}
             </p>
             
             <div className="flex flex-wrap gap-3 pt-2">
@@ -233,13 +224,11 @@ export default function CreativeGreenTemplate({ data, settings }: TemplateProps)
 
           <div className="grid md:grid-cols-2 gap-8">
             {data.projects?.map((project) => {
-              const isHovered = hoveredProject === project.id;
+              const isHovered = false;
               return (
                 <div 
                   key={project.id}
-                  className="bg-white border border-[#C5DCD0] rounded-[28px] overflow-hidden hover:shadow-lg transition-all flex flex-col h-full group"
-                  onMouseEnter={() => setHoveredProject(project.id)}
-                  onMouseLeave={() => setHoveredProject(null)}
+                  className="bg-white border border-[#C5DCD0] rounded-[28px] overflow-hidden flex flex-col h-full group"
                 >
                   <div className="relative h-52 w-full bg-[#E2EFE7] overflow-hidden shrink-0 border-b border-[#C5DCD0]">
                     {isHovered && project.videoUrl ? (
@@ -253,9 +242,9 @@ export default function CreativeGreenTemplate({ data, settings }: TemplateProps)
                       />
                     ) : project.imageUrl ? (
                       <img 
-                        src={project.imageUrl} 
+                        src={project.imageUrl}
                         alt={project.name}
-                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-[#A2C0B0]">
@@ -587,12 +576,6 @@ export default function CreativeGreenTemplate({ data, settings }: TemplateProps)
       <footer className="max-w-5xl mx-auto px-6 mt-16 text-center text-xs text-[#5D7A6B] flex flex-col sm:flex-row sm:justify-between items-center gap-4">
         <div>
           © {new Date().getFullYear()} {data.personalInfo.fullName}. All rights reserved.
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span>Optimized via</span>
-          <span className="font-bold text-[#1E3A2F] flex items-center gap-1">
-            <Sparkles size={12} className="text-[#10B981]" /> Leet#
-          </span>
         </div>
       </footer>
     </div>

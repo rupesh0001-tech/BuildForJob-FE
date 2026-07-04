@@ -19,12 +19,18 @@ export const navigation = [
     ]
   },
   {
-    title: "Resumes & Portfolios",
+    title: "Resumes",
     items: [
       { name: "ATS Checker", href: "/dashboard/resumes/ats", icon: FileCheck },
       { name: "Resume Builder", href: "/dashboard/resume-builder", icon: FilePlus },
-      { name: "Portfolio Builder", href: "/dashboard/portfolio", icon: Globe },
       { name: "My Resumes", href: "/dashboard/resumes", icon: Files },
+    ]
+  },
+  {
+    title: "Portfolio",
+    items: [
+      { name: "My Portfolio", href: "/dashboard/portfolio/myportfolio", icon: Globe },
+      { name: "Portfolio Builder", href: "/dashboard/portfolio", icon: FilePlus },
     ]
   },
   {

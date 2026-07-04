@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import * as coverLetterApi from '@/apis/cover-letter.api';
+import { getErrorMessage } from '@/lib/utils';
 import type { 
   CoverLetter, 
   SaveCoverLetterData, 
@@ -70,8 +71,7 @@ export const fetchAllCoverLetters = createAsyncThunk(
       const data = await coverLetterApi.getAllCoverLetters();
       return data;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch cover letters');
+      return rejectWithValue(getErrorMessage(error, 'Failed to fetch cover letters'));
     }
   }
 );
@@ -83,8 +83,7 @@ export const fetchCoverLetterById = createAsyncThunk(
       const data = await coverLetterApi.getCoverLetterById(id);
       return data;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch cover letter');
+      return rejectWithValue(getErrorMessage(error, 'Failed to fetch cover letter'));
     }
   }
 );
@@ -101,8 +100,7 @@ export const saveCoverLetter = createAsyncThunk(
         return response;
       }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to save cover letter');
+      return rejectWithValue(getErrorMessage(error, 'Failed to save cover letter'));
     }
   }
 );
@@ -114,8 +112,7 @@ export const deleteCoverLetterById = createAsyncThunk(
       await coverLetterApi.deleteCoverLetter(id);
       return id;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to delete cover letter');
+      return rejectWithValue(getErrorMessage(error, 'Failed to delete cover letter'));
     }
   }
 );

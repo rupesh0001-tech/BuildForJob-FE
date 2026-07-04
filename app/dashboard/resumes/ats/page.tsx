@@ -28,6 +28,7 @@ import type { ATSResult, ATSSuggestions } from "@/apis/ats.api";
 import { getCompanies } from "@/apis/companies.api";
 import { generateJobDescription } from "@/apis/ai.api";
 import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchProfile } from "@/store/slices/authSlice";
 
@@ -299,7 +300,7 @@ export default function ATSCheckerPage() {
       setJd(generatedText);
       toast.success(`Generated optimized ${selectedRole} job description for ${selectedCompany.name}!`);
     } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to generate job description with AI.";
+      const msg = getErrorMessage(error, "Failed to generate job description with AI.");
       toast.error(msg);
     } finally {
       setJdGenerating(false);
@@ -337,11 +338,7 @@ export default function ATSCheckerPage() {
       setResult(data);
       dispatch(fetchProfile() as any);
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
-      const msg =
-        errorObj.response?.data?.message ||
-        errorObj.message ||
-        "Something went wrong. Please try again.";
+      const msg = getErrorMessage(err, "Something went wrong. Please try again.");
       setError(msg);
     } finally {
       setLoading(false);
@@ -369,11 +366,7 @@ export default function ATSCheckerPage() {
       }
       dispatch(fetchProfile() as any);
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { message?: string } }; message?: string };
-      const msg =
-        errorObj.response?.data?.message ||
-        errorObj.message ||
-        "Failed to get AI suggestions.";
+      const msg = getErrorMessage(err, "Failed to get AI suggestions.");
       setError(msg);
     } finally {
       setSuggestionsLoading(false);

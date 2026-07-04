@@ -63,9 +63,6 @@ export default function GlassCreativeTemplate({ data, settings }: TemplateProps)
               className="w-3.5 h-3.5 rounded-full inline-block animate-pulse shadow-md" 
               style={{ backgroundColor: accent, boxShadow: `0 0 12px ${accent}` }}
             />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-              {data.personalInfo.fullName}
-            </span>
           </div>
           <nav className="hidden md:flex items-center gap-6 text-sm text-gray-300 font-medium">
             <a href="#about" className="hover:text-white transition-colors">Aria</a>
@@ -236,13 +233,11 @@ export default function GlassCreativeTemplate({ data, settings }: TemplateProps)
 
           <div className="grid md:grid-cols-2 gap-6">
             {data.projects?.map((project) => {
-              const isHovered = hoveredProject === project.id;
+              const isHovered = false;
               return (
                 <div 
                   key={project.id}
-                  className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-2xl overflow-hidden hover:border-white/[0.12] transition-all flex flex-col h-full shadow-2xl group"
-                  onMouseEnter={() => setHoveredProject(project.id)}
-                  onMouseLeave={() => setHoveredProject(null)}
+                  className="bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-2xl overflow-hidden transition-all flex flex-col h-full shadow-2xl group"
                 >
                   <div className="relative h-48 w-full bg-[#1A1A2F] overflow-hidden shrink-0 border-b border-white/[0.06]">
                     {isHovered && project.videoUrl ? (
@@ -258,7 +253,7 @@ export default function GlassCreativeTemplate({ data, settings }: TemplateProps)
                       <img 
                         src={project.imageUrl} 
                         alt={project.name}
-                        className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-500"
+                        className="w-full h-full object-cover transition-transform duration-500"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-500">
@@ -588,12 +583,6 @@ export default function GlassCreativeTemplate({ data, settings }: TemplateProps)
       <footer className="max-w-5xl mx-auto px-6 mt-16 text-center text-xs text-gray-500 flex flex-col sm:flex-row sm:justify-between items-center gap-4">
         <div>
           © {new Date().getFullYear()} {data.personalInfo.fullName}. All rights reserved.
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span>Optimized via</span>
-          <span className="font-bold text-white flex items-center gap-1">
-            <Sparkles size={12} className="text-purple-400" /> Leet#
-          </span>
         </div>
       </footer>
     </div>

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { resumeApi } from '@/apis/resume.api';
+import { getErrorMessage } from '@/lib/utils';
 import type { Resume, SaveResumeData, ResumeData, EditorResumeContent } from '@/types/resume';
 
 export interface PersonalInfo {
@@ -103,8 +104,7 @@ export const fetchAllResumes = createAsyncThunk(
       const response = await resumeApi.getAll();
       return response.data;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch resumes');
+      return rejectWithValue(getErrorMessage(error, 'Failed to fetch resumes'));
     }
   }
 );
@@ -116,8 +116,7 @@ export const fetchResumeById = createAsyncThunk(
       const response = await resumeApi.getById(id);
       return response.data;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to fetch resume');
+      return rejectWithValue(getErrorMessage(error, 'Failed to fetch resume'));
     }
   }
 );
@@ -134,8 +133,7 @@ export const saveResume = createAsyncThunk(
         return response.data;
       }
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to save resume');
+      return rejectWithValue(getErrorMessage(error, 'Failed to save resume'));
     }
   }
 );
@@ -147,8 +145,7 @@ export const createResumeVersion = createAsyncThunk(
       const response = await resumeApi.createVersion(id, data);
       return response.data;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to save version');
+      return rejectWithValue(getErrorMessage(error, 'Failed to save version'));
     }
   }
 );
@@ -160,8 +157,7 @@ export const deleteResumeById = createAsyncThunk(
       await resumeApi.delete(id);
       return id;
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      return rejectWithValue(err.response?.data?.message || 'Failed to delete resume');
+      return rejectWithValue(getErrorMessage(error, 'Failed to delete resume'));
     }
   }
 );

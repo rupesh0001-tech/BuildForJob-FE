@@ -6,6 +6,8 @@ import SleekDarkTemplate from "./SleekDarkTemplate";
 import CreativeGreenTemplate from "./CreativeGreenTemplate";
 import RetroTerminalTemplate from "./RetroTerminalTemplate";
 import GlassCreativeTemplate from "./GlassCreativeTemplate";
+import ArchitectTemplate from "./ArchitectTemplate";
+import EngineeringSleekTemplate from "./EngineeringSleekTemplate";
 
 interface TemplateRendererProps {
   templateId: string;
@@ -23,6 +25,10 @@ export default function TemplateRenderer({ templateId, data, settings }: Templat
       return <RetroTerminalTemplate data={data} settings={settings} />;
     case 'glass-creative':
       return <GlassCreativeTemplate data={data} settings={settings} />;
+    case 'architect-prismatic':
+      return <ArchitectTemplate data={data} settings={settings} />;
+    case 'engineering-sleek':
+      return <EngineeringSleekTemplate data={data} settings={settings} />;
     default:
       return <SleekDarkTemplate data={data} settings={settings} />;
   }

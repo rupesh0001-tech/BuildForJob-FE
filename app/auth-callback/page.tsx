@@ -29,8 +29,14 @@ function AuthCallbackHandler() {
         // 2. Fetch the profile details to populate user details in store and localStorage
         const profileResult = await dispatch(fetchProfile()).unwrap();
         
-        toast.success(`Welcome back, ${profileResult.firstName || 'User'}!`);
-        router.push("/dashboard");
+        // Redirect newly registered Google OAuth users who haven't set up their profile to onboarding/github
+        if (!profileResult.jobTitle && (!profileResult.experience || profileResult.experience.length === 0)) {
+          toast.success("Welcome! Let's get started by setting up your profile.");
+          router.push("/onboarding/github");
+        } else {
+          toast.success(`Welcome back, ${profileResult.firstName || 'User'}!`);
+          router.push("/dashboard");
+        }
       } catch (err: any) {
         console.error("OAuth session restoration failed:", err);
         toast.error("Session sync failed. Please try logging in again.");

@@ -10,16 +10,24 @@ import { ProtectedRoute } from "@/components/providers/protected-route";
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isBuilderPage = pathname === "/dashboard/resume-builder" || pathname === "/dashboard/cover-letter" || pathname === "/dashboard/portfolio";
-  const [isSidebarOpen, setIsSidebarOpen] = useState(!isBuilderPage);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const [hasActiveModal, setHasActiveModal] = useState(false);
 
-  // Close sidebar when navigating to builder pages
+  // Close sidebar when navigating to builder pages and handle responsive screen resizes
   React.useEffect(() => {
-    if (isBuilderPage) {
-      setIsSidebarOpen(false);
-    } else {
-       setIsSidebarOpen(true);
-    }
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (mobile) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(!isBuilderPage);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [isBuilderPage]);
 
   // Monitor DOM for active modals to auto-collapse the sidebar
@@ -80,11 +88,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <Sidebar 
         isOpen={shouldSidebarBeOpen} 
         onClose={() => setIsSidebarOpen(false)} 
-        isOverlay={isBuilderPage}
+        isOverlay={isBuilderPage || isMobile}
       />
       
-      {/* Overlay for Builders */}
-      {isBuilderPage && isSidebarOpen && (
+      {/* Overlay for Builders / Mobile */}
+      {(isBuilderPage || isMobile) && isSidebarOpen && (
         <div 
           className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md z-45" 
           onClick={() => setIsSidebarOpen(false)}
@@ -98,7 +106,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         
         <main className={cn(
           "flex-1 overflow-y-auto p-6 md:p-8 relative transition-all duration-500 ease-in-out",
-          isBuilderPage && isSidebarOpen && "blur-md pointer-events-none"
+          isBuilderPage && isSidebarOpen && "blur-md pointer-events-none",
+          isMobile && isSidebarOpen && "blur-xs pointer-events-none lg:blur-none lg:pointer-events-auto"
         )}>
           <ProtectedRoute>
             {children}

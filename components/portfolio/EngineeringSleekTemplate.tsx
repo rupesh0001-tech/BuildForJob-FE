@@ -280,6 +280,77 @@ export default function EngineeringSleekTemplate({ data, settings }: TemplatePro
           </div>
         </section>
 
+        {/* Experience Section */}
+        {data.experience && data.experience.length > 0 && (
+          <section className="py-24 bg-white border-t border-gray-200/50" id="experience">
+            <div className="max-w-7xl mx-auto px-6 md:px-12">
+              <div className="mb-16">
+                <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Work Experience</h2>
+                <p className="text-gray-500">My employment history and engineering roles.</p>
+              </div>
+
+              <div className="space-y-8">
+                {data.experience.map((exp, idx) => (
+                  <div key={exp.id || idx} className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 p-8 border border-gray-200 rounded-xl bg-[#f7f9fb]">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">{exp.role}</h3>
+                      <p className="text-sm font-semibold mt-1" style={{ color: accent }}>{exp.company}</p>
+                      {exp.responsibilities && exp.responsibilities.length > 0 && (
+                        <ul className="list-disc pl-5 mt-4 space-y-1 text-sm text-gray-500">
+                          {exp.responsibilities.map((resp, rIdx) => (
+                            <li key={rIdx}>{resp}</li>
+                          ))}
+                        </ul>
+                      )}
+                      {exp.technologies && exp.technologies.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {exp.technologies.map((tech, tIdx) => (
+                            <span key={tIdx} className="bg-gray-200/50 dark:bg-white/5 text-gray-600 px-2 py-0.5 rounded text-xs font-semibold">
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-xs font-mono font-bold text-white px-3 py-1.5 rounded" style={{ backgroundColor: accent }}>
+                      {exp.duration}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Education Section */}
+        {data.education && data.education.length > 0 && (
+          <section className="py-24" id="education">
+            <div className="max-w-7xl mx-auto px-6 md:px-12">
+              <div className="mb-16">
+                <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">Education</h2>
+                <p className="text-gray-500">Academic qualifications and educational background.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {data.education.map((edu, idx) => (
+                  <div key={edu.id || idx} className="p-8 bg-white border border-gray-200 rounded-xl flex flex-col justify-between gap-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">{edu.degree} in {edu.field}</h3>
+                      <p className="text-sm font-semibold mt-1" style={{ color: accent }}>{edu.institution}</p>
+                      {edu.gpa && (
+                        <p className="text-xs text-gray-500 mt-2 font-mono">Grade: {edu.gpa}</p>
+                      )}
+                    </div>
+                    <div className="text-xs font-mono font-bold text-gray-500 shrink-0 border border-gray-100 bg-[#f7f9fb] px-3 py-1.5 rounded w-fit">
+                      {edu.duration}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Contact Section */}
         <section className="py-24 bg-white border-t border-gray-200/50" id="contact">
           <div className="max-w-7xl mx-auto px-6 md:px-12">

@@ -315,6 +315,41 @@ export default function ArchitectTemplate({ data, settings }: TemplateProps) {
           </div>
         </section>
 
+        {/* Education Section */}
+        {data.education && data.education.length > 0 && (
+          <section id="education" className="max-w-7xl mx-auto px-6 md:px-12 pb-24">
+            <div className="mb-12">
+              <span 
+                className="text-xs font-bold uppercase tracking-widest mb-4 block"
+                style={{ color: accent }}
+              >
+                Academic Background
+              </span>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">Education</h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {data.education.map((edu, idx) => (
+                <div 
+                  key={edu.id || idx}
+                  className="p-8 rounded-xl bg-white border border-gray-200 flex flex-col justify-between gap-4"
+                >
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{edu.degree} in {edu.field}</h3>
+                    <p className="text-sm font-semibold mt-1" style={{ color: accent }}>{edu.institution}</p>
+                    {edu.gpa && (
+                      <p className="text-xs text-gray-500 mt-2 font-mono">Grade: {edu.gpa}</p>
+                    )}
+                  </div>
+                  <div className="text-xs font-semibold text-gray-500 shrink-0 border border-gray-100 bg-gray-50 px-3 py-1.5 rounded-lg w-fit">
+                    {edu.duration}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* Contact Section */}
         <section id="contact" className="max-w-7xl mx-auto px-6 md:px-12 pb-24">
           <div className="bg-white border border-gray-200 rounded-2xl p-8 md:p-12 shadow-xs">

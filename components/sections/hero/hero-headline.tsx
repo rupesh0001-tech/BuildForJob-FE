@@ -9,7 +9,7 @@ export function HeroHeadline() {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
       }}
-      className="text-4xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1] text-black dark:text-white"
+      className="text-3xl md:text-6xl font-bold tracking-tight mb-6 leading-[1.1] text-black dark:text-white"
     >
       Single platform for AI powered <br /> <WordRotate 
         className="text-transparent my-1 bg-clip-text bg-linear-to-r from-purple-500 to-blue-500 dark:from-purple-400 dark:to-emerald-200" 

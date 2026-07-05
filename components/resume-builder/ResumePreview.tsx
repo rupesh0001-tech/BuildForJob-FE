@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import ModernTemplate from "./templates/ModernTemplate";
@@ -15,6 +15,32 @@ import { AccentColor, DEFAULT_TEMPLATE_SETTINGS } from "@/lib/resume-matcher/tem
 const ResumePreview = ({ stateOverride }: { stateOverride?: any }) => {
   const reduxState = useSelector((state: RootState) => state.resume);
   const activeState = stateOverride || reduxState;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const parentWidth = containerRef.current.parentElement?.getBoundingClientRect().width || 0;
+        if (parentWidth > 0 && parentWidth < 794) {
+          const availableWidth = parentWidth - 16;
+          setScale(availableWidth / 794);
+        } else {
+          setScale(1);
+        }
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    const timer = setTimeout(handleResize, 100);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timer);
+    };
+  }, []);
 
   const {
     personalInfoData,
@@ -119,10 +145,29 @@ const ResumePreview = ({ stateOverride }: { stateOverride?: any }) => {
     }
   };
 
+  const scaledHeight = scale < 1 ? `${1123 * scale}px` : "auto";
+
   return (
-    <div className="resume-preview-container bg-white border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl">
-      <div className="mobile-scale-wrapper">
-        <div id="resume-preview" className="print:shadow-none print:border-none w-full min-h-[1123px]">
+    <div 
+      ref={containerRef}
+      className="resume-preview-container bg-white border border-gray-200 dark:border-white/10 rounded-xl overflow-hidden shadow-2xl"
+      style={{
+        width: scale < 1 ? "100%" : "210mm",
+        height: scaledHeight,
+        minHeight: scale < 1 ? scaledHeight : "297mm",
+      }}
+    >
+      <div 
+        className="mobile-scale-wrapper"
+        style={{
+          transform: scale < 1 ? `scale(${scale})` : "none",
+          transformOrigin: "top center",
+          width: "794px",
+          height: "1123px",
+          margin: "0 auto",
+        }}
+      >
+        <div id="resume-preview" className="print:shadow-none print:border-none w-[794px] min-h-[1123px]">
           {renderTemplate()}
         </div>
       </div>
@@ -149,27 +194,6 @@ const ResumePreview = ({ stateOverride }: { stateOverride?: any }) => {
           overflow: hidden;
           margin: 0;
           padding: 0;
-        }
-
-        @media screen and (max-width: 1200px) {
-          .resume-preview-container {
-            width: 100% !important;
-            min-height: auto !important;
-            height: auto !important;
-            overflow: visible !important;
-          }
-          .mobile-scale-wrapper {
-            transform: scale(0.65);
-            transform-origin: top center;
-            width: 210mm;
-            margin: 0 auto;
-          }
-        }
-
-        @media screen and (max-width: 768px) {
-          .mobile-scale-wrapper {
-            transform: scale(0.45);
-          }
         }
 
         @media print {

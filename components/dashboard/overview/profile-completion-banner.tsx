@@ -52,7 +52,7 @@ export function ProfileCompletionBanner() {
         >
           <button 
             onClick={() => setIsVisible(false)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors z-20"
+            className="absolute right-4 top-4 p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors z-20"
             title="Close"
           >
             <X size={16} />

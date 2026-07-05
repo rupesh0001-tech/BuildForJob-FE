@@ -38,7 +38,7 @@ export function WordRotate({
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -30, filter: "blur(8px)" }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={cn("absolute inset-x-0 top-0 text-center px-1 block whitespace-nowrap", className)}
+          className={cn("absolute inset-x-0 top-0 text-center px-1 block", className)}
         >
           {words[index]}
         </motion.span>

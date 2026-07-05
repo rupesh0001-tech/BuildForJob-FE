@@ -17,7 +17,7 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold text-black dark:text-white mb-2 text-center">Welcome back</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm text-center mb-8">Enter your details to access your dashboard.</p>
 
-          <LoginForm />
+          <OAuthButtons />
 
           <div className="my-6 flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
@@ -25,7 +25,7 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-gray-200 dark:bg-white/10" />
           </div>
 
-          <OAuthButtons />
+          <LoginForm />
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-8">

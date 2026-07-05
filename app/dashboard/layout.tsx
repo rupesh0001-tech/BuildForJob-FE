@@ -72,39 +72,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const shouldSidebarBeOpen = hasActiveModal ? false : isSidebarOpen;
 
   return (
-    <ProtectedRoute>
-      <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-primary/30 transition-colors duration-300">
-        {/* Background Decor */}
-        <div className="fixed inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
-             style={{ backgroundImage: `radial-gradient(#001BB7 0.5px, transparent 0.5px)`, backgroundSize: '24px 24px' }} />
-        
-        <Sidebar 
-          isOpen={shouldSidebarBeOpen} 
-          onClose={() => setIsSidebarOpen(false)} 
-          isOverlay={isBuilderPage}
+    <div className="flex h-screen bg-white dark:bg-[#08080a] overflow-hidden selection:bg-primary/30 transition-colors duration-300">
+      {/* Background Decor */}
+      <div className="fixed inset-0 z-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none" 
+           style={{ backgroundImage: `radial-gradient(#001BB7 0.5px, transparent 0.5px)`, backgroundSize: '24px 24px' }} />
+      
+      <Sidebar 
+        isOpen={shouldSidebarBeOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+        isOverlay={isBuilderPage}
+      />
+      
+      {/* Overlay for Builders */}
+      {isBuilderPage && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md z-45" 
+          onClick={() => setIsSidebarOpen(false)}
         />
+      )}
+      
+      <div className={cn(
+        "flex flex-col flex-1 min-w-0 overflow-hidden relative z-10 transition-all duration-300",
+      )}>
+        <DashboardHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
         
-        {/* Overlay for Builders */}
-        {isBuilderPage && isSidebarOpen && (
-          <div 
-            className="fixed inset-0 bg-black/20 dark:bg-black/50 backdrop-blur-md z-45" 
-            onClick={() => setIsSidebarOpen(false)}
-          />
-        )}
-        
-        <div className={cn(
-          "flex flex-col flex-1 min-w-0 overflow-hidden relative z-10 transition-all duration-300",
+        <main className={cn(
+          "flex-1 overflow-y-auto p-6 md:p-8 relative transition-all duration-500 ease-in-out",
+          isBuilderPage && isSidebarOpen && "blur-md pointer-events-none"
         )}>
-          <DashboardHeader isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-          
-          <main className={cn(
-            "flex-1 overflow-y-auto p-6 md:p-8 relative transition-all duration-500 ease-in-out",
-            isBuilderPage && isSidebarOpen && "blur-md pointer-events-none"
-          )}>
+          <ProtectedRoute>
             {children}
-          </main>
-        </div>
+          </ProtectedRoute>
+        </main>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }

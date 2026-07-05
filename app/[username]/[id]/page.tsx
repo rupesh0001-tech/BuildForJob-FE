@@ -1,40 +1,115 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { TEMPLATES } from "@/lib/portfolio-defaults";
 import TemplateRenderer from "@/components/portfolio/TemplateRenderer";
-import { Sparkles, X, ArrowRight } from "lucide-react";
+import { Sparkles, X, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
+import api from "@/apis/axiosInstance";
+import { toast } from "sonner";
 
 export default function HostedPortfolioPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const [showBanner, setShowBanner] = useState(true);
-
-  // 1. Find which template to render. 
-  // Supports a query parameter e.g., ?template=sleek-dark, or defaults to the Architect template
-  const requestedTemplateId = searchParams.get("template") || "architect-prismatic";
-  const template = TEMPLATES.find(t => t.id === requestedTemplateId) || TEMPLATES.find(t => t.id === "architect-prismatic") || TEMPLATES[0];
+  const [portfolioData, setPortfolioData] = useState<any>(null);
+  const [portfolioSettings, setPortfolioSettings] = useState<any>(null);
+  const [templateId, setTemplateId] = useState("architect-prismatic");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const username = params.username as string;
-  const id = params.id as string;
 
-  // Customize dynamic data using path parameters if relevant
-  const finalData = { ...template.defaultData };
-  if (username) {
-    // Make first letter uppercase for nice display
-    const formattedName = username.charAt(0).toUpperCase() + username.slice(1);
-    finalData.personalInfo.fullName = formattedName;
+  useEffect(() => {
+    const fetchPortfolio = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const res = await api.get(`/portfolio/public/${username}`);
+        if (res.data && res.data.portfolio) {
+          const portfolio = res.data.portfolio;
+          setTemplateId(portfolio.templateId || "architect-prismatic");
+          if (portfolio.data) {
+            setPortfolioData(portfolio.data);
+          } else {
+            const tpl = TEMPLATES.find(t => t.id === portfolio.templateId) || TEMPLATES[0];
+            setPortfolioData(tpl.defaultData);
+          }
+          if (portfolio.settings) {
+            setPortfolioSettings(portfolio.settings);
+          } else {
+            const tpl = TEMPLATES.find(t => t.id === portfolio.templateId) || TEMPLATES[0];
+            setPortfolioSettings(tpl.defaultSettings);
+          }
+        } else {
+          setError("Portfolio not configured");
+        }
+      } catch (err: any) {
+        console.error("Error fetching public portfolio:", err);
+        setError(err.response?.data?.error || "Portfolio not found");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (username) {
+      fetchPortfolio();
+    }
+  }, [username]);
+
+  const handleSubmitResponse = async (formData: { name: string; email: string; message: string }) => {
+    try {
+      await api.post(`/portfolio/public/${username}/respond`, formData);
+      toast.success("Message sent successfully!");
+    } catch (err: any) {
+      console.error("Error submitting response:", err);
+      toast.error("Failed to send message. Please try again.");
+      throw err;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white gap-4">
+        <Loader2 className="animate-spin text-primary" size={32} />
+        <p className="text-sm font-semibold uppercase tracking-wider animate-pulse">Loading Portfolio...</p>
+      </div>
+    );
+  }
+
+  if (error || !portfolioData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white px-6 text-center">
+        <div className="max-w-md space-y-6">
+          <div className="w-16 h-16 bg-red-500/10 rounded-2xl flex items-center justify-center text-red-500 mx-auto border border-red-500/25">
+            <X size={32} />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-white">Portfolio Not Found</h1>
+            <p className="text-sm text-gray-400">
+              The portfolio hosted at this address is not configured or does not exist.
+            </p>
+          </div>
+          <Link 
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl text-sm font-semibold hover:brightness-110 transition-all shadow-lg shadow-primary/25"
+          >
+            Create Your Portfolio
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="relative min-h-screen">
       {/* Dynamic Template Renderer */}
       <TemplateRenderer 
-        templateId={template.id} 
-        data={finalData} 
-        settings={template.defaultSettings} 
+        templateId={templateId} 
+        data={portfolioData} 
+        settings={portfolioSettings} 
+        onSubmitResponse={handleSubmitResponse}
       />
 
       {/* Sticky Premium Sticker Banner at the bottom */}

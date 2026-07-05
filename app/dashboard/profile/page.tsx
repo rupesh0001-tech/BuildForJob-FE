@@ -8,10 +8,19 @@ import { motion } from "framer-motion";
 export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const { user, isLoading } = useAppSelector((state) => state.auth);
+  const [hasFetched, setHasFetched] = React.useState(false);
 
-  if (isLoading && !user) {
+  useEffect(() => {
+    const fetchInfo = async () => {
+      await dispatch(fetchProfile());
+      setHasFetched(true);
+    };
+    fetchInfo();
+  }, [dispatch]);
+
+  if (isLoading || !hasFetched) {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center py-20">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
       </div>
     );

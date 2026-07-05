@@ -99,6 +99,61 @@ export default function PortfolioPage() {
     dispatch(fetchProfile());
   }, [dispatch]);
 
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    const fetchExistingPortfolio = async () => {
+      try {
+        const res = await api.get("/portfolio");
+        if (res.data) {
+          const tpl = TEMPLATES.find(t => t.id === res.data.templateId) || TEMPLATES[0];
+          if (tpl) {
+            setSelectedTemplate(tpl);
+          }
+          if (res.data.data) {
+            // Safely merge user data with defaults to prevent property-access crashes in editor fields
+            const mergedData = {
+              ...tpl.defaultData,
+              ...res.data.data,
+              personalInfo: {
+                ...tpl.defaultData.personalInfo,
+                ...(res.data.data.personalInfo || {})
+              },
+              aboutMe: {
+                ...tpl.defaultData.aboutMe,
+                ...(res.data.data.aboutMe || {})
+              }
+            };
+            setPortfolioData(mergedData);
+          }
+          if (res.data.settings) {
+            setPortfolioSettings(res.data.settings);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch existing portfolio:", err);
+      }
+    };
+    fetchExistingPortfolio();
+  }, []);
+
+  const handleSavePortfolio = async () => {
+    try {
+      setIsSaving(true);
+      await api.post("/portfolio", {
+        templateId: selectedTemplate?.id || "architect-prismatic",
+        data: portfolioData,
+        settings: portfolioSettings,
+      });
+      toast.success("Portfolio configurations saved successfully!");
+    } catch (err) {
+      console.error("Failed to save portfolio:", err);
+      toast.error("Failed to save portfolio configurations.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (autofillParam === "true") {
       setShowAutofillModal(true);
@@ -468,6 +523,16 @@ export default function PortfolioPage() {
                   <Sparkles size={16} /> Auto Fill
                 </button>
               )}
+
+              {/* Save Button */}
+              <button 
+                onClick={handleSavePortfolio}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:brightness-110 active:scale-[0.99] text-white rounded-xl font-semibold font-sans text-sm transition-all shadow-md shadow-primary/25 disabled:opacity-50 disabled:pointer-events-none h-11"
+              >
+                {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                <span>Save</span>
+              </button>
 
               {/* View toggle (Editor vs Preview - Split removed) */}
               <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl border border-gray-200 dark:border-white/10 h-11 items-center">
@@ -1056,6 +1121,245 @@ export default function PortfolioPage() {
                                   setPortfolioData(copy);
                                 }}
                               />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Work Experience Section */}
+                      <div className="border border-black/5 dark:border-white/5 rounded-2xl p-6 bg-slate-50/50 dark:bg-black/10 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-extrabold text-sm">Work Experience</h3>
+                            <p className="text-[10px] text-slate-400">Manage your employment history and achievements.</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const copy = { ...portfolioData };
+                              const newExp: ExperienceItem = {
+                                id: `exp-${Date.now()}`,
+                                company: "Company Name",
+                                role: "Job Title",
+                                duration: "2023 - Present",
+                                responsibilities: ["Developed core product features..."],
+                                technologies: ["React", "TypeScript"]
+                              };
+                              if (!copy.experience) copy.experience = [];
+                              copy.experience.push(newExp);
+                              setPortfolioData(copy);
+                              toast.success("Added experience slot!");
+                            }}
+                            className="h-11 px-4 bg-[#001BB7]/10 text-[#001BB7] hover:bg-[#001BB7]/15 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+                          >
+                            <Plus size={14} /> Add Experience
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {portfolioData.experience?.map((exp, idx) => (
+                            <div key={exp.id} className="bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-5 rounded-xl space-y-4 relative group shadow-sm">
+                              <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-white/5">
+                                <div className="grid grid-cols-2 gap-4 w-full mr-4">
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-bold"
+                                    value={exp.company}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.experience[idx].company = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="Company Name"
+                                  />
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-bold"
+                                    value={exp.role}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.experience[idx].role = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="Role Title"
+                                  />
+                                </div>
+                                <button 
+                                  onClick={() => {
+                                    const copy = { ...portfolioData };
+                                    copy.experience = copy.experience.filter(e => e.id !== exp.id);
+                                    setPortfolioData(copy);
+                                    toast.success("Removed experience.");
+                                  }}
+                                  className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-xl transition-all"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-2">
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Duration</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                                    value={exp.duration}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.experience[idx].duration = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="e.g. 2021 - Present"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Technologies (comma separated)</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                                    value={exp.technologies?.join(", ") || ""}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.experience[idx].technologies = e.target.value.split(",").map(s => s.trim()).filter(s => s !== "");
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="React, AWS, Node.js"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Responsibilities</label>
+                                <textarea 
+                                  rows={3}
+                                  className="w-full px-5 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm resize-none"
+                                  value={exp.responsibilities?.join("\n") || ""}
+                                  onChange={(e) => {
+                                    const copy = { ...portfolioData };
+                                    copy.experience[idx].responsibilities = e.target.value.split("\n");
+                                    setPortfolioData(copy);
+                                  }}
+                                  placeholder="List responsibilities, one per line..."
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Education Section */}
+                      <div className="border border-black/5 dark:border-white/5 rounded-2xl p-6 bg-slate-50/50 dark:bg-black/10 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-extrabold text-sm">Education</h3>
+                            <p className="text-[10px] text-slate-400">Manage your college, degree, and academic history.</p>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const copy = { ...portfolioData };
+                              const newEdu: EducationItem = {
+                                id: `edu-${Date.now()}`,
+                                degree: "Degree Name",
+                                field: "Computer Science",
+                                institution: "University Name",
+                                duration: "2018 - 2022",
+                                gpa: "9.0"
+                              };
+                              if (!copy.education) copy.education = [];
+                              copy.education.push(newEdu);
+                              setPortfolioData(copy);
+                              toast.success("Added education slot!");
+                            }}
+                            className="h-11 px-4 bg-[#001BB7]/10 text-[#001BB7] hover:bg-[#001BB7]/15 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+                          >
+                            <Plus size={14} /> Add Education
+                          </button>
+                        </div>
+
+                        <div className="space-y-4">
+                          {portfolioData.education?.map((edu, idx) => (
+                            <div key={edu.id} className="bg-white dark:bg-[#12121A] border border-black/5 dark:border-white/5 p-5 rounded-xl space-y-4 relative group shadow-sm">
+                              <div className="flex items-center justify-between border-b pb-3 border-slate-100 dark:border-white/5">
+                                <div className="grid grid-cols-2 gap-4 w-full mr-4">
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-bold"
+                                    value={edu.institution}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.education[idx].institution = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="University / College"
+                                  />
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm font-bold"
+                                    value={edu.degree}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.education[idx].degree = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="e.g. Bachelor of Technology"
+                                  />
+                                </div>
+                                <button 
+                                  onClick={() => {
+                                    const copy = { ...portfolioData };
+                                    copy.education = copy.education.filter(e => e.id !== edu.id);
+                                    setPortfolioData(copy);
+                                    toast.success("Removed education.");
+                                  }}
+                                  className="text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded-xl transition-all"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-4">
+                                <div className="flex flex-col gap-2 col-span-1">
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Field of Study</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                                    value={edu.field}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.education[idx].field = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="e.g. Computer Science"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-2 col-span-1">
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Duration</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                                    value={edu.duration}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.education[idx].duration = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="e.g. 2018 - 2022"
+                                  />
+                                </div>
+                                <div className="flex flex-col gap-2 col-span-1">
+                                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">GPA / Grade</label>
+                                  <input 
+                                    type="text" 
+                                    className="w-full px-4 py-2.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                                    value={edu.gpa || ""}
+                                    onChange={(e) => {
+                                      const copy = { ...portfolioData };
+                                      copy.education[idx].gpa = e.target.value;
+                                      setPortfolioData(copy);
+                                    }}
+                                    placeholder="e.g. 9.2 CGPA or 85%"
+                                  />
+                                </div>
+                              </div>
                             </div>
                           ))}
                         </div>

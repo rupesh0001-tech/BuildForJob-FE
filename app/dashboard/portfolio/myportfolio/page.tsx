@@ -16,39 +16,87 @@ import {
   AlertCircle,
   Sparkles,
   Plus,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from "lucide-react";
 import { TEMPLATES } from "@/lib/portfolio-defaults";
 import { Button1 } from "@/components/general/buttons/button1";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-
-// Mock initial form responses (98 responses to simulate the 100-limit warning)
-const MOCK_RESPONSES = [
-  { id: 1, name: "Sarah Connor", email: "sarah@cyberdyne.net", message: "Incredible system reliability metrics on the ledger optimization case study. Are you open to freelance consulting?", date: "2026-07-04 22:40" },
-  { id: 2, name: "Tony Stark", email: "tony@starkindustries.com", message: "Need a distributed logs architecture expert for the clean energy grid automation. Let's talk rates.", date: "2026-07-04 19:15" },
-  { id: 3, name: "Bruce Wayne", email: "bruce@waynecorp.com", message: "Interested in high-availability communications failovers. Security clearance required. Get back to me.", date: "2026-07-04 15:30" },
-  { id: 4, name: "Linus Torvalds", email: "torvalds@linuxfoundation.org", message: "Code looks surprisingly clean. Keep it up.", date: "2026-07-03 11:22" },
-  { id: 5, name: "Ada Lovelace", email: "ada@computing.org", message: "Wonderful aesthetic layout choice. Prismatic gradient feels very forward-looking.", date: "2026-07-02 09:05" }
-];
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { fetchProfile } from "@/store/slices/authSlice";
+import api from "@/apis/axiosInstance";
 
 export default function MyPortfolioPage() {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+
   const [liveTemplateId, setLiveTemplateId] = useState("architect-prismatic");
   const [selectedTemplateId, setSelectedTemplateId] = useState("architect-prismatic");
   const [copied, setCopied] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [responsesCount, setResponsesCount] = useState(98);
-  const [responses, setResponses] = useState(MOCK_RESPONSES);
+  const [responsesCount, setResponsesCount] = useState(0);
+  const [responses, setResponses] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoadingPortfolio, setIsLoadingPortfolio] = useState(true);
+  const [isLoadingResponses, setIsLoadingResponses] = useState(true);
+  const [portfolioId, setPortfolioId] = useState("10");
+
   useEffect(() => {
     setMounted(true);
+    dispatch(fetchProfile());
+  }, [dispatch]);
+
+  // Load portfolio settings
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      try {
+        setIsLoadingPortfolio(true);
+        const res = await api.get("/portfolio");
+        if (res.data) {
+          setLiveTemplateId(res.data.templateId || "architect-prismatic");
+          setSelectedTemplateId(res.data.templateId || "architect-prismatic");
+          if (res.data.id) {
+            setPortfolioId(res.data.id);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load portfolio:", err);
+      } finally {
+        setIsLoadingPortfolio(false);
+      }
+    };
+    loadPortfolio();
   }, []);
 
+  // Load responses
+  const loadResponses = async (page: number) => {
+    try {
+      setIsLoadingResponses(true);
+      const res = await api.get(`/portfolio/responses?page=${page}&limit=5`);
+      if (res.data) {
+        setResponses(res.data.responses || []);
+        setTotalPages(res.data.totalPages || 1);
+        setResponsesCount(res.data.totalResponses || 0);
+      }
+    } catch (err) {
+      console.error("Failed to load responses:", err);
+    } finally {
+      setIsLoadingResponses(false);
+    }
+  };
+
+  useEffect(() => {
+    loadResponses(currentPage);
+  }, [currentPage]);
+
   // Generate dynamic hosted URL details based on name
-  const username = "rupesh";
-  const portfolioId = "10";
+  const username = user?.firstName?.toLowerCase() || "rupesh";
   const hostedUrl = `/${username}/${portfolioId}`;
 
   const handleCopyLink = () => {
@@ -61,9 +109,17 @@ export default function MyPortfolioPage() {
     }
   };
 
-  const handleMakeLive = (templateId: string) => {
-    setLiveTemplateId(templateId);
-    toast.success("Live portfolio template updated!");
+  const handleMakeLive = async (templateId: string) => {
+    try {
+      await api.post("/portfolio", {
+        templateId,
+      });
+      setLiveTemplateId(templateId);
+      toast.success("Live portfolio template updated!");
+    } catch (err) {
+      console.error("Failed to make live:", err);
+      toast.error("Failed to update live template. Please try again.");
+    }
   };
 
   const selectedTemplate = TEMPLATES.find((tpl) => tpl.id === selectedTemplateId) || TEMPLATES[0];
@@ -169,7 +225,7 @@ export default function MyPortfolioPage() {
       </div>
 
       {/* 2. Active Design Templates Switcher */}
-      <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm backdrop-blur-xl space-y-6">
+      <div className="relative z-25 bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm backdrop-blur-xl space-y-6">
         <div>
           <h3 className="text-lg font-semibold text-black dark:text-white">Active Design Templates</h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
@@ -257,7 +313,7 @@ export default function MyPortfolioPage() {
       </div>
 
       {/* 3. Form Responses Block */}
-      <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm backdrop-blur-xl space-y-6">
+      <div className="relative z-10 bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm backdrop-blur-xl space-y-6">
         
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-2">
@@ -301,47 +357,81 @@ export default function MyPortfolioPage() {
         )}
 
         {/* Form Submissions List Table */}
-        <div className="overflow-x-auto border border-gray-300 dark:border-white/10 rounded-xl bg-gray-50/50 dark:bg-black/40">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-300 dark:border-white/10">
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4">Sender</th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/2">Message Content</th>
-                <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4 text-right">Sent Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-white/5 text-sm text-gray-800 dark:text-gray-200">
-              {responses.map((res) => (
-                <tr key={res.id} className="hover:bg-gray-50/50 dark:hover:bg-white/10 transition-all">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="space-y-1">
-                      <div className="text-sm font-semibold text-black dark:text-white flex items-center gap-1.5">
-                        <User size={14} className="text-gray-400" />
-                        {res.name}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                        <Mail size={12} className="text-gray-400" />
-                        {res.email}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-start gap-2 max-w-xl">
-                      <MessageSquare size={14} className="text-gray-400 mt-0.5 shrink-0" />
-                      <p className="leading-relaxed text-gray-800 dark:text-gray-200 break-words">{res.message}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-gray-500 dark:text-gray-400 font-mono text-xs">
-                    <span className="flex items-center gap-1 justify-end">
-                      <Calendar size={12} />
-                      {res.date}
-                    </span>
-                  </td>
+        <div className="overflow-x-auto border border-gray-300 dark:border-white/10 rounded-xl bg-gray-50/50 dark:bg-black/40 min-h-[150px] relative">
+          {isLoadingResponses ? (
+            <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <Loader2 className="animate-spin text-primary mb-2" size={24} />
+              <p className="text-xs font-medium uppercase tracking-wider">Loading responses...</p>
+            </div>
+          ) : responses.length === 0 ? (
+            <div className="text-center py-12 text-gray-500 dark:text-gray-400 italic text-sm">
+              No submissions received yet.
+            </div>
+          ) : (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-white/5 border-b border-gray-300 dark:border-white/10">
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4">Sender</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/2">Message Content</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-1/4 text-right">Sent Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-white/5 text-sm text-gray-800 dark:text-gray-200">
+                {responses.map((res) => (
+                  <tr key={res.id} className="hover:bg-gray-50/50 dark:hover:bg-white/10 transition-all">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div className="font-semibold text-black dark:text-white flex items-center gap-1.5">
+                          <User size={14} className="text-gray-400" />
+                          {res.name}
+                        </div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                          <Mail size={12} className="text-gray-400" />
+                          {res.email}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-start gap-2 max-w-xl">
+                        <MessageSquare size={14} className="text-gray-400 mt-0.5 shrink-0" />
+                        <p className="leading-relaxed text-gray-800 dark:text-gray-200 break-words">{res.message}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-gray-500 dark:text-gray-400 font-mono text-xs">
+                      <span className="flex items-center gap-1 justify-end">
+                        <Calendar size={12} />
+                        {res.createdAt ? new Date(res.createdAt).toLocaleString() : ""}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
+
+        {/* Pagination Controls */}
+        {!isLoadingResponses && totalPages > 1 && (
+          <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-white/5">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1 || isLoadingResponses}
+              className="px-4 py-2 border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none transition-all"
+            >
+              Previous
+            </button>
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || isLoadingResponses}
+              className="px-4 py-2 border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold disabled:opacity-50 disabled:pointer-events-none transition-all"
+            >
+              Next
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

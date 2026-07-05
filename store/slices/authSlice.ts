@@ -136,6 +136,18 @@ export const uploadAvatar = createAsyncThunk(
   }
 );
 
+export const logoutUser = createAsyncThunk(
+  'auth/logoutUser',
+  async (_, { dispatch }) => {
+    try {
+      await authApi.logout();
+    } catch (e) {
+      console.error("Logout API failed:", e);
+    }
+    dispatch(logout());
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -200,6 +212,9 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.user = null;
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('user');
+        }
       })
       // Update Profile
       .addCase(updateProfile.pending, (state) => {

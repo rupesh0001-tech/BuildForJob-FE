@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchProfile, updateProfile } from "@/store/slices/authSlice";
 import { resumeApi } from "@/apis/resume.api";
 import { createCoverLetter, getAllCoverLetters, updateCoverLetter } from "@/apis/cover-letter.api";
+import api from "@/apis/axiosInstance";
 import { 
   Sparkles, 
   Loader2, 
@@ -14,7 +15,8 @@ import {
   Database,
   ArrowRight,
   ChevronLeft,
-  PartyPopper
+  PartyPopper,
+  Globe
 } from '@/lib/icons';
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -24,7 +26,7 @@ import Link from "next/link";
 const steps = [
   { label: "Syncing profile data...", icon: <Loader2 className="animate-spin" size={16} /> },
   { label: "Putting it in resume...", icon: <FileText size={16} /> },
-  { label: "Drafting cover letter...", icon: <Mail size={16} /> },
+  { label: "Drafting cover letter & portfolio...", icon: <Mail size={16} /> },
   { label: "Saving documents in database...", icon: <Database size={16} /> },
   { label: "Updating sync status...", icon: <Sparkles size={16} /> }
 ];
@@ -209,6 +211,73 @@ export default function MagicBuildPage() {
         if (savedCoverLetter && savedCoverLetter.id) {
           setCoverLetterId(savedCoverLetter.id);
         }
+
+        // C. Handle Portfolio sync
+        const portfolioDataObj = {
+          personalInfo: {
+            fullName: `${freshUser.firstName} ${freshUser.lastName}`,
+            jobTitle: freshUser.jobTitle || "",
+            tagline: `Hi, I'm ${freshUser.firstName}. I build high-performance systems.`,
+            bio: freshUser.bio || "",
+            email: freshUser.email,
+            phone: freshUser.phone || "",
+            location: freshUser.location || "",
+            avatarUrl: freshUser.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${freshUser.firstName}`,
+            isOpenToWork: true,
+            socialLinks: {
+              github: freshUser.socialLinks?.github || "",
+              linkedin: freshUser.socialLinks?.linkedin || "",
+              twitter: freshUser.socialLinks?.twitter || "",
+              website: freshUser.socialLinks?.website || ""
+            }
+          },
+          projects: (freshUser.projects || []).map((p: any, idx: number) => ({
+            id: p.id || `proj-${idx}-${Date.now()}`,
+            name: p.name,
+            description: p.description || "",
+            techStack: p.techStack || [],
+            features: ["Key feature checklist item"],
+            liveUrl: "#",
+            githubUrl: "#",
+            imageUrl: p.imageUrl || `https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=500&auto=format&fit=crop`
+          })),
+          experience: (freshUser.experience || []).map((exp: any, idx: number) => ({
+            id: exp.id || `exp-${idx}-${Date.now()}`,
+            company: exp.company,
+            role: exp.position,
+            duration: exp.startDate && exp.endDate ? `${exp.startDate} - ${exp.endDate}` : exp.startDate || "Present",
+            responsibilities: exp.description ? exp.description.split("\n") : [],
+            technologies: []
+          })),
+          education: (freshUser.education || []).map((edu: any, idx: number) => ({
+            id: edu.id || `edu-${idx}-${Date.now()}`,
+            institution: edu.institution,
+            degree: edu.degree,
+            field: edu.field,
+            duration: edu.graduationDate || "",
+            gpa: edu.gpa || ""
+          })),
+          techStack: [
+            {
+              category: "Skills",
+              items: (freshUser.skills || []).map((s: any) => s.name)
+            }
+          ],
+          customSections: []
+        };
+        
+        const portfolioSettings = {
+          theme: "dark",
+          accentColor: "#001BB7",
+          fontFamily: "Plus Jakarta Sans"
+        };
+
+        await api.post("/portfolio", {
+          templateId: "architect-prismatic",
+          data: portfolioDataObj,
+          settings: portfolioSettings
+        });
+
         await new Promise(r => setTimeout(r, 1000));
 
         // Step 4: Update sync status
@@ -343,28 +412,39 @@ export default function MagicBuildPage() {
                </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               <button
                 onClick={() => handleNavigate(resumeId ? `/dashboard/resume-builder?id=${resumeId}` : "/dashboard/resumes")}
                 disabled={isNavigating}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
+                className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
               >
-                <div className="flex items-center gap-3">
-                   <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform"><FileText size={18} /></div>
-                   <div className="text-left font-semibold text-black dark:text-white text-sm">Edit Resume</div>
+                <div className="flex items-center gap-3 min-w-0">
+                   <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform shrink-0"><FileText size={18} /></div>
+                   <div className="text-left font-semibold text-black dark:text-white text-xs truncate">Edit Resume</div>
                 </div>
-                <ArrowRight size={16} className="text-gray-400 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={14} className="text-gray-400 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
               <button
                 onClick={() => handleNavigate(coverLetterId ? `/dashboard/cover-letter?id=${coverLetterId}` : "/dashboard/cover-letter/all")}
                 disabled={isNavigating}
-                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
+                className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
               >
-                <div className="flex items-center gap-3">
-                   <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform"><Mail size={18} /></div>
-                   <div className="text-left font-semibold text-black dark:text-white text-sm">Edit Cover Letter</div>
+                <div className="flex items-center gap-3 min-w-0">
+                   <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform shrink-0"><Mail size={18} /></div>
+                   <div className="text-left font-semibold text-black dark:text-white text-xs truncate">Edit Cover Letter</div>
                 </div>
-                <ArrowRight size={16} className="text-gray-400 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={14} className="text-gray-400 group-hover:translate-x-1 transition-transform shrink-0" />
+              </button>
+              <button
+                onClick={() => handleNavigate("/dashboard/portfolio/myportfolio")}
+                disabled={isNavigating}
+                className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl hover:border-primary/50 group transition-all w-full text-left disabled:opacity-50"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                   <div className="p-2 bg-primary/10 text-primary rounded-lg group-hover:scale-105 transition-transform shrink-0"><Globe size={18} /></div>
+                   <div className="text-left font-semibold text-black dark:text-white text-xs truncate">My Portfolio</div>
+                </div>
+                <ArrowRight size={14} className="text-gray-400 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
             </div>
 

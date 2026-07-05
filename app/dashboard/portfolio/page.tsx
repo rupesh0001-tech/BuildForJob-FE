@@ -54,10 +54,13 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
 export default function PortfolioPage() {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const searchParams = useSearchParams();
+  const autofillParam = searchParams.get("autofill");
 
   // States
   const [viewState, setViewState] = useState<"landing" | "builder">("builder");
@@ -95,6 +98,12 @@ export default function PortfolioPage() {
     // Fetch profile details to facilitate autofill matching
     dispatch(fetchProfile());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (autofillParam === "true") {
+      setShowAutofillModal(true);
+    }
+  }, [autofillParam]);
 
   // Validation check: Personal Info needs Name, Title, and Email to unlock Preview
   const isPersonalInfoFilled = (data: PortfolioData | null) => {

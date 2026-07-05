@@ -20,10 +20,10 @@ const initialState: AuthState = {
       return null;
     }
   })() : null,
-  token: null,
+  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
   isLoading: false,
   error: null,
-  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('user') : false,
+  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
 };
 
 export const login = createAsyncThunk(
@@ -33,6 +33,7 @@ export const login = createAsyncThunk(
       const response = await authApi.login(credentials);
       if (response.success && response.data) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('token', response.data.token);
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -64,6 +65,7 @@ export const verifyOtp = createAsyncThunk(
       const response = await authApi.verifyOtp(data);
       if (response.success && response.data) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
+        localStorage.setItem('token', response.data.token);
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -157,6 +159,7 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
     },
     clearError: (state) => {
       state.error = null;
@@ -164,6 +167,7 @@ const authSlice = createSlice({
     setToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
       state.isAuthenticated = true;
+      localStorage.setItem('token', action.payload);
     }
   },
   extraReducers: (builder) => {
@@ -214,6 +218,7 @@ const authSlice = createSlice({
         state.user = null;
         if (typeof window !== 'undefined') {
           localStorage.removeItem('user');
+          localStorage.removeItem('token');
         }
       })
       // Update Profile

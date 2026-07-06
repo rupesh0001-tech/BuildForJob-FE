@@ -5,7 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setExperience, Experience as ExperienceType } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
-import { Briefcase, Building, Calendar, Trash2, Plus } from '@/lib/icons';
+import { Briefcase, Building, Calendar, Trash2, Plus, Sparkles, Loader2 } from '@/lib/icons';
+import { generateAI } from "@/apis/ai.api";
+import { toast } from "sonner";
+import { Edit } from "lucide-react";
+import { fetchProfile } from "@/store/slices/authSlice";
 
 interface ExperienceProps {
   setFormTab: (tab: number) => void;
@@ -24,6 +28,9 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
     is_current: false,
   });
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -34,8 +41,22 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
 
   const handleAdd = () => {
     if (!formData.position || !formData.company) return;
-    const newExperience = { ...formData, _id: Math.random().toString(36).substr(2, 9) };
-    dispatch(setExperience([...experienceData, newExperience]));
+    if (editingId) {
+      const updated = experienceData.map((exp, index) => {
+        const expKey = exp._id || (exp as any).id || `exp-${index}`;
+        if (expKey === editingId) {
+          return { ...formData, _id: editingId };
+        }
+        return exp;
+      });
+      dispatch(setExperience(updated));
+      setEditingId(null);
+      toast.success("Experience updated!");
+    } else {
+      const newExperience = { ...formData, _id: Math.random().toString(36).substr(2, 9) };
+      dispatch(setExperience([...experienceData, newExperience]));
+      toast.success("Experience added!");
+    }
     setFormData({
       position: "",
       company: "",
@@ -46,7 +67,52 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
     });
   };
 
+  const handleEdit = (key: string) => {
+    const exp = experienceData.find((e, index) => {
+      const expKey = e._id || (e as any).id || `exp-${index}`;
+      return expKey === key;
+    });
+    if (exp) {
+      setFormData(exp);
+      setEditingId(key);
+    }
+  };
+
+  const handleEnhance = async () => {
+    if (!formData.description || formData.description.trim().length < 10) {
+      toast.error("Please write a draft of your description first (at least 10 characters) so the AI can enhance it.");
+      return;
+    }
+
+    setIsEnhancing(true);
+    const toastId = toast.loading("Enhancing description with AI...");
+    try {
+      const prompt = `Rewrite this work experience description to be more professional, results-oriented, and impact-focused. Use strong action verbs and professional phrasing. Keep it concise. Description: "${formData.description}"`;
+      const result = await generateAI(prompt, 'experience');
+      setFormData(prev => ({ ...prev, description: result }));
+      toast.success("Description enhanced successfully!", { id: toastId });
+      dispatch(fetchProfile() as any);
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.message || "Failed to enhance description.";
+      toast.error(msg, { id: toastId });
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   const handleDelete = (key: string) => {
+    if (editingId === key) {
+      setEditingId(null);
+      setFormData({
+        position: "",
+        company: "",
+        startDate: "",
+        endDate: "",
+        description: "",
+        is_current: false,
+      });
+    }
     dispatch(setExperience(experienceData.filter((exp, index) => {
       const expKey = exp._id || (exp as any).id || `exp-${index}`;
       return expKey !== key;
@@ -116,12 +182,47 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
 
         <button
           type="button"
-          onClick={handleAdd}
-          className="w-full py-3 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+          onClick={handleEnhance}
+          disabled={isEnhancing}
+          className="w-full py-2.5 px-4 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-primary/10 dark:hover:bg-primary/20 transition-all cursor-pointer disabled:opacity-50 select-none text-sm"
         >
-          <Plus size={18} />
-          Add Experience
+          {isEnhancing ? (
+            <Loader2 className="animate-spin" size={16} />
+          ) : (
+            <Sparkles size={16} />
+          )}
+          Enhance Description with AI (-0.5 Credits)
         </button>
+
+        <div className="flex gap-2">
+          {editingId && (
+            <button
+              type="button"
+              onClick={() => {
+                setEditingId(null);
+                setFormData({
+                  position: "",
+                  company: "",
+                  startDate: "",
+                  endDate: "",
+                  description: "",
+                  is_current: false,
+                });
+              }}
+              className="px-6 py-3 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 text-gray-700 dark:text-white rounded-xl font-semibold transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleAdd}
+            className="flex-1 py-3 bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary/80 border border-primary/20 dark:border-primary/30 rounded-xl flex items-center justify-center gap-2 font-medium hover:bg-primary/10 dark:hover:bg-primary/20 transition-colors"
+          >
+            <Plus size={18} />
+            {editingId ? "Update Experience" : "Add Experience"}
+          </button>
+        </div>
       </div>
 
       <div className="mt-8 space-y-4">
@@ -143,12 +244,24 @@ const Experience = ({ setFormTab }: ExperienceProps) => {
                     {exp.startDate} - {exp.is_current ? "Present" : exp.endDate}
                   </p>
                 </div>
-                <button
-                  onClick={() => handleDelete(expKey)}
-                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleEdit(expKey)}
+                    className="p-2 text-gray-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
+                    title="Edit"
+                  >
+                    <Edit size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(expKey)}
+                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                    title="Delete"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
             );
           })

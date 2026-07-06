@@ -30,7 +30,7 @@ export function StatsTracker() {
             <div key={stat.name} className="space-y-1">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-700 dark:text-gray-300 font-medium">{stat.name}</span>
-                <span className="font-bold text-black dark:text-white">{stat.current.toFixed(1)} / {stat.total.toFixed(1)}</span>
+                <span className="font-bold text-black dark:text-white">{stat.current.toFixed(1)}</span>
               </div>
               <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
                 <div 

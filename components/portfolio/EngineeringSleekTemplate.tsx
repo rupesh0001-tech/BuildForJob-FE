@@ -29,8 +29,13 @@ interface TemplateProps {
 export default function EngineeringSleekTemplate({ data, settings }: TemplateProps) {
   const accent = settings.accentColor || "#3525cd";
 
+  const fontClass = 
+    settings.fontFamily === "Fira Code" ? "font-mono" :
+    settings.fontFamily === "Space Grotesk" ? "font-sans tracking-tight" :
+    settings.fontFamily === "Outfit" ? "font-sans antialiased" : "font-sans";
+
   return (
-    <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] font-sans relative antialiased scroll-smooth">
+    <div className={`min-h-screen bg-[#f7f9fb] text-[#191c1e] relative antialiased scroll-smooth ${fontClass}`} style={{ fontFamily: settings.fontFamily }}>
       {/* TopNavBar */}
       <header className="sticky top-0 w-full z-40 bg-[#f7f9fb]/80 backdrop-blur-md border-b border-gray-200/50 shadow-xs">
         <div className="flex justify-between items-center h-20 px-6 md:px-12 max-w-7xl mx-auto">

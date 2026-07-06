@@ -5,12 +5,40 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/lib/store/store";
 import { setSkill } from "@/lib/store/features/resume-slice";
 import FormInput from "../FormInput";
-import { ChartLine, X, Plus } from '@/lib/icons';
+import { ChartLine, X, Plus, Sparkles, Loader2 } from '@/lib/icons';
+import { generateAI } from "@/apis/ai.api";
+import { toast } from "sonner";
+import { useAppSelector } from "@/store/hooks";
 
 const Skills = () => {
   const dispatch = useDispatch();
+  const { user } = useAppSelector((state) => state.auth);
   const { skillData } = useSelector((state: RootState) => state.resume);
   const [newSkill, setNewSkill] = useState("");
+  const [isSuggesting, setIsSuggesting] = useState(false);
+
+  const handleSuggestSkills = async () => {
+    const jobTitle = user?.jobTitle || "Software Engineer";
+    setIsSuggesting(true);
+    const toastId = toast.loading("Suggesting skills with AI...");
+    try {
+      const prompt = `Based on my job title "${jobTitle}" and my current skills "${skillData.join(', ')}", suggest a list of 5 additional highly relevant technical skills. Return ONLY a comma-separated list of skills, e.g. "React, TypeScript, Node.js".`;
+      const result = await generateAI(prompt, 'skills');
+      const newSkills = result.split(',').map(s => s.trim()).filter(s => s.length > 0 && !skillData.includes(s));
+      if (newSkills.length > 0) {
+        dispatch(setSkill([...skillData, ...newSkills]));
+        toast.success(`Added ${newSkills.length} suggested skills!`, { id: toastId });
+      } else {
+        toast.success("AI suggested skills you already have!", { id: toastId });
+      }
+    } catch (error: any) {
+      console.error(error);
+      const msg = error.response?.data?.message || "Failed to suggest skills.";
+      toast.error(msg, { id: toastId });
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,24 +63,40 @@ const Skills = () => {
         </p>
       </div>
 
-      <form onSubmit={handleAdd} className="flex gap-3 items-end mb-8">
-        <div className="flex-1">
-          <FormInput
-            name="newSkill"
-            label="Skill Name"
-            icon={<ChartLine size={16} />}
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-            placeholder="e.g. React, TypeScript, Leadership"
-          />
-        </div>
+      <div className="flex gap-3 items-end mb-8">
+        <form onSubmit={handleAdd} className="flex-1 flex gap-3 items-end">
+          <div className="flex-1">
+            <FormInput
+              name="newSkill"
+              label="Skill Name"
+              icon={<ChartLine size={16} />}
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+              placeholder="e.g. React, TypeScript, Leadership"
+            />
+          </div>
+          <button
+            type="submit"
+            className="p-3 bg-primary text-white rounded-xl hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25 h-11 flex items-center justify-center"
+          >
+            <Plus size={20} />
+          </button>
+        </form>
+
         <button
-          type="submit"
-          className="p-3 bg-primary text-white rounded-xl hover:brightness-110 active:scale-[0.98] transition-all shadow-lg shadow-primary/25"
+          type="button"
+          onClick={handleSuggestSkills}
+          disabled={isSuggesting}
+          className="h-11 px-4 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl font-semibold text-xs flex items-center gap-1.5 shadow-sm active:scale-[0.98] transition-all"
         >
-          <Plus size={20} />
+          {isSuggesting ? (
+            <Loader2 className="animate-spin" size={14} />
+          ) : (
+            <Sparkles size={14} />
+          )}
+          Suggest AI Skills
         </button>
-      </form>
+      </div>
 
       <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">Added Skills</h3>
       <div className="flex flex-wrap gap-2">
@@ -77,10 +121,6 @@ const Skills = () => {
         )}
       </div>
 
-      <div className="mt-12 p-6 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-500/20 rounded-2xl flex flex-col items-center text-center gap-4">
-        <h4 className="font-bold text-green-800 dark:text-green-400">Resume Complete!</h4>
-        <p className="text-sm text-green-700 dark:text-green-500/80">You&apos;ve filled out all sections. You can now preview and download your resume using the buttons above.</p>
-      </div>
     </div>
   );
 };

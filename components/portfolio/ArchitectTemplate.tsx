@@ -30,8 +30,13 @@ export default function ArchitectTemplate({ data, settings }: TemplateProps) {
   // Prismatic gradient style helper
   const prismaticGradient = `linear-gradient(45deg, ${accent}, #39b8fd)`;
 
+  const fontClass = 
+    settings.fontFamily === "Fira Code" ? "font-mono" :
+    settings.fontFamily === "Space Grotesk" ? "font-sans tracking-tight" :
+    settings.fontFamily === "Outfit" ? "font-sans antialiased" : "font-sans";
+
   return (
-    <div className="min-h-screen bg-[#f7f9fb] text-[#191c1e] font-sans relative overflow-hidden antialiased">
+    <div className={`min-h-screen bg-[#f7f9fb] text-[#191c1e] relative overflow-hidden antialiased ${fontClass}`} style={{ fontFamily: settings.fontFamily }}>
       {/* Background Grid Decoration */}
       <div 
         className="absolute inset-0 pointer-events-none -z-10"

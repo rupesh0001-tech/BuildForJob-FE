@@ -47,6 +47,40 @@ export default function MyPortfolioPage() {
   const [isLoadingResponses, setIsLoadingResponses] = useState(true);
   const [portfolioId, setPortfolioId] = useState("10");
 
+  const [portfolioExists, setPortfolioExists] = useState(false);
+  const [isPublished, setIsPublished] = useState(false);
+  const [isTogglingPublish, setIsTogglingPublish] = useState(false);
+  const [portfolioSettings, setPortfolioSettings] = useState<any>({});
+  const [fullPortfolioData, setFullPortfolioData] = useState<any>(null);
+
+  const isProfileCompleted = () => {
+    if (!user) return false;
+    let score = 0;
+    
+    // Basic fields
+    const basicFields = ['firstName', 'lastName', 'phone', 'location', 'jobTitle', 'bio'];
+    const filledBasicCount = basicFields.filter(f => !!(user as any)[f]).length;
+    score += (filledBasicCount / basicFields.length) * 30;
+    
+    // Experience tracking
+    const isFresher = user.socialLinks && (user.socialLinks as any).isFresher;
+    if (isFresher || (user.experience && user.experience.length > 0)) score += 20;
+    
+    // Education tracking
+    if (user.education && user.education.length > 0) score += 20;
+    
+    // Projects tracking
+    const noProjects = user.socialLinks && (user.socialLinks as any).noProjects;
+    if (noProjects || (user.projects && user.projects.length > 0)) score += 15;
+    
+    // Skills tracking
+    const skillCount = user.skills?.length || 0;
+    if (skillCount >= 3) score += 15;
+    else if (skillCount > 0) score += 5;
+    
+    return Math.min(100, Math.round(score)) >= 100;
+  };
+
   useEffect(() => {
     setMounted(true);
     dispatch(fetchProfile());
@@ -59,20 +93,60 @@ export default function MyPortfolioPage() {
         setIsLoadingPortfolio(true);
         const res = await api.get("/portfolio");
         if (res.data) {
+          setPortfolioExists(true);
           setLiveTemplateId(res.data.templateId || "architect-prismatic");
           setSelectedTemplateId(res.data.templateId || "architect-prismatic");
+          setPortfolioSettings(res.data.settings || {});
+          setIsPublished(!!res.data.settings?.isPublished);
+          setFullPortfolioData(res.data.data || {});
           if (res.data.id) {
             setPortfolioId(res.data.id);
           }
+        } else {
+          setPortfolioExists(false);
+          setIsPublished(false);
         }
       } catch (err) {
         console.error("Failed to load portfolio:", err);
+        setPortfolioExists(false);
       } finally {
         setIsLoadingPortfolio(false);
       }
     };
     loadPortfolio();
   }, []);
+
+  const handleTogglePublish = async () => {
+    if (!portfolioExists) {
+      toast.error("Please create and save your portfolio first using the Portfolio Editor!");
+      return;
+    }
+    setIsTogglingPublish(true);
+    const newPublishState = !isPublished;
+    const toastId = toast.loading(`${newPublishState ? 'Publishing' : 'Unpublishing'} portfolio...`);
+    try {
+      const updatedSettings = {
+        ...portfolioSettings,
+        isPublished: newPublishState
+      };
+      
+      const res = await api.post("/portfolio", {
+        templateId: selectedTemplateId,
+        data: fullPortfolioData,
+        settings: updatedSettings,
+      });
+      if (res.data) {
+        setIsPublished(newPublishState);
+        setPortfolioSettings(updatedSettings);
+        toast.success(`Portfolio is now ${newPublishState ? 'Public' : 'Private'}!`, { id: toastId });
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to update visibility.", { id: toastId });
+    } finally {
+      setIsTogglingPublish(false);
+    }
+  };
 
   // Load responses
   const loadResponses = async (page: number) => {
@@ -167,11 +241,17 @@ export default function MyPortfolioPage() {
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Instantly create a professional portfolio based on your profile data.</p>
             </div>
           </div>
-          <Link href="/dashboard/portfolio?autofill=true" className="mt-8">
-            <Button1 className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
-               Generate via Profile <Plus size={16} />
-            </Button1>
-          </Link>
+          {!isProfileCompleted() ? (
+            <div className="mt-8 p-4 rounded-xl bg-purple-500/5 border border-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-semibold text-center flex flex-col items-center gap-1">
+               <span>Complete your profile to 100% to unlock instant Profile-to-Portfolio creation.</span>
+            </div>
+          ) : (
+            <Link href="/dashboard/portfolio?autofill=true" className="mt-8">
+              <Button1 className="w-full py-3 rounded-xl flex items-center justify-center gap-2 font-semibold">
+                 Generate via Profile <Plus size={16} />
+              </Button1>
+            </Link>
+          )}
         </motion.div>
       </div>
 
@@ -179,49 +259,89 @@ export default function MyPortfolioPage() {
       <div className="bg-white dark:bg-black/40 border border-gray-300 dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm relative overflow-hidden backdrop-blur-xl">
         <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none -z-10" />
         
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
-                <Globe size={20} />
-              </div>
-              <div>
-                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Live Hosting Status</span>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Hosted Live</span>
-                </div>
-              </div>
+        {!portfolioExists ? (
+          <div className="flex flex-col items-center justify-center text-center py-6 gap-3">
+            <div className="w-12 h-12 rounded-full bg-yellow-500/10 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 flex items-center justify-center">
+              <AlertCircle size={24} />
             </div>
-
             <div>
-              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Hosted URL</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm font-mono font-normal text-gray-700 dark:text-gray-300 select-all break-all bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-1.5 rounded-lg">
-                  {mounted ? window.location.origin + hostedUrl : hostedUrl}
-                </span>
-              </div>
+              <h4 className="text-base font-bold text-gray-900 dark:text-white">Portfolio Not Created Yet</h4>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 max-w-md">
+                You haven't initialized or saved a portfolio yet. Please head to the Portfolio Editor to select a template, add your details, and save.
+              </p>
             </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <button 
-              onClick={handleCopyLink}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold transition-all"
-            >
-              {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-              {copied ? "Copied!" : "Copy Link"}
-            </button>
-            <Link 
-              href={hostedUrl}
-              target="_blank"
-              className="flex items-center gap-2 px-4 py-2 bg-primary hover:brightness-110 active:scale-[0.98] text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-primary/25"
-            >
-              View Live Site
-              <ExternalLink size={14} />
+            <Link href="/dashboard/portfolio">
+              <button className="px-5 py-2.5 bg-primary text-white font-semibold rounded-xl text-xs hover:brightness-110 transition-all cursor-pointer">
+                Open Portfolio Editor
+              </button>
             </Link>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2.5 rounded-xl bg-primary/10 text-primary">
+                  <Globe size={20} />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Live Hosting Status</span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`w-2 h-2 rounded-full ${isPublished ? 'bg-emerald-500 animate-pulse' : 'bg-gray-400'}`} />
+                    <span className={`text-xs font-semibold ${isPublished ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500'}`}>
+                      {isPublished ? 'Hosted Live' : 'Private (Hidden)'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">Hosted URL</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-sm font-mono font-normal text-gray-700 dark:text-gray-300 select-all break-all bg-gray-50/50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-1.5 rounded-lg">
+                    {mounted ? window.location.origin + hostedUrl : hostedUrl}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Public Visibility:</span>
+                <button
+                  onClick={handleTogglePublish}
+                  disabled={isTogglingPublish}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    isPublished ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-white/10'
+                  } ${isTogglingPublish ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      isPublished ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <button 
+                onClick={handleCopyLink}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold transition-all"
+              >
+                {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                {copied ? "Copied!" : "Copy Link"}
+              </button>
+              {isPublished && (
+                <Link 
+                  href={hostedUrl}
+                  target="_blank"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary hover:brightness-110 active:scale-[0.98] text-white rounded-xl text-xs font-semibold transition-all shadow-md shadow-primary/25"
+                >
+                  View Live Site
+                  <ExternalLink size={14} />
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* 2. Active Design Templates Switcher */}
@@ -292,7 +412,8 @@ export default function MyPortfolioPage() {
             ) : (
               <button
                 onClick={() => handleMakeLive(selectedTemplateId)}
-                className="px-6 py-2.5 bg-primary hover:brightness-110 active:scale-[0.98] text-white rounded-xl text-xs font-semibold transition-all shadow-lg shadow-primary/25 h-10 w-full sm:w-auto"
+                disabled={!portfolioExists}
+                className="px-6 py-2.5 bg-primary hover:brightness-110 active:scale-[0.98] text-white rounded-xl text-xs font-semibold transition-all shadow-lg shadow-primary/25 h-10 w-full sm:w-auto disabled:opacity-50"
               >
                 Make Live
               </button>

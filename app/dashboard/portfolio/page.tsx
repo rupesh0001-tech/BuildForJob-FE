@@ -62,6 +62,34 @@ export default function PortfolioPage() {
   const searchParams = useSearchParams();
   const autofillParam = searchParams.get("autofill");
 
+  const isProfileCompleted = () => {
+    if (!user) return false;
+    let score = 0;
+    
+    // Basic fields
+    const basicFields = ['firstName', 'lastName', 'phone', 'location', 'jobTitle', 'bio'];
+    const filledBasicCount = basicFields.filter(f => !!(user as any)[f]).length;
+    score += (filledBasicCount / basicFields.length) * 30;
+    
+    // Experience tracking
+    const isFresher = user.socialLinks && (user.socialLinks as any).isFresher;
+    if (isFresher || (user.experience && user.experience.length > 0)) score += 20;
+    
+    // Education tracking
+    if (user.education && user.education.length > 0) score += 20;
+    
+    // Projects tracking
+    const noProjects = user.socialLinks && (user.socialLinks as any).noProjects;
+    if (noProjects || (user.projects && user.projects.length > 0)) score += 15;
+    
+    // Skills tracking
+    const skillCount = user.skills?.length || 0;
+    if (skillCount >= 3) score += 15;
+    else if (skillCount > 0) score += 5;
+    
+    return Math.min(100, Math.round(score)) >= 100;
+  };
+
   // States
   const [viewState, setViewState] = useState<"landing" | "builder">("builder");
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateDefinition | null>(TEMPLATES[0]);
@@ -515,7 +543,7 @@ export default function PortfolioPage() {
               </div>
 
               {/* Autofill Button */}
-              {user && (
+              {user && isProfileCompleted() && (
                 <button 
                   onClick={() => setShowAutofillModal(true)}
                   className="flex items-center gap-2 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold font-sans text-sm transition-all shadow-sm shadow-purple-500/20 active:scale-[0.99]"
@@ -1571,6 +1599,26 @@ export default function PortfolioPage() {
                             }}
                           />
                         </div>
+                      </div>
+
+                      {/* Font selector */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium font-sans text-gray-700 dark:text-gray-300">Font Family</label>
+                        <select
+                          value={portfolioSettings?.fontFamily || "Inter"}
+                          onChange={(e) => {
+                            if (!portfolioSettings) return;
+                            const copy = { ...portfolioSettings };
+                            copy.fontFamily = e.target.value;
+                            setPortfolioSettings(copy);
+                          }}
+                          className="w-full px-5 py-3 bg-white dark:bg-[#1a1a22] border border-gray-200 dark:border-white/10 rounded-xl text-sm font-medium focus:ring-2 focus:ring-[#001BB7]/20 outline-none text-black dark:text-white"
+                        >
+                          <option value="Inter">Inter (Clean Sans)</option>
+                          <option value="Space Grotesk">Space Grotesk (Tech Sans)</option>
+                          <option value="Outfit">Outfit (Geometric Modern)</option>
+                          <option value="Fira Code">Fira Code (Developer Mono)</option>
+                        </select>
                       </div>
 
                     </div>

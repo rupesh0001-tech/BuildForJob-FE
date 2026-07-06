@@ -46,10 +46,15 @@ export default function RetroTerminalTemplate({ data, settings }: TemplateProps)
     }
   };
 
+  const fontClass = 
+    settings.fontFamily === "Fira Code" ? "font-mono" :
+    settings.fontFamily === "Space Grotesk" ? "font-sans tracking-tight" :
+    settings.fontFamily === "Outfit" ? "font-sans antialiased" : "font-sans";
+
   return (
     <div 
-      className="min-h-screen bg-[#080E08] text-[#22C55E] pb-24 p-6 font-mono relative overflow-hidden select-none selection:bg-[#22C55E]/30 selection:text-[#22C55E] scroll-smooth"
-      style={{ color: accent }}
+      className={`min-h-screen bg-[#080E08] text-[#22C55E] pb-24 p-6 relative overflow-hidden select-none selection:bg-[#22C55E]/30 selection:text-[#22C55E] scroll-smooth ${fontClass}`}
+      style={{ color: accent, fontFamily: settings.fontFamily }}
     >
       {/* CRT Scanline Overlay Effect */}
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(18,16,16,0)+50%,rgba(0,0,0,0.25)+50%),linear-gradient(to_right,rgba(255,0,0,0.06)+33%,rgba(0,255,0,0.02)+33%,rgba(0,0,255,0.06)+66%)] bg-[size:100%_4px,6px_100%] pointer-events-none z-50 opacity-15" />

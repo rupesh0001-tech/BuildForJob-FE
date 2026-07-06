@@ -76,7 +76,7 @@ export function DashboardHeader({ isSidebarOpen, setIsSidebarOpen }: DashboardHe
             <div className="space-y-3">
               <div className="flex justify-between items-center text-xs font-semibold text-gray-700 dark:text-gray-300">
                 <span>Tokens Used</span>
-                <span className="text-black dark:text-white font-bold">{tokensUsed.toFixed(1)} / {totalTokens.toFixed(1)}</span>
+                <span className="text-black dark:text-white font-bold">{tokensUsed.toFixed(1)}</span>
               </div>
               <div className="w-full h-1.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
                 <div 

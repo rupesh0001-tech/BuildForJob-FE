@@ -1,9 +1,18 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CheckCircle } from '@/lib/icons';
 import ScrollRevealParagraph from "@/components/scroll-reveal-paragraph";
+import { useAppSelector } from "@/store/hooks";
+import Link from "next/link";
 
 export function CtaSection() {
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <section className="py-16 md:py-24 px-6">
       <div className="max-w-5xl mx-auto rounded-3xl overflow-hidden relative border border-gray-200 dark:border-white/10 shadow-2xl">
@@ -19,9 +28,19 @@ export function CtaSection() {
             />
             
             <div className="flex flex-col sm:flex-row gap-3">
-              <button className="px-6 py-3 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold text-base hover:scale-105 transition-transform flex items-center justify-center gap-2">
-                Create Free Account
-              </button>
+              {mounted && isAuthenticated ? (
+                <Link href="/dashboard">
+                  <button className="px-6 py-3 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold text-base hover:scale-105 transition-transform flex items-center justify-center gap-2">
+                    Go to Dashboard
+                  </button>
+                </Link>
+              ) : (
+                <Link href="/register">
+                  <button className="px-6 py-3 rounded-full bg-black text-white dark:bg-white dark:text-black font-semibold text-base hover:scale-105 transition-transform flex items-center justify-center gap-2">
+                    Create Free Account
+                  </button>
+                </Link>
+              )}
               <button className="px-6 py-3 rounded-full bg-black/5 dark:bg-white/10 border border-black/10 dark:border-white/20 text-black dark:text-white font-medium text-base hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
                 View Examples
               </button>

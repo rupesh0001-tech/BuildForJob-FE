@@ -1,29 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useAppSelector } from "@/store/hooks";
 
 export function SidebarUser() {
   const { user } = useAppSelector((state) => state.auth);
+  const [mounted, setMounted] = useState(false);
 
-  const name = user?.firstName && user?.lastName 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const name = mounted && user?.firstName && user?.lastName 
     ? `${user.firstName} ${user.lastName}` 
-    : user?.email || "Jane Doe";
-  const initials = user?.firstName && user?.lastName 
+    : mounted && user?.email 
+      ? user.email 
+      : "Jane Doe";
+
+  const initials = mounted && user?.firstName && user?.lastName 
     ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase() 
-    : user?.email 
+    : mounted && user?.email 
       ? user.email.substring(0, 2).toUpperCase() 
       : "JD";
-  const isPro = user?.plan === "PRO";
-  const subtext = user?.jobTitle || (isPro ? "Pro Plan" : "Free Plan");
+
+  const isPro = mounted && user?.plan === "PRO";
+  const subtext = mounted && (user?.jobTitle || (isPro ? "Pro Plan" : "Free Plan")) || "Free Plan";
+  const avatarUrl = mounted ? user?.avatarUrl : null;
 
   return (
     <div className="px-4 mt-auto">
       <Link href="/dashboard/settings/profile" className="flex items-center gap-3 p-2 rounded-xl border border-gray-300 dark:border-white/10 bg-white dark:bg-black/20 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-         {user?.avatarUrl ? (
+         {avatarUrl ? (
            <img 
-             src={user.avatarUrl} 
+             src={avatarUrl} 
              alt={name} 
              className="w-8 h-8 rounded-full object-cover group-hover:scale-105 transition-transform"
            />

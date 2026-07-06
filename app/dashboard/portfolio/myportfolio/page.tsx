@@ -198,6 +198,14 @@ export default function MyPortfolioPage() {
 
   const selectedTemplate = TEMPLATES.find((tpl) => tpl.id === selectedTemplateId) || TEMPLATES[0];
 
+  if (isLoadingPortfolio) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-20">
       

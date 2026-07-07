@@ -19,13 +19,14 @@ export default function HostedPortfolioPage() {
   const [error, setError] = useState<string | null>(null);
 
   const username = params.username as string;
+  const id = params.id as string;
 
   useEffect(() => {
     const fetchPortfolio = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const res = await api.get(`/portfolio/public/${username}`);
+        const res = await api.get(`/portfolio/public/${id}`);
         if (res.data && res.data.portfolio) {
           const portfolio = res.data.portfolio;
           setTemplateId(portfolio.templateId || "architect-prismatic");
@@ -52,14 +53,14 @@ export default function HostedPortfolioPage() {
       }
     };
 
-    if (username) {
+    if (id) {
       fetchPortfolio();
     }
-  }, [username]);
+  }, [id]);
 
   const handleSubmitResponse = async (formData: { name: string; email: string; message: string }) => {
     try {
-      await api.post(`/portfolio/public/${username}/respond`, formData);
+      await api.post(`/portfolio/public/${id}/respond`, formData);
       toast.success("Message sent successfully!");
     } catch (err: any) {
       console.error("Error submitting response:", err);

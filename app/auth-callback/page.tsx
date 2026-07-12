@@ -1,32 +1,21 @@
 "use client";
 
 import React, { useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAppDispatch } from "@/store/hooks";
-import { setToken, fetchProfile } from "@/store/slices/authSlice";
+import { fetchProfile } from "@/store/slices/authSlice";
 import { Loader2, CheckCircle2 } from '@/lib/icons';
 import { toast } from "sonner";
 
 function AuthCallbackHandler() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const token = searchParams.get("token");
-
-    if (!token) {
-      toast.error("Authentication failed. No token provided.");
-      router.push("/login");
-      return;
-    }
-
     const authenticate = async () => {
       try {
-        // 1. Save token to state
-        dispatch(setToken(token));
-
-        // 2. Fetch the profile details to populate user details in store and localStorage
+        // Fetch the profile details to populate user details in store and localStorage.
+        // Since we use HTTP-only cookies, the browser automatically sends the cookie.
         const profileResult = await dispatch(fetchProfile()).unwrap();
         
         // Redirect newly registered Google OAuth users who haven't set up their profile to onboarding/github
@@ -45,7 +34,7 @@ function AuthCallbackHandler() {
     };
 
     authenticate();
-  }, [searchParams, dispatch, router]);
+  }, [dispatch, router]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-[#08080a] text-center p-6">

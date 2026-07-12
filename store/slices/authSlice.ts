@@ -20,10 +20,10 @@ const initialState: AuthState = {
       return null;
     }
   })() : null,
-  token: typeof window !== 'undefined' ? localStorage.getItem('token') : null,
+  token: null,
   isLoading: false,
   error: null,
-  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('token') : false,
+  isAuthenticated: typeof window !== 'undefined' ? !!localStorage.getItem('user') : false,
 };
 
 export const login = createAsyncThunk(
@@ -33,7 +33,6 @@ export const login = createAsyncThunk(
       const response = await authApi.login(credentials);
       if (response.success && response.data) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('token', response.data.token);
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -65,7 +64,6 @@ export const verifyOtp = createAsyncThunk(
       const response = await authApi.verifyOtp(data);
       if (response.success && response.data) {
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        localStorage.setItem('token', response.data.token);
         return response.data;
       }
       return rejectWithValue(response.message);
@@ -165,9 +163,7 @@ const authSlice = createSlice({
       state.error = null;
     },
     setToken: (state, action: PayloadAction<string>) => {
-      state.token = action.payload;
-      state.isAuthenticated = true;
-      localStorage.setItem('token', action.payload);
+      // Legacy - session token is handled by httpOnly cookies now
     }
   },
   extraReducers: (builder) => {
@@ -180,7 +176,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = null;
         state.isAuthenticated = true;
       })
       .addCase(login.rejected, (state, action) => {
@@ -195,7 +191,7 @@ const authSlice = createSlice({
       .addCase(verifyOtp.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
-        state.token = action.payload.token;
+        state.token = null;
         state.isAuthenticated = true;
       })
       .addCase(verifyOtp.rejected, (state, action) => {

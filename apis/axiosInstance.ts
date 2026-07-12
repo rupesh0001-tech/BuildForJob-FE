@@ -18,12 +18,6 @@ const updateLoadingState = (delta: number) => {
 api.interceptors.request.use(
   (config) => {
     updateLoadingState(1);
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
     if (process.env.NODE_ENV === 'development') {
       console.log(` [API Request] : Sending ${config.method?.toUpperCase()} to ${config.url}`);
     }

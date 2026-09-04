@@ -20,7 +20,9 @@ export const metadata: Metadata = {
   title: "BuildForJob - AI Resume & Portfolio Builder",
   description: "Create professional resumes, cover letters, and portfolios that win interviews. Powered by AI and ATS-friendly.",
   icons: {
-    icon: "/favicon.png",
+    icon: "/favicon.svg",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 

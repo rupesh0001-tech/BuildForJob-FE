@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { ArrowRight, Loader2, Eye, EyeOff } from '@/lib/icons';
 import { Button1 } from "@/components/general/buttons/button1";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -54,9 +55,9 @@ export function LoginForm() {
         />
       </div>
       <div className="space-y-1.5">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-            <a href="#" className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 transition-colors">Forgot Password?</a>
+            <Link href="/forgot-password" className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:text-purple-500 transition-colors">Forgot Password?</Link>
         </div>
         <div className="relative">
           <input 
